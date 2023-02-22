@@ -1,10 +1,9 @@
 package com.northernneckgarbage.nngc.entity;
 
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
+import com.northernneckgarbage.nngc.token.Token;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,10 +12,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+
 @Entity
 @Data
 @Table(name = "customer")
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Customer  implements UserDetails {
     @SequenceGenerator(
             name = "customer_seq",
@@ -54,26 +56,12 @@ public class Customer  implements UserDetails {
 
 
 
-    private Boolean locked = false;
-    private Boolean enabled = false;
+
     @Enumerated(EnumType.STRING)
     private AppUserRoles appUserRoles;
+    @OneToMany(mappedBy = "customer")
+    private List<Token> tokens;
 
-    public Customer(String firstName, String lastName, String email, String password, String phone, String houseNumber, String streetName, String city, String state, String zipCode, String county, String notes, AppUserRoles appUserRoles) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.phone = phone;
-        this.houseNumber = houseNumber;
-        this.streetName = streetName;
-        this.city = city;
-        this.state = state;
-        this.zipCode = zipCode;
-        this.county = county;
-        this.notes = notes;
-        this.appUserRoles = appUserRoles;
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -97,7 +85,7 @@ public class Customer  implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return !locked;
+        return true;
     }
 
     @Override
@@ -107,6 +95,6 @@ public class Customer  implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return enabled;
+        return true;
     }
 }

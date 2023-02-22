@@ -1,11 +1,13 @@
 package com.northernneckgarbage.nngc.registration;
 
+import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
-import com.northernneckgarbage.nngc.repository.CustomerRepository;
-import com.northernneckgarbage.nngc.security.AuthUserService;
-import lombok.AllArgsConstructor;
+import com.northernneckgarbage.nngc.registration.auth.AuthenticationRequest;
+import com.northernneckgarbage.nngc.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -17,14 +19,32 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*")
 public class RegistrationController {
 
-    private final RegistrationService registrationService;
+    private final CustomerService customerService;
+
+    private final RegistrationService service;
 
 
-    @PostMapping(path = "/register")
-    public String register(@RequestBody RegistrationRequest request) {
-                registrationService.register(request);
+    @PostMapping("/register")
+    public String processRegister(@RequestBody Customer customer) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encodedPassword = passwordEncoder.encode(customer.getPassword());
+        customer.setPassword(encodedPassword);
+        log.info("New customer object created"+customer);
+        customerService.addCustomer(customer);
         return "register_success";
+    }
 
+    @PostMapping("registration")
+    public ResponseEntity<ApiResponse> register(
+            @RequestBody RegistrationRequest request
+    ) {
+        return ResponseEntity.ok(service.register(request));
+    }
+    @PostMapping("/authenticate")
+    public ResponseEntity<ApiResponse> authenticate(
+            @RequestBody AuthenticationRequest request
+    ) {
+        return ResponseEntity.ok(service.authenticate(request));
     }
 
 

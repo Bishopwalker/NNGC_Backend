@@ -12,4 +12,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     Customer save(RegistrationRequest request);
 
     Optional<Customer> findByEmail(String email);
+
+
+
 }

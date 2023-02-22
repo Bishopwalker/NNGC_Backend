@@ -1,4 +1,4 @@
-package com.northernneckgarbage.nngc.dbConfig;
+package com.northernneckgarbage.nngc.registration.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApiResponse {
-    private String token;
+public class AuthenticationRequest {
+
+    private String email;
+    String password;
 }
