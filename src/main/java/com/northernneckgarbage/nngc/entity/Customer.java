@@ -52,7 +52,7 @@ public class Customer  implements UserDetails {
     private String county;
     @Column(name = "notes", length = 500)
     private String notes;
-
+private boolean enabled = false;
 
 
 
@@ -95,6 +95,6 @@ public class Customer  implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled ;
     }
 }

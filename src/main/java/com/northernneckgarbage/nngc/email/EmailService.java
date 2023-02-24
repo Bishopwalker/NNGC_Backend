@@ -1,5 +1,6 @@
 package com.northernneckgarbage.nngc.email;
 
+import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -13,10 +14,13 @@ import org.springframework.stereotype.Service;
 public class EmailService implements EmailSender {
 
     private final JavaMailSender mailSender;
-    private final static Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
+    //String link = " http://localhost:8080/auth/nngc/authenticate?token=" + token;
     @Override
     public void send(String to, String subject) {
+
+
         try{
             var message = mailSender.createMimeMessage();
             var helper = new MimeMessageHelper(message, "UTF-8");

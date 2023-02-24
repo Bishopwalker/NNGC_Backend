@@ -51,14 +51,17 @@ public class RegistrationService {
     }
 
     public ApiResponse authenticate(AuthenticationRequest request) {
+        var user = customerRepository.findByEmail(request.getEmail())
+                .orElseThrow();
+        user.setEnabled(true);
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()
                 )
         );
-        var user = customerRepository.findByEmail(request.getEmail())
-                .orElseThrow();
+
         var jwtToken = jwtService.generateToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
