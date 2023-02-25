@@ -20,6 +20,7 @@ public class EmailService implements EmailSender {
     @Override
     public void send(String to, String subject) {
 
+        LOGGER.info("Sending email to " + to);
 
         try{
             var message = mailSender.createMimeMessage();
