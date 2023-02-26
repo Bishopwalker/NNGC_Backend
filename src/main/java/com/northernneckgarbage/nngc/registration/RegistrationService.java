@@ -12,12 +12,15 @@ import com.northernneckgarbage.nngc.token.Token;
 import com.northernneckgarbage.nngc.token.TokenRepository;
 import com.northernneckgarbage.nngc.token.TokenService;
 import com.northernneckgarbage.nngc.token.TokenType;
+import com.sendgrid.Content;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +36,7 @@ public class RegistrationService {
 
     private final EmailSender emailSender;
 
-    public ApiResponse register(RegistrationRequest request) {
+    public ApiResponse register(RegistrationRequest request) throws IOException {
 
         if(!emailValidator.test(request.getEmail()))
           throw new IllegalStateException("Email not valid");
@@ -55,16 +58,21 @@ public class RegistrationService {
         var savedUser = customerRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
        tokenService.saveUserToken(savedUser, jwtToken);
-        String link = " http://localhost:8080/auth/nngc/authenticate?token=" + jwtToken;
-//    emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));;
-
+        String link = " http://localhost:8080/auth/nngc/confirm?token=" + jwtToken;
+     //emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));;
+ emailSender.sendWithSendGrid((request.getEmail()),String.format("Validation email for",request.getEmail()), buildEmail(request.getFirstName(), link));;
         return ApiResponse.builder()
                 .token(jwtToken)
                 .build();
     }
 
 
-    String buildEmail(String name, String link) {
+    Content buildEmail(String name, String link) {
+        Content content = new Content("text/html", getString(name, link));
+        return content;
+    }
+
+    private static String getString(String name, String link) {
         return "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:16px;margin:0;color:#0b0c0c\">\n" +
                 "\n" +
                 "<span style=\"display:none;font-size:1px;color:#fff;max-height:0\"></span>\n" +

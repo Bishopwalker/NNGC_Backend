@@ -1,12 +1,12 @@
 package com.northernneckgarbage.nngc.entity;
 
-public class Service {
+public class Services {
     private String name;
     private String description;
     private String price;
     private String id;
 
-    public Service(String name, String description, String price, String id) {
+    public Services(String name, String description, String price, String id) {
         this.name = name;
         this.description = description;
         this.price = price;

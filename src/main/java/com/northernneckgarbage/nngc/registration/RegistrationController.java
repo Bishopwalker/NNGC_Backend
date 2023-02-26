@@ -13,6 +13,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @Slf4j
 @Controller
 @RequestMapping("auth/nngc/")
@@ -39,7 +41,7 @@ public class RegistrationController {
     @PostMapping("registration")
     public ResponseEntity<ApiResponse> register(
             @RequestBody RegistrationRequest request
-    ) {
+    ) throws IOException {
         return ResponseEntity.ok(service.register(request));
     }
     @PostMapping("/authenticate")

@@ -2,18 +2,15 @@ package com.northernneckgarbage.nngc.token;
 
 import com.northernneckgarbage.nngc.entity.Customer;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@RequiredArgsConstructor
 @Entity
 public class Token {
 
@@ -26,7 +23,7 @@ public class Token {
             strategy = GenerationType.SEQUENCE,
             generator = "token_id_seq"
     )
-    public Integer id;
+    public long id;
 
     public String token;
 

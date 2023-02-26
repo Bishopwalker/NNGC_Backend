@@ -52,6 +52,7 @@ public class Customer  implements UserDetails {
     private String county;
     @Column(name = "notes", length = 500)
     private String notes;
+    @Column(name = "enabled", nullable = false)
 private boolean enabled = false;
 
 
