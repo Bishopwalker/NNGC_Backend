@@ -4,6 +4,7 @@ import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.registration.auth.AuthenticationRequest;
 import com.northernneckgarbage.nngc.service.CustomerService;
+import com.northernneckgarbage.nngc.token.TokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ public class RegistrationController {
     private final CustomerService customerService;
 
     private final RegistrationService service;
+    private final TokenService tokenService;
 
 
     @PostMapping("/register")
@@ -44,8 +46,13 @@ public class RegistrationController {
     public ResponseEntity<ApiResponse> authenticate(
             @RequestBody AuthenticationRequest request
     ) {
-        return ResponseEntity.ok(service.authenticate(request));
+        return ResponseEntity.ok(tokenService.authenticate(request));
     }
 
+    @GetMapping("/confirm")
+    public String confirmMail(@RequestParam("token") String token) {
+       tokenService.confirmToken(token);
+        return "confirmed";
+    }
 
 }

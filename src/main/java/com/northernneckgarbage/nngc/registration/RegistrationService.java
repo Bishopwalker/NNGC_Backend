@@ -10,6 +10,7 @@ import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.northernneckgarbage.nngc.security.JwtService;
 import com.northernneckgarbage.nngc.token.Token;
 import com.northernneckgarbage.nngc.token.TokenRepository;
+import com.northernneckgarbage.nngc.token.TokenService;
 import com.northernneckgarbage.nngc.token.TokenType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ public class RegistrationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final EmailValidator emailValidator;
+    private final TokenService tokenService;
 
     private final EmailSender emailSender;
 
@@ -52,59 +54,15 @@ public class RegistrationService {
                 .build();
         var savedUser = customerRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
-        saveUserToken(savedUser, jwtToken);
+       tokenService.saveUserToken(savedUser, jwtToken);
         String link = " http://localhost:8080/auth/nngc/authenticate?token=" + jwtToken;
-    //    emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));;
+//    emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));;
 
         return ApiResponse.builder()
                 .token(jwtToken)
                 .build();
     }
 
-
-
-    public ApiResponse authenticate(AuthenticationRequest request){
-            var user = customerRepository.findByEmail(request.getEmail())
-                    .orElseThrow();
-            user.setEnabled(true);
-
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getEmail(),
-                            request.getPassword()
-                    )
-            );
-
-            var jwtToken = jwtService.generateToken(user);
-            revokeAllUserTokens(user);
-            saveUserToken(user, jwtToken);
-            return ApiResponse.builder()
-                    .token(jwtToken)
-                    .build();
-        }
-
-
-    private void saveUserToken(Customer user, String jwtToken) {
-        var token = Token.builder()
-                .customer(user)
-                .token(jwtToken)
-                .tokenType(TokenType.BEARER)
-                .expired(false)
-                .revoked(false)
-                .build();
-        tokenRepository.save(token);
-    }
-
-    private void revokeAllUserTokens(Customer user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser((int) user.getId());
-        if (validUserTokens.isEmpty())
-            return;
-        validUserTokens.forEach(token -> {
-            token.setExpired(true);
-            token.setRevoked(true);
-        });
-        tokenRepository.saveAll(validUserTokens);
-    }
 
     String buildEmail(String name, String link) {
         return "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:16px;margin:0;color:#0b0c0c\">\n" +
@@ -174,5 +132,6 @@ public class RegistrationService {
                 "\n" +
                 "</div></div>";
     }
+
 
 }

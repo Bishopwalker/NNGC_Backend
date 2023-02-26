@@ -1,18 +1,14 @@
 package com.northernneckgarbage.nngc.token;
 
 import com.northernneckgarbage.nngc.entity.Customer;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @Builder
@@ -22,10 +18,16 @@ import lombok.NoArgsConstructor;
 public class Token {
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(
+            name = "token_id_seq",
+            sequenceName = "token_id_seq",
+            allocationSize = 1)
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "token_id_seq"
+    )
     public Integer id;
 
-    @Column(unique = true)
     public String token;
 
     @Enumerated(EnumType.STRING)
@@ -34,6 +36,10 @@ public class Token {
     public boolean revoked;
 
     public boolean expired;
+    public LocalDateTime createdAt;
+    public LocalDateTime expiresAt;
+
+    private LocalDateTime confirmedAt;
 
     @ManyToOne
     @JoinColumn(name = "customers_id")
