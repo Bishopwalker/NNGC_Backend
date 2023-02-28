@@ -29,7 +29,7 @@ public class TokenService {
     public ApiResponse authenticate(AuthenticationRequest request){
         var user = customerRepository.findByEmail(request.getEmail())
                 .orElseThrow();
-        user.setEnabled(true);
+
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -95,17 +95,22 @@ public class TokenService {
 
     public ApiResponse confirmToken(String token) {
         var userToken = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new IllegalArgumentException("Token not found"));
-
-        log.info("Token found: "+userToken);
+                .orElseThrow(() -> new RuntimeException("Token not found"));
+  //findByID
+        var person = customerRepository.findById(userToken.getCustomer().getId())
+                .orElseThrow(() -> new RuntimeException("Person not found"));
+        person.setEnabled(true);
+        log.warn("Token found: "+userToken);
+        log.warn("Person found: "+person);
 
         if (userToken.getConfirmedAt() != null)
-            throw new IllegalArgumentException("Token already confirmed");
+            throw new RuntimeException("Token already confirmed");
         if(LocalDateTime.now().isAfter(userToken.getExpiresAt()))
-            throw new IllegalArgumentException("Token expired");
+            throw new RuntimeException("Token expired");
 
         userToken.setConfirmedAt(LocalDateTime.now());
         userToken.setExpiresAt(LocalDateTime.now().plusMinutes(15));
+        customerRepository.save(person);
         tokenRepository.save(userToken);
         return ApiResponse.builder()
                 .token(token)
