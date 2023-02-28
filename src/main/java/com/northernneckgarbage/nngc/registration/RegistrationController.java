@@ -51,10 +51,17 @@ public class RegistrationController {
         return ResponseEntity.ok(tokenService.authenticate(request));
     }
 
+//    @GetMapping("/confirm")
+//    public String confirmMail(@RequestParam("token") String token) {
+//       tokenService.confirmToken(token);
+//        return "confirmed";
+//    }
+
     @GetMapping("/confirm")
-    public String confirmMail(@RequestParam("token") String token) {
-       tokenService.confirmToken(token);
-        return "confirmed";
+  public ResponseEntity<ApiResponse> confirmMail(@RequestParam("token") String token) {
+    return ResponseEntity.ok(tokenService.confirmToken(token));
     }
+
+
 
 }
