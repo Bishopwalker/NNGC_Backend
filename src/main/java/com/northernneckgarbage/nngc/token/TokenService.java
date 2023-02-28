@@ -99,7 +99,10 @@ public class TokenService {
   //findByID
         var person = customerRepository.findById(userToken.getCustomer().getId())
                 .orElseThrow(() -> new RuntimeException("Person not found"));
-        person.setEnabled(true);
+        if(!person.isEnabled()) {
+            person.setEnabled(true);
+            customerRepository.save(person);
+        }
         log.warn("Token found: "+userToken);
         log.warn("Person found: "+person);
 
@@ -110,7 +113,6 @@ public class TokenService {
 
         userToken.setConfirmedAt(LocalDateTime.now());
         userToken.setExpiresAt(LocalDateTime.now().plusMinutes(15));
-        customerRepository.save(person);
         tokenRepository.save(userToken);
         return ApiResponse.builder()
                 .token(token)
