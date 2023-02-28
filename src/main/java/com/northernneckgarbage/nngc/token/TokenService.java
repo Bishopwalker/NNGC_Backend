@@ -43,6 +43,7 @@ public class TokenService {
         saveUserToken(user, jwtToken);
         return ApiResponse.builder()
                 .token(jwtToken)
+                .customer(user)
                 .build();
     }
 
@@ -116,6 +117,7 @@ public class TokenService {
         tokenRepository.save(userToken);
         return ApiResponse.builder()
                 .token(token)
+                .customer(person)
                 .build();
     }
 }
