@@ -39,6 +39,6 @@ public class Token {
     private LocalDateTime confirmedAt;
 
     @ManyToOne
-    @JoinColumn(name = "customers_id")
+    @JoinColumn(name = "customer_id")
     public Customer customer;
 }

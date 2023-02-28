@@ -60,7 +60,7 @@ private boolean enabled = false;
 
     @Enumerated(EnumType.STRING)
     private AppUserRoles appUserRoles;
-    @OneToMany(mappedBy = "customer")
+    @OneToMany(mappedBy = "token")
     private List<Token> tokens;
 
 
