@@ -27,6 +27,7 @@ public class Customer  implements UserDetails {
     )
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "customer_seq")
+
     private long id;
     @Column(name = "first_name", nullable = false, length = 50)
     private String firstName;
@@ -36,6 +37,7 @@ public class Customer  implements UserDetails {
     private String email;
     @Column(name = "password", nullable = false, length = 100)
     private String password;
+
     @Column(name = "phone", length = 13, unique = true)
     private String phone;
     @Column(name = "house_number", length = 8)
@@ -47,6 +49,7 @@ public class Customer  implements UserDetails {
     @Column(name = "state", length = 2)
     private String state;
     @Column(name = "zip_code", length = 5)
+
     private String zipCode;
     @Column(name = "county",nullable=true, length = 50)
     private String county;
@@ -98,4 +101,5 @@ private boolean enabled = false;
     public boolean isEnabled() {
         return enabled ;
     }
+
 }

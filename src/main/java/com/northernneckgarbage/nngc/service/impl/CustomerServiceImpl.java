@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+
 import java.util.List;
+
 import java.util.Optional;
 
 @Service
@@ -24,6 +26,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+
     public Optional<Customer> findByEmail(String email) {
       Optional<Customer> customer = Optional.ofNullable(customerRepository.findByEmail(email).orElseThrow(()->
               new RuntimeException("Customer not found")));
@@ -34,5 +37,6 @@ public class CustomerServiceImpl implements CustomerService {
     public List<Customer> getCustomers() {
         log.info("Getting all customers");
         return customerRepository.findAll();
-    }
+  
+
 }

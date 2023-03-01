@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 @Slf4j
 @Controller
+
 @RequestMapping("api/nngc/")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*")
@@ -23,18 +24,21 @@ public class CustomerController {
 
 
 
-
-
-
     @GetMapping("/customers")
     public List<Customer> getCustomers() {
         return customerService.getCustomers();
     }
 
-    @GetMapping("/test")
-    public String test() {
-        log.info("it works");
-        return "test";
+
+    @PostMapping("/register")
+    public String processRegister(@RequestBody  Customer customer) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encodedPassword = passwordEncoder.encode(customer.getPassword());
+        customer.setPassword(encodedPassword);
+        log.info("New customer object created"+customer);
+       customerService.addCustomer(customer);
+        return "register_success";
     }
+
 
 }
