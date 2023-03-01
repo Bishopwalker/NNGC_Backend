@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 @Slf4j
 @Controller
-@RequestMapping("/customer")
+
+@RequestMapping("api/nngc/")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*")
 public class CustomerController {
@@ -22,6 +23,11 @@ public class CustomerController {
  private final CustomerService customerService;
 
 
+
+    @GetMapping("/customers")
+    public List<Customer> getCustomers() {
+        return customerService.getCustomers();
+    }
 
 
     @PostMapping("/register")
