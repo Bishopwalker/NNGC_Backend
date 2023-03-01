@@ -77,22 +77,6 @@ public class TokenService {
 
 
 
-//    public void confirmToken(String token) {
-//        var userToken = tokenRepository.findByToken(token)
-//                .orElseThrow(() -> new IllegalArgumentException("Token not found"));
-//
-//        log.info("Token found: "+userToken);
-//
-//        if (userToken.getConfirmedAt() != null)
-//            throw new IllegalArgumentException("Token already confirmed");
-//        if(LocalDateTime.now().isAfter(userToken.getExpiresAt()))
-//            throw new IllegalArgumentException("Token expired");
-//
-//        userToken.setConfirmedAt(LocalDateTime.now());
-//        userToken.setExpiresAt(LocalDateTime.now().plusMinutes(15));
-//        tokenRepository.save(userToken);
-//    }
-    //confirmToken function that returns an APiResponse
 
     public ApiResponse confirmToken(String token) {
         var userToken = tokenRepository.findByToken(token)
