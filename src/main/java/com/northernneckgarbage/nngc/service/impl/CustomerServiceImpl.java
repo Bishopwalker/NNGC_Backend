@@ -37,6 +37,6 @@ public class CustomerServiceImpl implements CustomerService {
     public List<Customer> getCustomers() {
         log.info("Getting all customers");
         return customerRepository.findAll();
-  
 
+    }
 }
