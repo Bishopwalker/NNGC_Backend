@@ -1,6 +1,7 @@
 package com.northernneckgarbage.nngc.registration;
 
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
+import com.northernneckgarbage.nngc.dbConfig.GoogleApiResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.registration.auth.AuthenticationRequest;
 import com.northernneckgarbage.nngc.service.CustomerService;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.security.Principal;
 
 @Slf4j
 @Controller
@@ -55,6 +57,12 @@ public class RegistrationController {
     @GetMapping("/confirm")
   public ResponseEntity<ApiResponse> confirmMail(@RequestParam("token") String token) {
     return ResponseEntity.ok(tokenService.confirmToken(token));
+    }
+
+    @GetMapping("/google")
+    public ResponseEntity<GoogleApiResponse> getUser(Principal principal){
+        //return principal;
+        return ResponseEntity.ok(new GoogleApiResponse(principal));
     }
 
 
