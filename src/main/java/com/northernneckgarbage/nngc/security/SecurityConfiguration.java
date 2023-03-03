@@ -1,5 +1,6 @@
 package com.northernneckgarbage.nngc.security;
 
+import com.northernneckgarbage.nngc.security.ssoGoogle.LoginFilter;
 import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +25,7 @@ public class SecurityConfiguration {
         http
                 .csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/auth/**","/index.html").permitAll()
+                .requestMatchers("/auth/**","http://localhost:5173/","/").permitAll()
                 .requestMatchers("/api/**").authenticated()
 //                .anyRequest().authenticated()
                 .and()
@@ -32,6 +33,7 @@ public class SecurityConfiguration {
                 .and()
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new LoginFilter(), UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login();
 
         return http.build();
