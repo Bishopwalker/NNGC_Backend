@@ -1,6 +1,9 @@
 package com.northernneckgarbage.nngc.registration.auth;
 
 import com.northernneckgarbage.nngc.dbConfig.GoogleApiResponse;
+import com.northernneckgarbage.nngc.entity.Customer;
+import com.northernneckgarbage.nngc.repository.CustomerRepository;
+import com.northernneckgarbage.nngc.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -11,8 +14,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
+import java.util.Optional;
 
 @Slf4j
 @Controller
@@ -20,6 +25,8 @@ import java.security.Principal;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*")
 public class GoogleLoginController {
+    private final JwtService jwtService;
+    private final CustomerRepository repo;
 
     private boolean isAuthenticated() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -43,12 +50,22 @@ public class GoogleLoginController {
 
     //redirect to login
     @GetMapping("/")
-    public String login(){
-        if(isAuthenticated()){
-            return "redirect:http://localhost:5173/";
+    public ResponseEntity<String> login(@RequestParam("token") String token ){
+
+
+        final String userEmail = jwtService.extractUsername(token);
+
+     Optional<Customer> customer = repo.findByEmail(userEmail);
+
+        if(customer.get().isEnabled()==true){
+            log.info("Customer"+customer + "is enabled");
+            return  ResponseEntity.ok("redirect:http://localhost:5173/");
         }
-        log.info("Redirecting to login");
-        return "redirect:http://localhost:5173/";
+        else{
+            log.info("Customer"+customer + "is not enabled");
+            return ResponseEntity.ok("redirect:http://localhost:8080/login");
+        }
+
     }
 
 }
