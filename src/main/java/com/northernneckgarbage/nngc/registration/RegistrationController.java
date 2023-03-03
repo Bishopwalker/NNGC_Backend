@@ -59,11 +59,7 @@ public class RegistrationController {
     return ResponseEntity.ok(tokenService.confirmToken(token));
     }
 
-    @GetMapping("/google")
-    public ResponseEntity<GoogleApiResponse> getUser(Principal principal){
-        //return principal;
-        return ResponseEntity.ok(new GoogleApiResponse(principal));
-    }
+
 
 
 

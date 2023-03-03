@@ -96,6 +96,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-client</artifactId>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.apis/google-api-services-people -->
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-people</artifactId>
+            <version>v1-rev537-1.25.0</version>
+        </dependency>
 
     </dependencies>
 

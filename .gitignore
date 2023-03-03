@@ -35,3 +35,4 @@ build/
 ### Maven ###
 .env
 application.properties
+.json
