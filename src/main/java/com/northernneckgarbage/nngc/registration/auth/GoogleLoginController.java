@@ -50,7 +50,7 @@ public class GoogleLoginController {
 
     //redirect to login
     @GetMapping("/")
-    public ResponseEntity<String> login(@RequestParam("token") String token ){
+    public String login(@RequestParam("token") String token ){
 
 
         final String userEmail = jwtService.extractUsername(token);
@@ -59,11 +59,16 @@ public class GoogleLoginController {
 
         if(customer.get().isEnabled()==true){
             log.info("Customer"+customer + "is enabled");
-            return  ResponseEntity.ok("redirect:http://localhost:5173/");
+            String s = "redirect:http://localhost:5173/";
+            ResponseEntity.ok(s);
+            return "redirect:http://localhost:5173/";
+
         }
         else{
             log.info("Customer"+customer + "is not enabled");
-            return ResponseEntity.ok("redirect:http://localhost:8080/login");
+            String s = "redirect:http://localhost:8080/login";
+            ResponseEntity.ok(s);
+            return "redirect:http://localhost:8080/login";
         }
 
     }
