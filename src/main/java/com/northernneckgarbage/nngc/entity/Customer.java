@@ -1,5 +1,6 @@
 package com.northernneckgarbage.nngc.entity;
 
+import com.northernneckgarbage.nngc.entity.dto.CustomerDTO;
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.northernneckgarbage.nngc.token.Token;
 import jakarta.persistence.*;
@@ -23,6 +24,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class Customer  implements UserDetails {
+
     @SequenceGenerator(
             name = "customer_seq",
             sequenceName = "customer_seq",
@@ -66,7 +68,7 @@ private boolean enabled = false;
 
     @Enumerated(EnumType.STRING)
     private AppUserRoles appUserRoles;
-    @OneToMany(mappedBy = "token")
+    @OneToMany(mappedBy = "token", cascade = CascadeType.ALL)
     private List<Token> tokens;
 
 
@@ -105,4 +107,18 @@ private boolean enabled = false;
         return enabled ;
     }
 
+    public CustomerDTO toCustomerDTO() {
+        return CustomerDTO.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .fullName(firstName + " " + lastName)
+                .email(email)
+                .phoneNumber(phone)
+                .address(houseNumber + " " + streetName)
+                .city(city)
+                .state(state)
+                .zipCode(zipCode)
+                .role(appUserRoles.name())
+                .build();
+    }
 }
