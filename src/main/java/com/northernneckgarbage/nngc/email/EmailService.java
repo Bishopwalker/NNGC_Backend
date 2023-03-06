@@ -1,6 +1,7 @@
 package com.northernneckgarbage.nngc.email;
 
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
+import com.stripe.Stripe;
 import io.jsonwebtoken.io.IOException;
 import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
@@ -13,13 +14,17 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import com.sendgrid.*;
+import io.github.cdimascio.dotenv.Dotenv;
+
+
 
 
 @Service
 public class EmailService  implements EmailSender {
 
-    @Value("${spring.SENDGRID_API_KEY}")
-    private String sendGridApiKey;
+   Dotenv dotenv = Dotenv.load();
+
+
 
 
     private final static Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
@@ -30,9 +35,7 @@ public class EmailService  implements EmailSender {
         Email from = new Email("bishop@northernneckgarbage.com");
 Email emailTo = new Email(to);
       Mail mail = new Mail(from, subject, emailTo, content);
-
-        LOGGER.warn("API Key " + sendGridApiKey);
-        SendGrid sg = new SendGrid(sendGridApiKey);
+        SendGrid sendGrid = new SendGrid(dotenv.get("SENDGRID_API_KEY"));
 
         Request request = new Request();
 LOGGER.info("Sending email to " + to);
@@ -40,7 +43,7 @@ LOGGER.info("Sending email to " + to);
           request.setMethod(Method.POST);
           request.setEndpoint("mail/send");
           request.setBody(mail.build());
-          Response response = sg.api(request);
+          Response response = sendGrid.api(request);
             LOGGER.warn("Sending email to " +response.getStatusCode());
             LOGGER.info("Response Body " +response.getBody());
             LOGGER.info("Response Headers " +response.getHeaders());

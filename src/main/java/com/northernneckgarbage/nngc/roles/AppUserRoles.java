@@ -1,5 +1,7 @@
 package com.northernneckgarbage.nngc.roles;
 public enum AppUserRoles {
     USER,
-    ADMIN
+    ADMIN,
+    SUPER_ADMIN,
+    BUSINESS
 }

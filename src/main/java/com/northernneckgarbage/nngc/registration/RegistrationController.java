@@ -30,7 +30,7 @@ public class RegistrationController {
     private final TokenService tokenService;
 
 
-    @PostMapping("/register")
+    @PostMapping("admin/register")
     public String processRegister(@RequestBody Customer customer) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String encodedPassword = passwordEncoder.encode(customer.getPassword());
