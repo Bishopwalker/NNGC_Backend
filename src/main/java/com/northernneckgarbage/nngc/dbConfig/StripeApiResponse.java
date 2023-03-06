@@ -1,5 +1,6 @@
 package com.northernneckgarbage.nngc.dbConfig;
 
+import com.google.api.services.people.v1.model.Url;
 import com.northernneckgarbage.nngc.stripe.StripePayment;
 import com.stripe.model.Charge;
 import lombok.AllArgsConstructor;
@@ -17,4 +18,5 @@ public class StripeApiResponse<Type> {
     private StripePayment stripePayment;
     private Type data;
     private Charge charge;
+    private Url url;
 }

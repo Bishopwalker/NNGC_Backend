@@ -22,18 +22,17 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class StripeController {
 
-    Dotenv dotenv = Dotenv.load();
-     String stripePublicKey = dotenv.get("STRIPE_PUBLIC_KEY");
+
 
     private final StripeService stripeService;
 
 
 
-    @PostMapping("/create-checkout-session")
+    @GetMapping("/create-checkout-session")
     public String checkoutSession() throws StripeException {
         // Logic to create a Stripe session
         Session session = stripeService.createSession();
-        return "redirect:" + session.getUrl();
+        return "redirect: " + session.getUrl();
     }
     @ExceptionHandler(StripeException.class)
     public ResponseEntity<StripeApiResponse> handleStripeException(StripeException ex) {
