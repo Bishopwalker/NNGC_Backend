@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,16 +29,49 @@ public class StripeController {
 
 
 
-    @GetMapping("/create-checkout-session")
-    public String checkoutSession() throws StripeException {
+//    @GetMapping("/create-checkout-session/res_trash_once")
+//    public String checkoutSession() throws StripeException {
+//        // Logic to create a Stripe session
+//        Session session = stripeService.createSessionForTrashOnce();
+//        return "redirect: " + session.getUrl();
+//    }
+
+    @GetMapping("/create-checkout-session/res_trash_once")
+    public ResponseEntity<StripeApiResponse> checkoutSession() throws StripeException {
         // Logic to create a Stripe session
-        Session session = stripeService.createSession();
+        Session session = stripeService.createSessionForTrashOnce();
+        return ResponseEntity.ok(StripeApiResponse.builder()
+                .url(session.getUrl())
+                .info(session.getBillingAddressCollection())
+                .build());
+    }
+
+
+    @GetMapping("/create-checkout-session/res_trash_Sub")
+    public String checkoutSessionSub() throws StripeException {
+        // Logic to create a Stripe session
+        Session session = stripeService.createSessionForTrashSubscription();
         return "redirect: " + session.getUrl();
     }
+
+
+    @GetMapping("/create-checkout-session/dumpster")
+    public String checkoutSessionDumpster() throws StripeException {
+        // Logic to create a Stripe session
+        Session session = stripeService.createSessionForDumpster();
+        return "redirect: " + session.getUrl();
+    }
+
     @ExceptionHandler(StripeException.class)
     public ResponseEntity<StripeApiResponse> handleStripeException(StripeException ex) {
         return ResponseEntity.badRequest().body(StripeApiResponse.builder()
                 .error(ex.getMessage())
+                .build());
+    }
+
+    public ResponseEntity<StripeApiResponse> charge(@RequestBody StripePayment payment) throws StripeException {
+        return ResponseEntity.ok(StripeApiResponse.builder()
+                .stripePayment(payment)
                 .build());
     }
 }

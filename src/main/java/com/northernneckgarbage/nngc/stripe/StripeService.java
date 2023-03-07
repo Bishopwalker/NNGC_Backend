@@ -44,12 +44,12 @@ public StripeService() {
                 .build() ;
     }
 
-
-    public Session createSession() throws StripeException {
+    String YOUR_DOMAIN = "http://localhost:5173";
+    public Session createSessionForTrashOnce() throws StripeException {
         // This is your test secret API key.
       //  Stripe.apiKey = "sk_test_51MiJlWACOG92rmQ4BY6VTYcXZQUBTsHzKkrG96OujKC6W1HBSOUMXCYIN9tgHZDpWjkyUcGzAYOZtAKGoS1oOmmE00cOVU7uIO";
 
-        String YOUR_DOMAIN = "http://www.northernneckgarbage.com";
+
         SessionCreateParams params =
                 SessionCreateParams.builder()
                         .setMode(SessionCreateParams.Mode.PAYMENT)
@@ -63,12 +63,53 @@ public StripeService() {
                                 SessionCreateParams.LineItem.builder()
                                         .setQuantity(1L)
                                         // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                                        .setPrice("price_1MihduACOG92rmQ4EdqjAwV1")
+                                        .setPrice("price_1MiksRACOG92rmQ4nQev74WZ")
                                         .build())
                         .build();
         return Session.create(params);
     }
 
+    public Session createSessionForTrashSubscription() throws StripeException{
 
+        SessionCreateParams params =
+                SessionCreateParams.builder()
+                        .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
+                        .setSuccessUrl(YOUR_DOMAIN + "?success=true")
+                        .setCancelUrl(YOUR_DOMAIN + "?canceled=true")
+                        .setAutomaticTax(
+                                SessionCreateParams.AutomaticTax.builder()
+                                        .setEnabled(true)
+                                        .build())
+                        .addLineItem(
+                                SessionCreateParams.LineItem.builder()
+                                        .setQuantity(1L)
+                                        // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                                        .setPrice("price_1MiksRACOG92rmQ4YhSY0DOU")
+                                        .build())
+                        .build();
+
+        return Session.create(params);
+    }
+
+    public Session createSessionForDumpster() throws StripeException{
+
+        SessionCreateParams params =
+                SessionCreateParams.builder()
+                        .setMode(SessionCreateParams.Mode.PAYMENT)
+                        .setSuccessUrl(YOUR_DOMAIN + "?success=true")
+                        .setCancelUrl(YOUR_DOMAIN + "?canceled=true")
+                        .setAutomaticTax(
+                                SessionCreateParams.AutomaticTax.builder()
+                                        .setEnabled(true)
+                                        .build())
+                        .addLineItem(
+                                SessionCreateParams.LineItem.builder()
+                                        .setQuantity(1L)
+                                        // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                                        .setPrice("price_1Mj1wXACOG92rmQ4eB6LWple")
+                                        .build())
+                        .build();
+        return Session.create(params);
+    }
 
 }

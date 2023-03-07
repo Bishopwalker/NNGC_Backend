@@ -11,7 +11,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApiResponse {
+public class ApiResponse<T> {
     private String token;
     private CustomerDTO customerDTO;
+    private String message;
+
+    T response;
+
 }

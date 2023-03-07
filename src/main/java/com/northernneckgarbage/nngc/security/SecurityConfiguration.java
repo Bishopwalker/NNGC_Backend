@@ -24,8 +24,7 @@ public class SecurityConfiguration {
         http
                 .csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/auth/**","http://localhost:5173/","/").permitAll()
-                .requestMatchers("/api/**").authenticated()
+                .requestMatchers("/auth/**","http://localhost:5173/","/api/nngc/**").permitAll()
 //                .anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)

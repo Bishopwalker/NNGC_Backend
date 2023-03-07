@@ -12,11 +12,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class StripeApiResponse<Type> {
+public class StripeApiResponse<T> {
 
     private String error;
     private StripePayment stripePayment;
-    private Type data;
+    private T data;
     private Charge charge;
-    private Url url;
+    private String url;
+    private String info;
 }
