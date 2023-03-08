@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -15,7 +17,9 @@ public class ApiResponse<T> {
     private String token;
     private CustomerDTO customerDTO;
     private String message;
+    private List<Customer> customers;
 
     T response;
+
 
 }

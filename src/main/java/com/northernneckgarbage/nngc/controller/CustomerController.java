@@ -5,6 +5,7 @@ import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -12,9 +13,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hibernate.tool.schema.extract.internal.IndexInformationImpl.builder;
+
 @Slf4j
 @Controller
-
 @RequestMapping("api/nngc/")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*")
@@ -26,8 +28,9 @@ public class CustomerController {
 
 
     @GetMapping("/customers")
-    public List<Customer> getCustomers() {
-        return customerService.getCustomers();
+   public ResponseEntity<ApiResponse<List<Customer>>> getAllCustomers() {
+        return ResponseEntity.ok(customerService.getCustomers());
+
     }
 
 
@@ -52,8 +55,11 @@ public class CustomerController {
     }
 
     @DeleteMapping("/customers/{id}")
-    public void deleteCustomer(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse> deleteCustomer(@PathVariable Long id) {
         customerService.deleteCustomer(id);
+        return   ResponseEntity.ok(ApiResponse.builder()
+                .message("Customer deleted")
+                .build());
     }
 
 

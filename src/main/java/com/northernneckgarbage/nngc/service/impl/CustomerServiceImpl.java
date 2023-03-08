@@ -2,7 +2,6 @@ package com.northernneckgarbage.nngc.service.impl;
 
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
-import com.northernneckgarbage.nngc.entity.dto.CustomerDTO;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.northernneckgarbage.nngc.service.CustomerService;
 import jakarta.transaction.Transactional;
@@ -37,10 +36,19 @@ public class CustomerServiceImpl implements CustomerService {
         return customer;
     }
 
+
+//    public List<Customer> getCustomers() {
+//        log.info("Getting all customers");
+//        return customerRepository.findAll();
+//
+//    }
     @Override
-    public List<Customer> getCustomers() {
+    public ApiResponse<List<Customer>> getCustomers() {
         log.info("Getting all customers");
-        return customerRepository.findAll();
+        return ApiResponse.<List<Customer>>builder()
+                .message("Customers fetched successfully")
+                .customers(customerRepository.findAll())
+                .build();
 
     }
 
@@ -56,25 +64,28 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void deleteCustomer(Long id) {
+    public ApiResponse<String> deleteCustomer(Long id) {
         customerRepository.deleteById(id);
+        return ApiResponse.<String>builder()
+                .message("Customer deleted successfully")
+                .build();
     }
 
     @Override
     public ApiResponse<Customer> updateCustomer(Customer customer) {
-         customerRepository.findById(customer.getId()).orElseThrow(()->
+     var user=    customerRepository.findById(customer.getId()).orElseThrow(()->
                 new RuntimeException("Customer not found"));
         var updateCustomer = Customer.builder()
-                .firstName(customer.getFirstName())
-                .lastName(customer.getLastName())
-                .email(customer.getEmail())
-                .password(customer.getPassword())
-                .phone(customer.getPhone())
-                .houseNumber(customer.getHouseNumber())
-                .streetName(customer.getStreetName())
-                .city(customer.getCity())
-                .state(customer.getState())
-                .zipCode(customer.getZipCode())
+                .firstName(customer.getFirstName()==null?user.getFirstName():customer.getFirstName())
+                .lastName(customer.getLastName()==null?user.getLastName():customer.getLastName())
+                .email(customer.getEmail()==null?user.getEmail():customer.getEmail())
+                .password(customer.getPassword()==null?user.getPassword():customer.getPassword())
+                .phone(customer.getPhone()==null?user.getPhone():customer.getPhone())
+                .houseNumber(customer.getHouseNumber()==null?user.getHouseNumber():customer.getHouseNumber())
+                .streetName(customer.getStreetName()==null?user.getStreetName():customer.getStreetName())
+                .city(customer.getCity()==null?user.getCity():customer.getCity())
+                .state(customer.getState()==null?user.getState():customer.getState())
+                .zipCode(customer.getZipCode()==null?user.getZipCode():customer.getZipCode())
                 .build();
 customerRepository.save(updateCustomer);
         return ApiResponse.<Customer>builder()

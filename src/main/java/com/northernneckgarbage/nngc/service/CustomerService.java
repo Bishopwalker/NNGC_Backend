@@ -14,13 +14,13 @@ public interface CustomerService {
 
     Optional<Customer> findByEmail(String email);
 
-    List<Customer> getCustomers();
+   ApiResponse <List<Customer>> getCustomers();
 
    Page<Customer> getCustomersPage(int amount, int size);
 
     List<Customer> findCustomersWithSorting(String field, String direction);
 
-    void deleteCustomer(Long id);
+    ApiResponse deleteCustomer(Long id);
 
     ApiResponse<Customer> updateCustomer(Customer customer);
 
