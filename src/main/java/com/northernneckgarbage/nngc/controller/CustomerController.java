@@ -49,9 +49,13 @@ public class CustomerController {
         return customerService.findByEmail(email);
     }
 
+
+//    public ApiResponse<Customer> updateCustomer( @RequestBody Customer customer, @PathVariable Long id) {
+//        return customerService.updateCustomer(customer, id);
+//    }
     @PutMapping("/customers/{id}")
-    public ApiResponse<Customer> updateCustomer( @RequestBody Customer customer) {
-        return customerService.updateCustomer(customer);
+    public ResponseEntity<ApiResponse<Customer>> updateCustomer(@RequestBody Customer customer, @PathVariable Long id) {
+        return ResponseEntity.ok(customerService.updateCustomer(customer, id));
     }
 
     @DeleteMapping("/customers/{id}")

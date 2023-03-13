@@ -22,7 +22,7 @@ public interface CustomerService {
 
     ApiResponse deleteCustomer(Long id);
 
-    ApiResponse<Customer> updateCustomer(Customer customer);
+    ApiResponse<Customer> updateCustomer(Customer customer, Long id);
 
     Optional<Customer> getCustomerById(Long id);
 }

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -21,17 +22,35 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf().disable()
-                .authorizeHttpRequests()
-//                .requestMatchers("/auth/**","http://localhost:5173/","/api/nngc/**").permitAll()
-               .anyRequest().permitAll()
-                .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
+//        http
+//                .csrf().disable()
+//                .authorizeHttpRequests()
+////                .requestMatchers("/auth/**","http://localhost:5173/","/api/nngc/**").permitAll()
+//               .anyRequest().permitAll()
+//                .and()
+//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                .and()
+//                .authenticationProvider(authenticationProvider)
+//                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+//
+//        return http.build();
+        return http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth->{
+                    auth.requestMatchers("/auth/nngc/**","http://localhost:5173/login").permitAll();
+                    auth.requestMatchers("/api/nngc/**").permitAll();
+                    auth.requestMatchers("/api/admin/**").hasRole("ADMIN");
+                })
+                .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .formLogin(form->{
+                    form.loginPage("http://www.northernneckgarbage.com/login");
+                    form.loginProcessingUrl("http://www.northernneckgarbage.com/login");
+                    form.defaultSuccessUrl("/api/nngc/",true);
+                    form.failureUrl("http://www.northernneckgarbage.com/login?error=true");
+                })
 
-        return http.build();
+                .build();
     }
 }

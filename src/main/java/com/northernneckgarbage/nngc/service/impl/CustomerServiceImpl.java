@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -23,6 +24,7 @@ import java.util.Optional;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
     @Override
     public Customer addCustomer(Customer customer) {
         return customerRepository.save(customer);
@@ -72,21 +74,27 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public ApiResponse<Customer> updateCustomer(Customer customer) {
-     var user=    customerRepository.findById(customer.getId()).orElseThrow(()->
+    public ApiResponse<Customer> updateCustomer(Customer customer, Long id) {
+        var user = customerRepository.findById(id).orElseThrow(() ->
                 new RuntimeException("Customer not found"));
+
+
         var updateCustomer = Customer.builder()
-                .firstName(customer.getFirstName()==null?user.getFirstName():customer.getFirstName())
-                .lastName(customer.getLastName()==null?user.getLastName():customer.getLastName())
-                .email(customer.getEmail()==null?user.getEmail():customer.getEmail())
-                .password(customer.getPassword()==null?user.getPassword():customer.getPassword())
-                .phone(customer.getPhone()==null?user.getPhone():customer.getPhone())
-                .houseNumber(customer.getHouseNumber()==null?user.getHouseNumber():customer.getHouseNumber())
-                .streetName(customer.getStreetName()==null?user.getStreetName():customer.getStreetName())
-                .city(customer.getCity()==null?user.getCity():customer.getCity())
-                .state(customer.getState()==null?user.getState():customer.getState())
-                .zipCode(customer.getZipCode()==null?user.getZipCode():customer.getZipCode())
+                .id(id)
+                .firstName(customer.getFirstName() == null ? user.getFirstName() : customer.getFirstName())
+                .lastName(customer.getLastName() == null ? user.getLastName() : customer.getLastName())
+                .email(customer.getEmail() == null ? user.getEmail() : customer.getEmail())
+                .password(customer.getPassword() == null ? passwordEncoder.encode(user.getPassword()) : customer.getPassword())
+                .phone(customer.getPhone() == null ? user.getPhone() : customer.getPhone())
+                .houseNumber(customer.getHouseNumber() == null ? user.getHouseNumber() : customer.getHouseNumber())
+                .streetName(customer.getStreetName() == null ? user.getStreetName() : customer.getStreetName())
+                .city(customer.getCity() == null ? user.getCity() : customer.getCity())
+                .state(customer.getState() == null ? user.getState() : customer.getState())
+                .zipCode(customer.getZipCode() == null ? user.getZipCode() : customer.getZipCode())
+                .appUserRoles(customer.getAppUserRoles())
+                .enabled(true)
                 .build();
+        log.info(updateCustomer.toString());
 customerRepository.save(updateCustomer);
         return ApiResponse.<Customer>builder()
                 .customerDTO(updateCustomer.toCustomerDTO())
