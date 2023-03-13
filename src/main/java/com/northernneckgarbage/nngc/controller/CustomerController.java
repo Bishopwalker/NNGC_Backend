@@ -3,6 +3,7 @@ package com.northernneckgarbage.nngc.controller;
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.service.CustomerService;
+import com.northernneckgarbage.nngc.token.TokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -24,12 +25,18 @@ public class CustomerController {
 
 
  private final CustomerService customerService;
-
+private final TokenRepository tokenRepository;
 
 
     @GetMapping("/customers")
-   public ResponseEntity<ApiResponse<List<Customer>>> getAllCustomers() {
-        return ResponseEntity.ok(customerService.getCustomers());
+   public ResponseEntity<ApiResponse<List<Customer>>> getAllCustomers(@RequestHeader("Authorization") String headers) {
+       log.info(headers);
+       var user=tokenRepository.findByToken(headers).get().getCustomer().getAppUserRoles();
+         log.info(user.toString());
+         if(user.toString().equals("ADMIN")){
+                return ResponseEntity.ok(customerService.getCustomers());
+         }
+        return ResponseEntity.badRequest().body(ApiResponse.<List<Customer>>builder().message("You are not authorized to view this page").build());
 
     }
 

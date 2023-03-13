@@ -46,9 +46,9 @@ public class SecurityConfiguration {
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin(form->{
                     form.loginPage("http://www.northernneckgarbage.com/login");
-                    form.loginProcessingUrl("http://www.northernneckgarbage.com/login");
-                    form.defaultSuccessUrl("/api/nngc/",true);
-                    form.failureUrl("http://www.northernneckgarbage.com/login?error=true");
+//                    form.loginProcessingUrl("http://www.northernneckgarbage.com/login");
+//                    form.defaultSuccessUrl("/api/nngc/",true);
+//                    form.failureUrl("http://www.northernneckgarbage.com/login?error=true");
                 })
 
                 .build();
