@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hibernate.tool.schema.extract.internal.IndexInformationImpl.builder;
-
 @Slf4j
 @Controller
 @RequestMapping("api/nngc/")
@@ -54,6 +52,10 @@ private final TokenRepository tokenRepository;
     @GetMapping("/customers/{email}")
     public Optional<Customer> getCustomer(@PathVariable String email) {
         return customerService.findByEmail(email);
+    }
+    @GetMapping("/customers/{id}")
+     public ResponseEntity<ApiResponse<Customer>> getCustomerById(@PathVariable Long id) {
+        return ResponseEntity.ok(customerService.getCustomerById(id));
     }
 
 

@@ -24,5 +24,5 @@ public interface CustomerService {
 
     ApiResponse<Customer> updateCustomer(Customer customer, Long id);
 
-    Optional<Customer> getCustomerById(Long id);
+   ApiResponse<Customer> getCustomerById(Long id);
 }

@@ -37,18 +37,16 @@ public class SecurityConfiguration {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth->{
-                    auth.requestMatchers("/auth/nngc/**","http://localhost:5173/login").permitAll();
-                    auth.requestMatchers("/api/nngc/**").permitAll();
-                    auth.requestMatchers("/api/admin/**").hasRole("ADMIN");
+                    auth.anyRequest().permitAll();
                 })
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin(form->{
                     form.loginPage("http://www.northernneckgarbage.com/login");
-//                    form.loginProcessingUrl("http://www.northernneckgarbage.com/login");
-//                    form.defaultSuccessUrl("/api/nngc/",true);
-//                    form.failureUrl("http://www.northernneckgarbage.com/login?error=true");
+                    form.loginProcessingUrl("http://www.northernneckgarbage.com/login");
+                    form.defaultSuccessUrl("/api/nngc/",true);
+                    form.failureUrl("http://www.northernneckgarbage.com/login?error=true");
                 })
 
                 .build();

@@ -84,7 +84,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .firstName(customer.getFirstName() == null ? user.getFirstName() : customer.getFirstName())
                 .lastName(customer.getLastName() == null ? user.getLastName() : customer.getLastName())
                 .email(customer.getEmail() == null ? user.getEmail() : customer.getEmail())
-                .password(customer.getPassword() == null ? passwordEncoder.encode(user.getPassword()) : customer.getPassword())
+                .password(customer.getPassword() == null ?  user.getPassword() : passwordEncoder.encode(customer.getPassword()))
                 .phone(customer.getPhone() == null ? user.getPhone() : customer.getPhone())
                 .houseNumber(customer.getHouseNumber() == null ? user.getHouseNumber() : customer.getHouseNumber())
                 .streetName(customer.getStreetName() == null ? user.getStreetName() : customer.getStreetName())
@@ -103,7 +103,12 @@ customerRepository.save(updateCustomer);
     }
 
     @Override
-    public Optional<Customer> getCustomerById(Long id) {
-        return Optional.empty();
+    public  ApiResponse<Customer> getCustomerById(Long id) {
+        var customer = customerRepository.findById(id).orElseThrow(() ->
+                new RuntimeException("Customer not found"));
+        return  ApiResponse.<Customer>builder()
+                .customerDTO(customer.toCustomerDTO())
+                .message("Customer fetched successfully")
+                .build();
     }
 }
