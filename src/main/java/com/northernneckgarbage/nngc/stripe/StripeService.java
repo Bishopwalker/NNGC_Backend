@@ -2,10 +2,14 @@ package com.northernneckgarbage.nngc.stripe;
 
 
 import com.northernneckgarbage.nngc.dbConfig.StripeApiResponse;
+import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
+import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import com.stripe.Stripe;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -17,16 +21,33 @@ import java.util.Map;
 
 @Service
 @Slf4j
+
 public class StripeService {
+
+
 Dotenv dotenv = Dotenv.load();
-public StripeService() {
+
+private CustomerRepository customerRepository;
+
+public StripeService(CustomerRepository customerRepository) {
     Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY");
     Stripe.setAppInfo(
             "NNGC",
             "0.0.2",
             "http://localhost:8080"
     );
+    this.customerRepository = customerRepository;
+}
 
+public StripeRegistrationResponse addStripeCustomerID(Long id, String customerID) throws StripeException {
+
+    var user = customerRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    user.setStripeCustomerId(customerID);
+    customerRepository.save(user);
+    return StripeRegistrationResponse.builder()
+            .customerDTO(user.toCustomerDTO())
+            .message("Stripe Customer ID added to user")
+            .build();
 }
 
 

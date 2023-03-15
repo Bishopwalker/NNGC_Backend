@@ -5,6 +5,7 @@ import com.northernneckgarbage.nngc.dbConfig.GoogleApiResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.registration.auth.AuthenticationRequest;
 import com.northernneckgarbage.nngc.service.CustomerService;
+import com.northernneckgarbage.nngc.stripe.StripeRegistrationRequest;
 import com.northernneckgarbage.nngc.token.TokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +47,14 @@ public class RegistrationController {
     ) throws IOException {
         return ResponseEntity.ok(service.register(request));
     }
+
+    @PostMapping("/stripe_registration")
+    public ResponseEntity<ApiResponse> stripeRegister(
+            @RequestBody StripeRegistrationRequest request
+    ) throws IOException {
+        return ResponseEntity.ok(service.stripeRegister(request));
+    }
+
     @PostMapping("/authenticate")
     public ResponseEntity<ApiResponse> authenticate(
             @RequestBody AuthenticationRequest request

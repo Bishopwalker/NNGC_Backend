@@ -1,6 +1,7 @@
 package com.northernneckgarbage.nngc.service.impl;
 
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
+import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.northernneckgarbage.nngc.service.CustomerService;
@@ -32,18 +33,17 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
 
-    public Optional<Customer> findByEmail(String email) {
+    public StripeRegistrationResponse<Optional<Customer>> findByEmail(String email) {
       Optional<Customer> customer = Optional.ofNullable(customerRepository.findByEmail(email).orElseThrow(()->
               new RuntimeException("Customer not found")));
-        return customer;
+        return StripeRegistrationResponse.<Optional<Customer>>builder()
+                .message("Customer fetched successfully")
+                .customerDTO(customer.get().toCustomerDTO())
+                .build();
     }
 
 
-//    public List<Customer> getCustomers() {
-//        log.info("Getting all customers");
-//        return customerRepository.findAll();
-//
-//    }
+
     @Override
     public ApiResponse<List<Customer>> getCustomers() {
         log.info("Getting all customers");

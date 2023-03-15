@@ -8,6 +8,7 @@ import com.northernneckgarbage.nngc.registration.auth.AuthenticationRequest;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.northernneckgarbage.nngc.security.JwtService;
+import com.northernneckgarbage.nngc.stripe.StripeRegistrationRequest;
 import com.northernneckgarbage.nngc.token.Token;
 import com.northernneckgarbage.nngc.token.TokenRepository;
 import com.northernneckgarbage.nngc.token.TokenService;
@@ -27,14 +28,42 @@ import java.io.IOException;
 @Slf4j
 public class RegistrationService {
     private final CustomerRepository customerRepository;
-    private final TokenRepository tokenRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
     private final EmailValidator emailValidator;
     private final TokenService tokenService;
 
     private final EmailSender emailSender;
+
+    //set up register for stripe customer.
+    //validate it is a correct email address
+    //validate password is at least 3 characters long
+    //collect only email and password
+    //save user to database
+    public ApiResponse<Customer> stripeRegister(StripeRegistrationRequest request) throws IOException {
+        if(!emailValidator.test(request.getEmail()))
+            throw new IllegalStateException("Email not valid");
+        if(request.getPassword().length() < 2)
+            throw new IllegalStateException("Password must be at least 3 characters long");
+        var stripeUser = Customer.builder()
+                .email(request.getEmail())
+                .password(bCryptPasswordEncoder.encode(request.getPassword()))
+                .appUserRoles(AppUserRoles.STRIPE_CUSTOMER)
+                .build();
+        var savedUser = customerRepository.save(stripeUser);
+        var jwtToken = jwtService.generateToken(stripeUser);
+        tokenService.saveUserToken(savedUser, jwtToken);
+        String link = "http://localhost:8080/registration/confirm?token=" + jwtToken;
+        //emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));;
+        emailSender.sendWithSendGrid((request.getEmail()),String.format("Validation email for",request.getEmail()), buildEmail(request.getEmail(), link));;
+    return ApiResponse.<Customer>builder()
+            .token(jwtToken)
+            .customerDTO(savedUser.toCustomerDTO())
+            .message("User registered successfully")
+            .build();
+
+    };
+
 
     public ApiResponse register(RegistrationRequest request) throws IOException {
 

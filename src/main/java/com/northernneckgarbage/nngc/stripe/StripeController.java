@@ -2,6 +2,8 @@ package com.northernneckgarbage.nngc.stripe;
 
 
 import com.northernneckgarbage.nngc.dbConfig.StripeApiResponse;
+import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
+import com.northernneckgarbage.nngc.entity.Customer;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
@@ -46,6 +48,12 @@ public class StripeController {
                 .build());
     }
 
+    @PutMapping("/customers/{id}")
+    public ResponseEntity<StripeRegistrationResponse<Customer>> updateStripeCustomerID(@PathVariable Long id,
+                                                                                       @RequestBody String customerID)
+            throws StripeException {
+        return ResponseEntity.ok(stripeService.addStripeCustomerID(id, customerID));
+    }
 
     @GetMapping("/create-checkout-session/res_trash_Sub")
     public String checkoutSessionSub() throws StripeException {

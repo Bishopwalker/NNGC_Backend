@@ -23,22 +23,22 @@ public class Token {
             strategy = GenerationType.SEQUENCE,
             generator = "token_id_seq"
     )
-    public long id;
+    private long id;
 
-    public String token;
+    private String token;
 
     @Enumerated(EnumType.STRING)
-    public TokenType tokenType = TokenType.BEARER;
+    private TokenType tokenType = TokenType.BEARER;
 
-    public boolean revoked;
+    private boolean revoked;
 
-    public boolean expired;
-    public LocalDateTime createdAt;
-    public LocalDateTime expiresAt;
+    private boolean expired;
+    private LocalDateTime createdAt;
+    private LocalDateTime expiresAt;
 
     private LocalDateTime confirmedAt;
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
-    public Customer customer;
+    private Customer customer;
 }

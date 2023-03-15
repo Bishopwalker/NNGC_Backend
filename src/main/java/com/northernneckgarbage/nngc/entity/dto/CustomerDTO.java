@@ -11,13 +11,13 @@ public class CustomerDTO {
     private String lastName;
     private String fullName;
     private String email;
-
     private String phoneNumber;
     private String address;
     private String city;
     private String state;
     private String zipCode;
     private String role;
+    private String stripeCustomerId;
     private boolean enabled;
 
 

@@ -1,6 +1,7 @@
 package com.northernneckgarbage.nngc.service;
 
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
+import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
 import org.springframework.data.domain.Page;
 
@@ -12,7 +13,7 @@ public interface CustomerService {
     Customer addCustomer(Customer customer);
 
 
-    Optional<Customer> findByEmail(String email);
+    StripeRegistrationResponse <Optional<Customer>> findByEmail(String email);
 
    ApiResponse <List<Customer>> getCustomers();
 

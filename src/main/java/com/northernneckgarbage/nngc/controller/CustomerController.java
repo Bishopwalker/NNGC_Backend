@@ -1,6 +1,7 @@
 package com.northernneckgarbage.nngc.controller;
 
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
+import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.service.CustomerService;
 import com.northernneckgarbage.nngc.token.TokenRepository;
@@ -37,6 +38,16 @@ private final TokenRepository tokenRepository;
         return ResponseEntity.badRequest().body(ApiResponse.<List<Customer>>builder().message("You are not authorized to view this page").build());
 
     }
+    @GetMapping("/customers/{email}")
+    public ResponseEntity<StripeRegistrationResponse<Optional<Customer>>> getCustomerByEmail(@RequestHeader("Authorization") String headers, @PathVariable String email){
+        log.info(headers);
+        var user = tokenRepository.findByToken(headers).get().getCustomer().getAppUserRoles();
+        log.info(user.toString());
+        if(user.toString().equals("ADMIN") || user.toString().equals("STRIPE_CUSTOMER")){
+            return ResponseEntity.ok(customerService.findByEmail(email));
+        }
+        return ResponseEntity.badRequest().body(StripeRegistrationResponse.<Optional<Customer>>builder().message("You are not authorized to view this page").build());
+    }
 
 
     @PostMapping("/register")
@@ -49,10 +60,7 @@ private final TokenRepository tokenRepository;
         return "register_success";
     }
 
-    @GetMapping("/customers/{email}")
-    public Optional<Customer> getCustomer(@PathVariable String email) {
-        return customerService.findByEmail(email);
-    }
+
     @GetMapping("/customers/{id}")
      public ResponseEntity<ApiResponse<Customer>> getCustomerById(@PathVariable Long id) {
         return ResponseEntity.ok(customerService.getCustomerById(id));
