@@ -3,6 +3,8 @@ package com.northernneckgarbage.nngc.stripe;
 
 import com.northernneckgarbage.nngc.dbConfig.StripeApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
+import com.northernneckgarbage.nngc.entity.Customer;
+import com.northernneckgarbage.nngc.entity.StripeTransactions;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
@@ -16,6 +18,8 @@ import io.github.cdimascio.dotenv.Dotenv;
 import com.stripe.Stripe;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
+
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,8 +32,8 @@ public class StripeService {
 Dotenv dotenv = Dotenv.load();
 
 private CustomerRepository customerRepository;
-
-public StripeService(CustomerRepository customerRepository) {
+private StripeTransactionRepository stripeTransactionRepository;
+public StripeService(CustomerRepository customerRepository, StripeTransactionRepository stripeTransactionRepository) {
     Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY");
     Stripe.setAppInfo(
             "NNGC",
@@ -37,21 +41,54 @@ public StripeService(CustomerRepository customerRepository) {
             "http://localhost:8080"
     );
     this.customerRepository = customerRepository;
+    this.stripeTransactionRepository = stripeTransactionRepository;
 }
 
-public StripeRegistrationResponse addStripeCustomerID(Long id, String customerID) throws StripeException {
+
+public StripeRegistrationResponse addStripeCustomerID(Long id, StripeTransactions transactions) {
 
     var user = customerRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    user.setStripeCustomerId(customerID);
+    user.setStripeTransaction(transactions);
     customerRepository.save(user);
+    addStripeTransaction(transactions);
     return StripeRegistrationResponse.builder()
             .customerDTO(user.toCustomerDTO())
             .message("Stripe Customer ID added to user")
             .build();
 }
 
+public StripeApiResponse<StripeTransactions> addStripeTransaction(StripeTransactions transactions){
+    LocalDateTime now = LocalDateTime.now();
+    transactions.setCreatedAt(now);
+    var stripeTransaction = stripeTransactionRepository.save(transactions);
+    return StripeApiResponse.<StripeTransactions>builder()
+            .stripeTransactions(stripeTransaction)
+            .message("Stripe Transaction added to user")
+            .build();
+}
+public StripeApiResponse<StripeTransactions> updateStripeCustomerTransaction(Long id, StripeTransactions transactions){
+    var user = customerRepository.findById(id).orElseThrow(() ->
+            new RuntimeException("Customer not found"));
 
-    public StripeApiResponse charge(StripePayment payment) throws StripeException {
+    var updateTransaction = StripeTransactions.builder()
+            .amount(transactions.getAmount())
+            .currency(transactions.getCurrency())
+            .description(transactions.getDescription())
+            .stripeEmail(transactions.getStripeEmail())
+            .stripeToken(transactions.getStripeToken())
+            .customer(user)
+            .build();
+    log.info("updateTransaction: {}", updateTransaction);
+    stripeTransactionRepository.save(updateTransaction);
+
+    return StripeApiResponse.<StripeTransactions>builder()
+            .stripeTransactions(updateTransaction)
+            .message("Stripe Transaction updated to user")
+            .build();
+
+}
+
+    public StripeApiResponse charge(StripeTransactions payment) throws StripeException {
         Map<String, Object> chargeParams = new HashMap<>();
         chargeParams.put("amount", payment.getAmount());
         chargeParams.put("currency", payment.getCurrency());
@@ -59,7 +96,7 @@ public StripeRegistrationResponse addStripeCustomerID(Long id, String customerID
         chargeParams.put("email", payment.getStripeEmail());
         chargeParams.put("source", dotenv.get("STRIPE_SECRET_KEY"));
         return StripeApiResponse.builder()
-                .stripePayment(payment)
+                .stripeTransactions(payment)
                 .data(chargeParams)
                 .charge(Charge.create(chargeParams))
                 .build() ;

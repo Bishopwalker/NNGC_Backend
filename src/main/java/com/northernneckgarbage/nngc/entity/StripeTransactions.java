@@ -15,6 +15,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class StripeTransactions {
+
+
+
+    public enum Currency {
+        USD, EUR
+    }
     @SequenceGenerator(name = "stripe_transactions_generator",
             sequenceName = "stripe_transactions_sequence", initialValue = 1)
     @GeneratedValue(generator = "stripe_transactions_generator")
@@ -22,10 +28,16 @@ public class StripeTransactions {
     private Long id;
 
     private LocalDateTime createdAt;
-    @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
+
 
     private String transactionId;
+    private String description;
+    private int amount;
+    private Currency currency;
+    private String stripeEmail;
+    private String stripeToken;
+    @ManyToOne
+    @JoinColumn(name = "customer_id", referencedColumnName = "id", nullable = false)
+    private Customer customer;
 
 }

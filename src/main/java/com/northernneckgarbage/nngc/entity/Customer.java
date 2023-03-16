@@ -59,7 +59,16 @@ public class Customer  implements UserDetails {
     private String county;
     @Column(name = "notes", length = 500)
     private String notes;
-    private String stripeCustomerId;
+
+
+
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "transaction_id", referencedColumnName = "id")
+    private StripeTransactions stripeTransaction;
+
+    @OneToMany(mappedBy = "transactionId", cascade = CascadeType.ALL)
+    private List<StripeTransactions> stripeTransactions;
     @Column(name = "enabled", nullable = false)
 private boolean enabled = false;
 

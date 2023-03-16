@@ -4,6 +4,7 @@ package com.northernneckgarbage.nngc.stripe;
 import com.northernneckgarbage.nngc.dbConfig.StripeApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
+import com.northernneckgarbage.nngc.entity.StripeTransactions;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
@@ -38,6 +39,17 @@ public class StripeController {
 //        return "redirect: " + session.getUrl();
 //    }
 
+    @PostMapping("/transaction")
+    public ResponseEntity<StripeApiResponse> saveTransaction(@RequestBody StripeTransactions transactions){
+        return ResponseEntity.ok(stripeService.addStripeTransaction(transactions));
+    }
+
+    @PutMapping("/transaction/{id}")
+    public ResponseEntity<StripeApiResponse> updateTransaction(@PathVariable Long id,
+                                                               @RequestBody StripeTransactions transactions){
+        return ResponseEntity.ok(stripeService.updateStripeCustomerTransaction(id, transactions));
+    }
+
     @GetMapping("/create-checkout-session/res_trash_once")
     public ResponseEntity<StripeApiResponse> checkoutSession() throws StripeException {
         // Logic to create a Stripe session
@@ -50,8 +62,8 @@ public class StripeController {
 
     @PutMapping("/customers/{id}")
     public ResponseEntity<StripeRegistrationResponse<Customer>> updateStripeCustomerID(@PathVariable Long id,
-                                                                                       @RequestBody String customerID)
-            throws StripeException {
+                                                                                       @RequestBody StripeTransactions customerID)
+            {
         return ResponseEntity.ok(stripeService.addStripeCustomerID(id, customerID));
     }
 
@@ -77,9 +89,9 @@ public class StripeController {
                 .build());
     }
 
-    public ResponseEntity<StripeApiResponse> charge(@RequestBody StripePayment payment) throws StripeException {
+    public ResponseEntity<StripeApiResponse> charge(@RequestBody StripeTransactions payment) throws StripeException {
         return ResponseEntity.ok(StripeApiResponse.builder()
-                .stripePayment(payment)
+                .stripeTransactions(payment)
                 .build());
     }
 }
