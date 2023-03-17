@@ -9,6 +9,7 @@ import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
+import com.stripe.model.reporting.ReportType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -36,7 +37,7 @@ Dotenv dotenv = Dotenv.load();
 
 private CustomerRepository customerRepository;
 private StripeTransactionRepository stripeTransactionRepository;
-public StripeService(CustomerRepository customerRepository, StripeTransactionRepository stripeTransactionRepository) {
+public StripeService(CustomerRepository customerRepository, StripeTransactionRepository stripeTransactionRepository) throws StripeException {
     Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY");
     Stripe.setAppInfo(
             "NNGC",
@@ -45,6 +46,9 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
     );
     this.customerRepository = customerRepository;
     this.stripeTransactionRepository = stripeTransactionRepository;
+
+    ReportType report = ReportType.retrieve("balance.summary.1");
+    System.out.println(report);
 }
 
 

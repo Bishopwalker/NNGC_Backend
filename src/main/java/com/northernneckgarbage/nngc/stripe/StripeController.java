@@ -36,12 +36,6 @@ public class StripeController {
 
 
 
-//    @GetMapping("/create-checkout-session/res_trash_once")
-//    public String checkoutSession() throws StripeException {
-//        // Logic to create a Stripe session
-//        Session session = stripeService.createSessionForTrashOnce();
-//        return "redirect: " + session.getUrl();
-//    }
 
     @PostMapping("/transaction")
     public ResponseEntity<StripeApiResponse> saveTransaction(@RequestBody StripeTransactions transactions){
