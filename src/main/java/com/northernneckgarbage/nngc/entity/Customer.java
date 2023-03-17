@@ -118,6 +118,7 @@ private boolean enabled = false;
 
     public CustomerDTO toCustomerDTO() {
         return CustomerDTO.builder()
+                .id(id)
                 .firstName(firstName)
                 .lastName(lastName)
                 .fullName(firstName + " " + lastName)

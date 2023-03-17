@@ -6,10 +6,13 @@ import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.entity.StripeTransactions;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
+import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -46,9 +49,11 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
 
 
 public StripeRegistrationResponse addStripeCustomerID(Long id, StripeTransactions transactions) {
-
+    LocalDateTime now = LocalDateTime.now();
+    transactions.setCreatedAt(now);
     var user = customerRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
     user.setStripeTransaction(transactions);
+    user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
     customerRepository.save(user);
     addStripeTransaction(transactions);
     return StripeRegistrationResponse.builder()
@@ -80,7 +85,8 @@ public StripeApiResponse<StripeTransactions> updateStripeCustomerTransaction(Lon
             .build();
     log.info("updateTransaction: {}", updateTransaction);
     stripeTransactionRepository.save(updateTransaction);
-
+user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
+    customerRepository.save(user);
     return StripeApiResponse.<StripeTransactions>builder()
             .stripeTransactions(updateTransaction)
             .message("Stripe Transaction updated to user")
@@ -170,4 +176,16 @@ public StripeApiResponse<StripeTransactions> updateStripeCustomerTransaction(Lon
         return Session.create(params);
     }
 
+    //get all stripe_transactions with page
+    public Page<StripeTransactions> getAllStripeTransactions(int amount, int size){
+        Page<StripeTransactions> stripeTransactions = stripeTransactionRepository.findAll(PageRequest.of(amount, size));
+        return stripeTransactions;
+    }
+
+    //get all stripe_transactions by customer id
+
+    public Page<StripeTransactions> getAllStripeTransactionsByCustomerId(Long id, int amount, int size){
+        Page<StripeTransactions> stripeTransactions = stripeTransactionRepository.findAllByCustomerId(id, PageRequest.of(amount, size));
+        return stripeTransactions;
+    }
 }

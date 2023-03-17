@@ -99,7 +99,7 @@ public class TokenService {
             throw new RuntimeException("Token expired");
 
         userToken.setConfirmedAt(LocalDateTime.now());
-        userToken.setExpiresAt(LocalDateTime.now().plusMinutes(15));
+        userToken.setExpiresAt(LocalDateTime.now().plusMinutes(45));
         tokenRepository.save(userToken);
         return ApiResponse.builder()
                 .token(token)
