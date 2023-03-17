@@ -48,6 +48,13 @@ public class StripeController {
         return ResponseEntity.ok(stripeService.updateStripeCustomerTransaction(id, transactions));
     }
 
+    @PostMapping("/stripe_id/{id}")
+    public ResponseEntity<StripeRegistrationResponse> addStripeId(@PathVariable Long id,
+                                                            @RequestBody String stripeId){
+        log.info("stripeId: " + stripeId);
+        return ResponseEntity.ok(stripeService.addStripeId(id, stripeId));
+    }
+
     @PutMapping("/transaction/{id}")
     public ResponseEntity<StripeApiResponse> updateTransaction(@PathVariable Long id,
                                                                @RequestBody StripeTransactions transactions){

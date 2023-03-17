@@ -25,6 +25,7 @@ import com.stripe.param.checkout.SessionCreateParams;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -51,12 +52,22 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
     System.out.println(report);
 }
 
+ public StripeRegistrationResponse   addStripeId(Long id, String stripeId) {
+     var user = customerRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+     user.setStripeCustomerId(stripeId);
+     customerRepository.save(user);
+     return StripeRegistrationResponse.builder()
+             .customerDTO(user.toCustomerDTO())
+             .message("Stripe ID added to user")
+             .build();
+ }
+
 
 public StripeRegistrationResponse addStripeCustomerID(Long id, StripeTransactions transactions) {
     LocalDateTime now = LocalDateTime.now();
     transactions.setCreatedAt(now);
     var user = customerRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    user.setStripeTransaction(transactions);
+    user.setStripeTransactions((List<StripeTransactions>) transactions);
     user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
     customerRepository.save(user);
     addStripeTransaction(transactions);

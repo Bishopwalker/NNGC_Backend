@@ -63,9 +63,7 @@ public class Customer  implements UserDetails {
 
 
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "transaction_id", referencedColumnName = "id")
-    private StripeTransactions stripeTransaction;
+private String stripeCustomerId;
 
     @OneToMany(mappedBy = "transactionId", cascade = CascadeType.ALL)
     private List<StripeTransactions> stripeTransactions;
