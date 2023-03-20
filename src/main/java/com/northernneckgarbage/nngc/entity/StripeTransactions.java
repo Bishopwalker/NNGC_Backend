@@ -33,7 +33,7 @@ public class StripeTransactions {
     private String transactionId;
     private String description;
     private int amount;
-    private Currency currency;
+    private Currency currency = Currency.USD;
     private String stripeEmail;
     private String stripeToken;
     @ManyToOne

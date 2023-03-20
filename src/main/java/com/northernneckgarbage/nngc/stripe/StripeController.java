@@ -1,6 +1,7 @@
 package com.northernneckgarbage.nngc.stripe;
 
 
+import com.google.api.client.util.DateTime;
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
@@ -19,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,12 +80,13 @@ public class StripeController {
     public ResponseEntity<Page<StripeTransactions>>  getAllTransactionsByCustomerID(@RequestHeader("Authorization") String headers, @PathVariable Long id, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
        log.info("headers: " + headers);
         var user=tokenRepository.findByToken(headers).get().getCustomer().getAppUserRoles();
-        log.info(user.toString());
-        if(user.toString().equals("STRIPE_CUSTOMER") || user.toString().equals("ADMIN")){
+        var expired=tokenRepository.findByToken(headers).get().getExpiresAt().isBefore(LocalDateTime.now());
+log.warn("expired: " + expired);
+         if( expired & user.toString().equals("STRIPE_CUSTOMER") || user.toString().equals("ADMIN")){
             return ResponseEntity.ok(stripeService.getAllStripeTransactionsByCustomerId(id, page, size));
         }
 
-        return ResponseEntity.badRequest().body((Page<StripeTransactions>) StripeApiResponse.builder().message("You are not authorized to view this page").build());
+        return ResponseEntity.ok().body((Page<StripeTransactions>) StripeApiResponse.builder().message("You are not authorized to view this page").build());
     }
 
     @GetMapping("/create-checkout-session/res_trash_once")
@@ -99,7 +103,7 @@ public class StripeController {
     public ResponseEntity<StripeRegistrationResponse<Customer>> updateStripeCustomerID(@PathVariable Long id,
                                                                                        @RequestBody StripeTransactions customerID)
             {
-        return ResponseEntity.ok(stripeService.addStripeCustomerID(id, customerID));
+        return ResponseEntity.ok(stripeService.addStripeTransaction2Customer(id, customerID));
     }
 
     @GetMapping("/create-checkout-session/res_trash_Sub")

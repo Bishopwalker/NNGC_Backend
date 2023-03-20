@@ -86,14 +86,14 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
  }
 
 
-public StripeRegistrationResponse addStripeCustomerID(Long id, StripeTransactions transactions) {
+public StripeRegistrationResponse addStripeTransaction2Customer(Long id, StripeTransactions transaction) {
     LocalDateTime now = LocalDateTime.now();
-    transactions.setCreatedAt(now);
+    transaction.setCreatedAt(now);
     var user = customerRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    user.setStripeTransactions((List<StripeTransactions>) transactions);
+    user.setStripeTransactions((List<StripeTransactions>) transaction);
     user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
     customerRepository.save(user);
-    addStripeTransaction(transactions);
+    addStripeTransaction(transaction);
     return StripeRegistrationResponse.builder()
             .customerDTO(user.toCustomerDTO())
             .message("Stripe Customer ID added to user")
@@ -106,7 +106,7 @@ public StripeApiResponse<StripeTransactions> addStripeTransaction(StripeTransact
     var stripeTransaction = stripeTransactionRepository.save(transactions);
     return StripeApiResponse.<StripeTransactions>builder()
             .stripeTransactions(stripeTransaction)
-            .message("Stripe Transaction added to user")
+            .message("Transaction added without a user")
             .build();
 }
 public StripeApiResponse<StripeTransactions> updateStripeCustomerTransaction(Long id, StripeTransactions transactions){
@@ -117,7 +117,8 @@ public StripeApiResponse<StripeTransactions> updateStripeCustomerTransaction(Lon
             .amount(transactions.getAmount())
             .currency(transactions.getCurrency())
             .description(transactions.getDescription())
-            .stripeEmail(transactions.getStripeEmail())
+            .stripeEmail(user.getEmail())
+            .transactionId(user.getStripeCustomerId())
             .stripeToken(transactions.getStripeToken())
             .customer(user)
             .build();
