@@ -62,7 +62,7 @@ public class Customer  implements UserDetails {
 
 
 
-
+  @Column(name = "stripe_customer_id", length = 50)
 private String stripeCustomerId;
 
     @OneToMany(mappedBy = "transactionId", cascade = CascadeType.ALL)
@@ -127,6 +127,8 @@ private boolean enabled = false;
                 .state(state)
                 .zipCode(zipCode)
                 .role(appUserRoles.name())
+                .enabled(enabled)
+                .stripeCustomerId(stripeCustomerId)
                 .build();
     }
 }

@@ -42,6 +42,7 @@ public class TokenService {
         saveUserToken(user, jwtToken);
         return ApiResponse.builder()
                 .token(jwtToken)
+                .message("User authenticated successfully")
                 .customerDTO(user.toCustomerDTO())
 //                .customer(user)
                 .build();

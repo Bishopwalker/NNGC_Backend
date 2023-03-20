@@ -8,6 +8,7 @@ import com.northernneckgarbage.nngc.entity.StripeTransactions;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.stripe.exception.StripeException;
+import com.stripe.model.Account;
 import com.stripe.model.Charge;
 import com.stripe.model.reporting.ReportType;
 import lombok.RequiredArgsConstructor;
@@ -48,13 +49,35 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
     this.customerRepository = customerRepository;
     this.stripeTransactionRepository = stripeTransactionRepository;
 
-    ReportType report = ReportType.retrieve("balance.summary.1");
-    System.out.println(report);
+
 }
+//get stripe account from customer stripeId
+    public StripeApiResponse<StripeTransactions> getStripeAccount(Long id) throws StripeException {
+        var user = customerRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+       if(user.getStripeCustomerId() == null) {
+           throw new UsernameNotFoundException("Stripe ID not found");
+       }
+        var stripeId = user.getStripeCustomerId();
+ // var stripeReport = ReportType.retrieve(stripeId);
+        var stripeAccount = Account.retrieve(stripeId);
+        return StripeApiResponse.<StripeTransactions>builder()
+       //   .info(String.valueOf(stripeReport))
+                .info(String.valueOf(stripeAccount))
+                .message("Stripe Account retrieved")
+                .build();
+    }
+
 
  public StripeRegistrationResponse   addStripeId(Long id, String stripeId) {
      var user = customerRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-     user.setStripeCustomerId(stripeId);
+//remove the first letter of the stripeId
+        stripeId = stripeId.substring(1);
+        //remove the last two letters of the stripeId
+        stripeId = stripeId.substring(0, stripeId.length() - 3);
+      var sol=  stripeId.split("\"")[0];
+     log.info("Stripe ID: {}", sol);
+//        log.info("Split: {}", );
+  user.setStripeCustomerId(sol);
      customerRepository.save(user);
      return StripeRegistrationResponse.builder()
              .customerDTO(user.toCustomerDTO())

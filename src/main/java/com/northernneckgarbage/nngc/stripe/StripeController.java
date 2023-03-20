@@ -51,14 +51,19 @@ public class StripeController {
     @PostMapping("/stripe_id/{id}")
     public ResponseEntity<StripeRegistrationResponse> addStripeId(@PathVariable Long id,
                                                             @RequestBody String stripeId){
-        log.info("stripeId: " + stripeId);
-        return ResponseEntity.ok(stripeService.addStripeId(id, stripeId));
+        log.info("stripeId: " + stripeId.split(":")[1]);
+        return ResponseEntity.ok(stripeService.addStripeId(id, stripeId.split(":")[1]));
     }
 
     @PutMapping("/transaction/{id}")
     public ResponseEntity<StripeApiResponse> updateTransaction(@PathVariable Long id,
                                                                @RequestBody StripeTransactions transactions){
         return ResponseEntity.ok(stripeService.updateStripeCustomerTransaction(id, transactions));
+    }
+
+    @GetMapping("/account/{id}")
+    public ResponseEntity<StripeApiResponse> getStripeAccount(@PathVariable Long id) throws StripeException {
+        return ResponseEntity.ok(stripeService.getStripeAccount(id));
     }
 
     //Get all transactions
