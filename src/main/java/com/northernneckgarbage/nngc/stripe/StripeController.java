@@ -64,9 +64,9 @@ public class StripeController {
         return ResponseEntity.ok(stripeService.updateStripeCustomerTransaction(id, transactions));
     }
 
-    @GetMapping("/account/{id}")
+    @GetMapping("/customer/{id}")
     public ResponseEntity<StripeApiResponse> getStripeAccount(@PathVariable Long id) throws StripeException {
-        return ResponseEntity.ok(stripeService.getStripeAccount(id));
+        return ResponseEntity.ok(stripeService.getStripeCustomer(id));
     }
 
     //Get all transactions

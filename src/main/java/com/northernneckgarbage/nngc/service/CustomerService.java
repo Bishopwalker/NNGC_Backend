@@ -3,6 +3,7 @@ package com.northernneckgarbage.nngc.service;
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
+import com.stripe.exception.StripeException;
 import org.springframework.data.domain.Page;
 
 
@@ -23,7 +24,7 @@ public interface CustomerService {
 
     ApiResponse deleteCustomer(Long id);
 
-    ApiResponse<Customer> updateCustomer(Customer customer, Long id);
+    ApiResponse<Customer> updateCustomer(Customer customer, Long id) throws StripeException;
 
    ApiResponse<Customer> getCustomerById(Long id);
 }

@@ -52,7 +52,7 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
 
 }
 //get stripe account from customer stripeId
-public StripeApiResponse<Account> getStripeAccount(Long id) throws StripeException {
+public StripeApiResponse<Customer> getStripeCustomer(Long id) throws StripeException {
     var user = customerRepository.findById(id)
             .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
@@ -61,17 +61,17 @@ public StripeApiResponse<Account> getStripeAccount(Long id) throws StripeExcepti
     }
 
     var stripeId = user.getStripeCustomerId();
-    var stripeAccount = Account.retrieve(stripeId);
+    var stripeCustomer = Customer.retrieve(stripeId);
 
-    return StripeApiResponse.<Account>builder()
-            .account(stripeAccount)
-            .message("Stripe Account retrieved")
+    return StripeApiResponse.<Customer>builder()
+            .stripeCustomer(stripeCustomer.toJson())
+            .message("Stripe Customer retrieved")
             .build();
 }
 
  public StripeRegistrationResponse   addStripeId(Long id, String stripeId) {
      var user = customerRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-//remove the first letter of the stripeId
+
      stripeId = stripeId.substring(1, stripeId.length() - 2);
 
      var sol = stripeId.split("\"")[0].trim();
@@ -132,6 +132,31 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
             .build();
 
 }
+//creat a function to update a stripe customer from the DB to the stripe account
+//Using Stripe's API Customer Object not the DB Customer Object
+    public StripeApiResponse<Customer> updateStripeCustomer(Long id) throws StripeException{
+        var user = customerRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        var stripeId = user.getStripeCustomerId();
+        var stripeCustomer = Customer.retrieve(stripeId);
+        stripeCustomer.update(Map.of(
+                "email", user.getEmail(),
+                "name", user.getFirstName() + " " + user.getLastName(),
+                "description", "Customer for " + user.getEmail(),
+                "phone", user.getPhone(),
+                "address", Map.of(
+                        "line1", user.getHouseNumber() + " " + user.getStreetName(),
+                        "city",user.getCity(),
+                        "state", user.getState(),
+                        "postal_code", user.getZipCode(),
+                        "country", "USA"
+                )
+        ));
+        return StripeApiResponse.<Customer>builder()
+                .customerDTO(user.toCustomerDTO())
+                .message("Stripe Customer updated")
+                .build();
+    }
+
 //Create a function to add a stripe customer from the DB to the stripe account
     //Using Stripe's API Customer Object not the DB Customer Object
     public StripeApiResponse<Customer> createStripeCustomer(Long id) throws StripeException {
@@ -181,7 +206,7 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
         SessionCreateParams params =
                 SessionCreateParams.builder()
                         .setMode(SessionCreateParams.Mode.PAYMENT)
-                        .setSuccessUrl(YOUR_DOMAIN + "?success=true")
+                        .setSuccessUrl(YOUR_DOMAIN + "/")
                         .setCancelUrl(YOUR_DOMAIN + "?canceled=true")
                         .setAutomaticTax(
                                 SessionCreateParams.AutomaticTax.builder()

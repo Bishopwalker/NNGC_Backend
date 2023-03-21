@@ -5,6 +5,8 @@ import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.northernneckgarbage.nngc.service.CustomerService;
+import com.northernneckgarbage.nngc.stripe.StripeService;
+import com.stripe.exception.StripeException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +28,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final StripeService stripeService;
     @Override
     public Customer addCustomer(Customer customer) {
         return customerRepository.save(customer);
@@ -74,7 +77,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public ApiResponse<Customer> updateCustomer(Customer customer, Long id) {
+    public ApiResponse<Customer> updateCustomer(Customer customer, Long id) throws StripeException {
         var user = customerRepository.findById(id).orElseThrow(() ->
                 new RuntimeException("Customer not found"));
 
@@ -92,10 +95,19 @@ public class CustomerServiceImpl implements CustomerService {
                 .state(customer.getState() == null ? user.getState() : customer.getState())
                 .zipCode(customer.getZipCode() == null ? user.getZipCode() : customer.getZipCode())
                 .appUserRoles(customer.getAppUserRoles())
+                .stripeCustomerId(user.getStripeCustomerId())
                 .enabled(true)
                 .build();
         log.info(updateCustomer.toString());
 customerRepository.save(updateCustomer);
+if(user.getStripeCustomerId() != null){
+    log.info(updateCustomer.toString());
+    stripeService.updateStripeCustomer(id);
+    return ApiResponse.<Customer>builder()
+            .customerDTO(updateCustomer.toCustomerDTO())
+            .message("Stripe Customer updated successfully")
+            .build();
+}
         return ApiResponse.<Customer>builder()
                 .customerDTO(updateCustomer.toCustomerDTO())
                 .message("Customer updated successfully")

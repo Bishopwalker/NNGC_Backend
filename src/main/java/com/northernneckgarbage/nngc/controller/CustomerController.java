@@ -5,6 +5,7 @@ import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.service.CustomerService;
 import com.northernneckgarbage.nngc.token.TokenRepository;
+import com.stripe.exception.StripeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -71,7 +72,7 @@ private final TokenRepository tokenRepository;
 //        return customerService.updateCustomer(customer, id);
 //    }
     @PutMapping("/customers/{id}")
-    public ResponseEntity<ApiResponse<Customer>> updateCustomer(@RequestBody Customer customer, @PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Customer>> updateCustomer(@RequestBody Customer customer, @PathVariable Long id) throws StripeException {
         return ResponseEntity.ok(customerService.updateCustomer(customer, id));
     }
 
