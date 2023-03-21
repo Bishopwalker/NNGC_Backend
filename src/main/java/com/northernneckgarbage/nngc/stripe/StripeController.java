@@ -94,9 +94,15 @@ log.warn("expired: " + expired);
         // Logic to create a Stripe session
         Session session = stripeService.createSessionForTrashOnce();
         return ResponseEntity.ok(StripeApiResponse.builder()
-                .url(session.getUrl())
-                .info(session.getBillingAddressCollection())
+                .message(session.getUrl())
                 .build());
+    }
+
+    //Create Stripe Customer by customer id
+    @GetMapping("/create-customer/{id}")
+    public ResponseEntity<StripeApiResponse<com.stripe.model.Customer>> createStripeCustomer(@PathVariable Long id) throws StripeException {
+        // Logic to create a Stripe session
+  return ResponseEntity.ok(stripeService.createStripeCustomer(id));
     }
 
     @PutMapping("/customers/{id}")

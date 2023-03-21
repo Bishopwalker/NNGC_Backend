@@ -87,7 +87,7 @@ public class RegistrationService {
         var savedUser = customerRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
        tokenService.saveUserToken(savedUser, jwtToken);
-        String link = " http://localhost:8080/auth/nngc/confirm?token=" + jwtToken;
+        String link = " https://d10b-209-42-140-216.ngrok.io/auth/nngc/confirm?token=" + jwtToken;
      //emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));;
  emailSender.sendWithSendGrid((request.getEmail()),String.format("Validation email for",request.getEmail()), buildEmail(request.getFirstName(), link));;
         return ApiResponse.builder()

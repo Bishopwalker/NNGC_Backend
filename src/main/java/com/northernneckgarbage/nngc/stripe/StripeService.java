@@ -3,13 +3,13 @@ package com.northernneckgarbage.nngc.stripe;
 
 import com.northernneckgarbage.nngc.dbConfig.StripeApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
-import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.entity.StripeTransactions;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Account;
 import com.stripe.model.Charge;
+import com.stripe.model.Customer;
 import com.stripe.model.reporting.ReportType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,33 +52,33 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
 
 }
 //get stripe account from customer stripeId
-    public StripeApiResponse<StripeTransactions> getStripeAccount(Long id) throws StripeException {
-        var user = customerRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-       if(user.getStripeCustomerId() == null) {
-           throw new UsernameNotFoundException("Stripe ID not found");
-       }
-        var stripeId = user.getStripeCustomerId();
- // var stripeReport = ReportType.retrieve(stripeId);
-        var stripeAccount = Account.retrieve(stripeId);
-        return StripeApiResponse.<StripeTransactions>builder()
-       //   .info(String.valueOf(stripeReport))
-                .info(String.valueOf(stripeAccount))
-                .message("Stripe Account retrieved")
-                .build();
+public StripeApiResponse<Account> getStripeAccount(Long id) throws StripeException {
+    var user = customerRepository.findById(id)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+    if (user.getStripeCustomerId() == null) {
+        throw new UsernameNotFoundException("Stripe ID not found");
     }
 
+    var stripeId = user.getStripeCustomerId();
+    var stripeAccount = Account.retrieve(stripeId);
+
+    return StripeApiResponse.<Account>builder()
+            .account(stripeAccount)
+            .message("Stripe Account retrieved")
+            .build();
+}
 
  public StripeRegistrationResponse   addStripeId(Long id, String stripeId) {
      var user = customerRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
 //remove the first letter of the stripeId
-        stripeId = stripeId.substring(1);
-        //remove the last two letters of the stripeId
-        stripeId = stripeId.substring(0, stripeId.length() - 3);
-      var sol=  stripeId.split("\"")[0];
+     stripeId = stripeId.substring(1, stripeId.length() - 2);
+
+     var sol = stripeId.split("\"")[0].trim();
      log.info("Stripe ID: {}", sol);
 //        log.info("Split: {}", );
   user.setStripeCustomerId(sol);
-     customerRepository.save(user);
+     customerRepository.saveAndFlush(user);
      return StripeRegistrationResponse.builder()
              .customerDTO(user.toCustomerDTO())
              .message("Stripe ID added to user")
@@ -132,6 +132,31 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
             .build();
 
 }
+//Create a function to add a stripe customer from the DB to the stripe account
+    //Using Stripe's API Customer Object not the DB Customer Object
+    public StripeApiResponse<Customer> createStripeCustomer(Long id) throws StripeException {
+        var user = customerRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        var stripeCustomer = Customer.create(Map.of(
+                "email", user.getEmail(),
+                "name", user.getFirstName() + " " + user.getLastName(),
+                "description", "Customer for " + user.getEmail(),
+                "phone", user.getPhone(),
+                "address", Map.of(
+                        "line1", user.getHouseNumber() + " " + user.getStreetName(),
+                        "city",user.getCity(),
+                        "state", user.getState(),
+                        "postal_code", user.getZipCode(),
+                        "country", "USA"
+                )
+        ));
+        user.setStripeCustomerId(stripeCustomer.getId());
+        user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
+        customerRepository.save(user);
+        return StripeApiResponse.<Customer>builder()
+                .customerDTO(user.toCustomerDTO())
+                .message("Stripe Customer created")
+                .build();
+    }
 
     public StripeApiResponse charge(StripeTransactions payment) throws StripeException {
         Map<String, Object> chargeParams = new HashMap<>();

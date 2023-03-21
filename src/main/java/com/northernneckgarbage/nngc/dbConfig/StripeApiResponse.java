@@ -1,6 +1,9 @@
 package com.northernneckgarbage.nngc.dbConfig;
 
+import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.entity.StripeTransactions;
+import com.northernneckgarbage.nngc.entity.dto.CustomerDTO;
+import com.stripe.model.Account;
 import com.stripe.model.Charge;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +20,7 @@ public class StripeApiResponse<T> {
     private StripeTransactions stripeTransactions;
     private T data;
     private Charge charge;
-    private String url;
-    private String info;
+  private Account account;
+private CustomerDTO customerDTO;
     private String message;
 }
