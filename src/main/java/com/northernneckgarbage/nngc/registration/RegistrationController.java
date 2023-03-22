@@ -7,6 +7,7 @@ import com.northernneckgarbage.nngc.registration.auth.AuthenticationRequest;
 import com.northernneckgarbage.nngc.service.CustomerService;
 import com.northernneckgarbage.nngc.stripe.StripeRegistrationRequest;
 import com.northernneckgarbage.nngc.token.TokenService;
+import com.stripe.exception.StripeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -48,13 +49,10 @@ public class RegistrationController {
         return ResponseEntity.ok(service.register(request));
     }
 
-    @PostMapping("/stripe_registration")
-    public ResponseEntity<ApiResponse> stripeRegister(
-            @RequestBody StripeRegistrationRequest request
-    ) throws IOException {
-        return ResponseEntity.ok(service.stripeRegister(request));
+    @GetMapping("/resend-token/{email}")
+    public ResponseEntity<ApiResponse> resendToken(@PathVariable String email) throws IOException {
+        return ResponseEntity.ok(service.resendToken(email));
     }
-
     @PostMapping("/authenticate")
     public ResponseEntity<ApiResponse> authenticate(
             @RequestBody AuthenticationRequest request
@@ -64,7 +62,7 @@ public class RegistrationController {
 
 
     @GetMapping("/confirm")
-  public ResponseEntity<ApiResponse> confirmMail(@RequestParam("token") String token) {
+  public ResponseEntity<ApiResponse> confirmMail(@RequestParam("token") String token) throws StripeException {
     return ResponseEntity.ok(tokenService.confirmToken(token));
     }
 

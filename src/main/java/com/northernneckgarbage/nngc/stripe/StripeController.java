@@ -4,6 +4,7 @@ package com.northernneckgarbage.nngc.stripe;
 import com.google.api.client.util.DateTime;
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeApiResponse;
+import com.northernneckgarbage.nngc.dbConfig.StripeProductResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.entity.StripeTransactions;
@@ -36,6 +37,7 @@ public class StripeController {
 
     private final TokenRepository tokenRepository;
     private final StripeService stripeService;
+    private final StripeProductService stripeProductService;
 
 
 
@@ -126,6 +128,13 @@ log.warn("expired: " + expired);
         Session session = stripeService.createSessionForDumpster();
         return "redirect: " + session.getUrl();
     }
+
+    //Get Request to retrive stripe Product by id
+    @GetMapping("/products/{id}")
+    public ResponseEntity<StripeProductResponse> getStripeProduct(@PathVariable String id) throws StripeException {
+        return ResponseEntity.ok(stripeProductService.retrieveProduct(id) );
+    }
+
 
     @ExceptionHandler(StripeException.class)
     public ResponseEntity<StripeApiResponse> handleStripeException(StripeException ex) {

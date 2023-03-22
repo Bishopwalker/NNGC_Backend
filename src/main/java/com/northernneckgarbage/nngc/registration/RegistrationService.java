@@ -16,9 +16,7 @@ import com.northernneckgarbage.nngc.token.TokenType;
 import com.sendgrid.Content;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -35,34 +33,24 @@ public class RegistrationService {
 
     private final EmailSender emailSender;
 
-    //set up register for stripe customer.
-    //validate it is a correct email address
-    //validate password is at least 3 characters long
-    //collect only email and password
-    //save user to database
-    public ApiResponse<Customer> stripeRegister(StripeRegistrationRequest request) throws IOException {
-        if(!emailValidator.test(request.getEmail()))
-            throw new IllegalStateException("Email not valid");
-        if(request.getPassword().length() < 2)
-            throw new IllegalStateException("Password must be at least 3 characters long");
-        var stripeUser = Customer.builder()
-                .email(request.getEmail())
-                .password(bCryptPasswordEncoder.encode(request.getPassword()))
-                .appUserRoles(AppUserRoles.STRIPE_CUSTOMER)
-                .build();
-        var savedUser = customerRepository.save(stripeUser);
-        var jwtToken = jwtService.generateToken(stripeUser);
-        tokenService.saveUserToken(savedUser, jwtToken);
-        String link = "http://localhost:8080/registration/confirm?token=" + jwtToken;
+public ApiResponse resendToken(String email) throws IOException {
+        var user = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+    //revokes all tokens for user
+        tokenService.revokeAllUserTokens(user);
+        //generate new token
+        var jwtToken = jwtService.generateToken(user);
+        //save old token
+        tokenService.saveUserToken(user, jwtToken);
+        String link = " https://d10b-209-42-140-216.ngrok.io/auth/nngc/confirm?token=" + jwtToken;
         //emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));;
-        emailSender.sendWithSendGrid((request.getEmail()),String.format("Validation email for",request.getEmail()), buildEmail(request.getEmail(), link));;
-    return ApiResponse.<Customer>builder()
-            .token(jwtToken)
-            .customerDTO(savedUser.toCustomerDTO())
-            .message("User registered successfully")
-            .build();
-
-    };
+        emailSender.sendWithSendGrid((email),String.format("Validation email for",email), buildEmail(user.getFirstName(), link));;
+        return ApiResponse.builder()
+                .customerDTO(user.toCustomerDTO())
+                .token(jwtToken)
+                .message("Token resent to: " + user.getEmail())
+                .build();
+    }
 
 
     public ApiResponse register(RegistrationRequest request) throws IOException {
@@ -157,8 +145,15 @@ public class RegistrationService {
                 "      <td width=\"10\" valign=\"middle\"><br></td>\n" +
                 "      <td style=\"font-family:Helvetica,Arial,sans-serif;font-size:19px;line-height:1.315789474;max-width:560px\">\n" +
                 "        \n" +
-                "            <p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\">Hi " + name + ",</p><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\"> Thank you for registering. Please click on the below link to activate your account: </p><blockquote style=\"Margin:0 0 20px 0;border-left:10px solid #b1b4b6;padding:15px 0 0.1px 15px;font-size:19px;line-height:25px\"><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\"> <a href=\"" + link + "\">Activate Now</a> </p></blockquote>\n Link will expire in 15 minutes. <p>See you soon</p>" +
+                "            <p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\">Hi " + name + ",</p>" +
+                "<p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\"> Thank you for registering with NNGC. Remember to add this email address to your contacts, we don't email if we don't have to. Please click on the below link to activate your account: </p>" +
+                "<blockquote style=\"Margin:0 0 20px 0;border-left:10px solid #b1b4b6;padding:15px 0 0.1px 15px;font-size:19px;line-height:25px\">" +
+                "<p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\"> <a href=\"" + link + "\">Click This Link To Activate Now</a> " +
+                "</p></blockquote>\n Link will expire in 3 days. <p>See you soon fellow Patriot</p>" +
                 "        \n" +
+                "<blockquote style=\"Margin:0 0 20px 0;border-left:10px solid #b1b4b6;padding:15px 0 0.1px 15px;font-size:19px;line-height:25px\">" +
+                "<p style=\"Margin:0 0 20px 0;font-size:10px;line-height:20px;color:#0b0c0c\">  Northern Neck Garbage Collection,LLC \n p- 804-333-4821 f- lol \n" +
+                "164 Cellar Haven Lane \n Lottsburg, Va 22511 " +
                 "      </td>\n" +
                 "      <td width=\"10\" valign=\"middle\"><br></td>\n" +
                 "    </tr>\n" +

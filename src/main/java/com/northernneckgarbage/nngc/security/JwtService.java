@@ -1,5 +1,6 @@
 package com.northernneckgarbage.nngc.security;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -19,7 +20,8 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtService {
 
-  private static final String SECRET_KEY = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5330";
+    Dotenv dotenv = Dotenv.load();
+  private final String SECRET_KEY = dotenv.get("JWT_SECRET_KEY");
   public String extractUsername(String token) {
 
     return extractClaim(token, Claims::getSubject);
@@ -36,7 +38,7 @@ public class JwtService {
             .setClaims(extraClaims)
             .setSubject(userDetails.getUsername())
             .setIssuedAt(new Date(System.currentTimeMillis()))
-            .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60))
+            .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
             .signWith(getSigningKey(), SignatureAlgorithm.HS256)
             .compact();
     }

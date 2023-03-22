@@ -42,9 +42,9 @@ private StripeTransactionRepository stripeTransactionRepository;
 public StripeService(CustomerRepository customerRepository, StripeTransactionRepository stripeTransactionRepository) throws StripeException {
     Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY");
     Stripe.setAppInfo(
-            "NNGC",
+            "NNGC-Server",
             "0.0.2",
-            "http://localhost:8080"
+            "http://localhost:5000"
     );
     this.customerRepository = customerRepository;
     this.stripeTransactionRepository = stripeTransactionRepository;
