@@ -10,6 +10,7 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.Account;
 import com.stripe.model.Charge;
 import com.stripe.model.Customer;
+import com.stripe.model.Invoice;
 import com.stripe.model.reporting.ReportType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +32,6 @@ import java.util.Map;
 
 @Service
 @Slf4j
-
 public class StripeService {
 
 
@@ -48,6 +48,8 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
     );
     this.customerRepository = customerRepository;
     this.stripeTransactionRepository = stripeTransactionRepository;
+    Map<String, Object> params = new HashMap<>();
+    params.put("customer","cus_NU0gEq31snHVZx");
 
 
 }

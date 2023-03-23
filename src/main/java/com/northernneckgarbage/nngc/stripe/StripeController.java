@@ -2,10 +2,7 @@ package com.northernneckgarbage.nngc.stripe;
 
 
 import com.google.api.client.util.DateTime;
-import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
-import com.northernneckgarbage.nngc.dbConfig.StripeApiResponse;
-import com.northernneckgarbage.nngc.dbConfig.StripeProductResponse;
-import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
+import com.northernneckgarbage.nngc.dbConfig.*;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.entity.StripeTransactions;
 import com.northernneckgarbage.nngc.token.TokenRepository;
@@ -38,7 +35,7 @@ public class StripeController {
     private final TokenRepository tokenRepository;
     private final StripeService stripeService;
     private final StripeProductService stripeProductService;
-
+private final StripeInvoiceService stripeInvoiceService;
 
 
 
@@ -135,7 +132,11 @@ log.warn("expired: " + expired);
         return ResponseEntity.ok(stripeProductService.retrieveProduct(id) );
     }
 
-
+//Get Request to create invoice
+    @GetMapping("/create-invoice/{id}")
+    public ResponseEntity<StripeInvoiceResponse> createInvoice(@PathVariable Long id) throws Exception {
+        return ResponseEntity.ok(stripeInvoiceService.createInvoice(id) );
+    }
     @ExceptionHandler(StripeException.class)
     public ResponseEntity<StripeApiResponse> handleStripeException(StripeException ex) {
         return ResponseEntity.badRequest().body(StripeApiResponse.builder()
