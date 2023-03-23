@@ -64,6 +64,7 @@ public class TokenService {
                     .revoked(false)
                     .build();
             tokenRepository.save(token);
+            return;
         }
         var token = Token.builder()
                 .customer(user)
