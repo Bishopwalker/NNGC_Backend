@@ -1,5 +1,6 @@
 package com.northernneckgarbage.nngc.entity;
 
+import com.northernneckgarbage.nngc.entity.dto.AddressDTO;
 import com.northernneckgarbage.nngc.entity.dto.CustomerDTO;
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.northernneckgarbage.nngc.token.Token;
@@ -8,13 +9,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.mapping.Array;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 
 @Entity
@@ -58,7 +58,7 @@ public class Customer  implements UserDetails {
     @Column(name = "county", length = 50)
     private String county;
     @Column(name = "notes", length = 500)
-    private String notes;
+    private String  geoLocation;
 
 
 
@@ -114,18 +114,21 @@ private boolean enabled = false;
         return enabled ;
     }
 
+
     public CustomerDTO toCustomerDTO() {
         return CustomerDTO.builder()
                 .id(id)
-                .firstName(firstName)
-                .lastName(lastName)
                 .fullName(firstName + " " + lastName)
                 .email(email)
                 .phoneNumber(phone)
-                .address(houseNumber + " " + streetName)
-                .city(city)
-                .state(state)
-                .zipCode(zipCode)
+
+                .address(AddressDTO.builder()
+                        .line1(houseNumber + " " + streetName)
+                        .city(city)
+                        .state(state)
+                        .zipCode(zipCode)
+                        .build())
+
                 .role(appUserRoles.name())
                 .enabled(enabled)
                 .stripeCustomerId(stripeCustomerId)

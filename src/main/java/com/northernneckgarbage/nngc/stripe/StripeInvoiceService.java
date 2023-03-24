@@ -1,6 +1,9 @@
 package com.northernneckgarbage.nngc.stripe;
 
 import com.northernneckgarbage.nngc.dbConfig.StripeInvoiceResponse;
+import com.northernneckgarbage.nngc.entity.dto.AddressDTO;
+import com.northernneckgarbage.nngc.entity.dto.CustomerDTO;
+import com.northernneckgarbage.nngc.entity.dto.PaymentDTO;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.stripe.Stripe;
 import com.stripe.model.Invoice;
@@ -9,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +22,7 @@ public class StripeInvoiceService {
     Dotenv dotenv = Dotenv.load();
 
     private final CustomerRepository customerRepository;
+
     public StripeInvoiceService(CustomerRepository customerRepository){
         this.customerRepository = customerRepository;
         Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY");
@@ -35,73 +39,97 @@ public class StripeInvoiceService {
         params.put("customer", user.getStripeCustomerId());
 
         Invoice invoice = Invoice.create(params);
+
+        var address = AddressDTO.builder()
+                             .line1(invoice.getCustomerAddress().getLine1())
+                .line2(invoice.getCustomerAddress().getLine2())
+                .city(invoice.getCustomerAddress().getCity())
+                .state(invoice.getCustomerAddress().getState())
+                .zipCode(invoice.getCustomerAddress().getPostalCode())
+                .build();
+
+var customer = CustomerDTO.builder()
+        .id(user.getId())
+        .fullName(invoice.getCustomerName())
+        .email(invoice.getCustomerEmail())
+        .phoneNumber(invoice.getCustomerPhone())
+        .address(address)
+        .stripeCustomerId(invoice.getCustomer())
+        .build();
+
+  var  createdAt = LocalDateTime.ofEpochSecond(invoice.getCreated(), 0, ZoneOffset.UTC);
+ var periodStart = LocalDateTime.ofEpochSecond(invoice.getPeriodStart(), 0, ZoneOffset.UTC);
+    var periodEnd = LocalDateTime.ofEpochSecond(invoice.getPeriodEnd(), 0, ZoneOffset.UTC);
+   var webhooksDeliveredAt = LocalDateTime.ofEpochSecond(invoice.getWebhooksDeliveredAt(), 0, ZoneOffset.UTC);
+var payment = PaymentDTO.builder()
+        .amount_due(invoice.getAmountDue())
+        .amount_paid(invoice.getAmountPaid())
+        .amount_remaining(invoice.getAmountRemaining())
+        .billing_reason(invoice.getBillingReason())
+        .charge(invoice.getCharge())
+        .currency(invoice.getCurrency())
+        .default_payment(invoice.getDefaultPaymentMethod())
+        .default_payment_method(invoice.getDefaultPaymentMethod())
+        .description(invoice.getDescription())
+        .discount(String.valueOf(invoice.getDiscount()))
+        .discounts(invoice.getDiscounts().toString())
+        .due_date(String.valueOf(invoice.getDueDate()))
+        .period_start(String.valueOf(periodStart))
+        .period_end(String.valueOf(periodEnd))
+        .ending_balance(String.valueOf(invoice.getEndingBalance()))
+        .starting_balance(invoice.getStartingBalance())
+        .post_payment_credit_notes_amount(invoice.getPostPaymentCreditNotesAmount())
+        .pre_payment_credit_notes_amount(invoice.getPrePaymentCreditNotesAmount())
+        .build();
+
+
 //convert milliseconds to a local date time
 
         //Construct the invoice response with the necessary key value attributes
         return StripeInvoiceResponse.builder()
                 .message("Invoice Created")
-                .id(invoice.getId())
-                .object(invoice.getObject())
+                .invoiceID(invoice.getId())
+
+                .app_customer(customer)
+                .app_payment(payment)
+
                 .account_country(invoice.getAccountCountry())
                 .account_name(invoice.getAccountName())
-                .amount_due(invoice.getAmountDue())
-                .amount_paid(invoice.getAmountPaid())
-                .amount_remaining(invoice.getAmountRemaining())
+
 
 
                 .attempt_count(invoice.getAttemptCount())
                 .attempted(invoice.getAttempted())
 
-                .automatic_tax(String.valueOf(invoice.getAutomaticTax()))
-                .billing_reason(invoice.getBillingReason())
-                .charge(invoice.getCharge())
-                .collection_method(invoice.getCollectionMethod())
 
-                .created(invoice.getCreated())
+                .createdAt(String.valueOf(createdAt))
 
-                .currency(invoice.getCurrency())
-                .customer(invoice.getCustomer())
-                .customer_address(invoice.getCustomerAddress())
-                .customer_email(invoice.getCustomerEmail())
-                .customer_name(invoice.getCustomerName())
-                .customer_phone(invoice.getCustomerPhone())
-                .customer_shipping(String.valueOf(invoice.getCustomerShipping()))
-                .customer_tax_exempt(invoice.getCustomerTaxExempt())
-                .customer_tax_ids(invoice.getCustomerTaxIds().toString())
-                .default_payment_method(invoice.getDefaultPaymentMethod())
-                .default_source(invoice.getDefaultSource())
-                .default_tax_rates(invoice.getDefaultTaxRates().toString())
-                .description(invoice.getDescription())
-                .discount(String.valueOf(invoice.getDiscount()))
-                .discounts(invoice.getDiscounts().toString())
-                .due_date( invoice.getDueDate())
-                .ending_balance(invoice.getEndingBalance())
-                .footer(invoice.getFooter())
-                .from_invoice(String.valueOf(invoice.getFromInvoice()))
+
+
+
+               .footer(invoice.getFooter())
+
                 .hosted_invoice_url(invoice.getHostedInvoiceUrl())
                 .invoice_pdf(invoice.getInvoicePdf())
                 .last_finalization_error(String.valueOf(invoice.getLastFinalizationError()))
                 .latest_revision(invoice.getLatestRevision())
-                .lines(String.valueOf(invoice.getLines()))
+                .lines(String.valueOf(invoice.getLines().getUrl()))
                 .livemode(invoice.getLivemode())
                 .metadata(invoice.getMetadata())
                 .next_payment_attempt(invoice.getNextPaymentAttempt())
                 .number(invoice.getNumber())
-                .on_behalf_of(invoice.getOnBehalfOf())
+
                 .paid(invoice.getPaid())
                 .paid_out_of_band(invoice.getPaidOutOfBand())
                 .payment_intent(invoice.getPaymentIntent())
-                .payment_settings(String.valueOf(invoice.getPaymentSettings()))
-                .period_end(invoice.getPeriodEnd())
-                .period_start(invoice.getPeriodStart())
-                .post_payment_credit_notes_amount(invoice.getPostPaymentCreditNotesAmount())
-                .pre_payment_credit_notes_amount(invoice.getPrePaymentCreditNotesAmount())
+
+
+
                 .quote(invoice.getQuote())
                 .receipt_number(invoice.getReceiptNumber())
-                .rendering_options(String.valueOf(invoice.getRenderingOptions()))
-                .shipping_cost(String.valueOf(invoice.getCustomerShipping()))
-                .shipping_details(String.valueOf(invoice.getCustomerShipping()))
-                .starting_balance(invoice.getStartingBalance())
+
+
+
 
                 .status(invoice.getStatus())
 
@@ -115,9 +143,11 @@ public class StripeInvoiceService {
                 .total_excluding_tax(invoice.getTotalExcludingTax())
                 .total_tax_amounts(invoice.getTotalTaxAmounts().toString())
                 .transfer_data(String.valueOf(invoice.getTransferData()))
-                .webhooks_delivered_at(invoice.getWebhooksDeliveredAt())
+                .webhooks_delivered_at(String.valueOf(webhooksDeliveredAt))
                 .build();
     }
+
+
 
 
 }
