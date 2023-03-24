@@ -1,23 +1,19 @@
 package com.northernneckgarbage.nngc.registration;
 
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
-import com.northernneckgarbage.nngc.dbConfig.GoogleApiResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.registration.auth.AuthenticationRequest;
 import com.northernneckgarbage.nngc.service.CustomerService;
-import com.northernneckgarbage.nngc.stripe.StripeRegistrationRequest;
 import com.northernneckgarbage.nngc.token.TokenService;
 import com.stripe.exception.StripeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.security.Principal;
 
 @Slf4j
 @Controller

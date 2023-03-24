@@ -1,28 +1,22 @@
 package com.northernneckgarbage.nngc.stripe;
 
 
-import com.google.api.client.util.DateTime;
-import com.northernneckgarbage.nngc.dbConfig.*;
+import com.northernneckgarbage.nngc.dbConfig.StripeApiResponse;
+import com.northernneckgarbage.nngc.dbConfig.StripeInvoiceResponse;
+import com.northernneckgarbage.nngc.dbConfig.StripeProductResponse;
+import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.entity.StripeTransactions;
 import com.northernneckgarbage.nngc.token.TokenRepository;
-import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
-import com.stripe.model.Charge;
 import com.stripe.model.checkout.Session;
-import io.github.cdimascio.dotenv.Dotenv;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URL;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController

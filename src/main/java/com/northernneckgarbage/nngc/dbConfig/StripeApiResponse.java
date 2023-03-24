@@ -4,12 +4,10 @@ import com.northernneckgarbage.nngc.entity.StripeTransactions;
 import com.northernneckgarbage.nngc.entity.dto.CustomerDTO;
 import com.stripe.model.Account;
 import com.stripe.model.Charge;
-import com.stripe.model.Customer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.minidev.json.JSONObject;
 
 @Data
 @Builder

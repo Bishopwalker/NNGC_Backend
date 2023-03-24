@@ -1,6 +1,5 @@
 package com.northernneckgarbage.nngc.stripe;
 
-import com.northernneckgarbage.nngc.entity.dto.CustomerDTO;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

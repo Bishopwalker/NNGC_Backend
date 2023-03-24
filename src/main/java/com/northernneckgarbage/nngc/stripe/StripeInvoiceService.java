@@ -4,15 +4,13 @@ import com.northernneckgarbage.nngc.dbConfig.StripeInvoiceResponse;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.stripe.Stripe;
 import com.stripe.model.Invoice;
-import com.stripe.model.InvoiceLineItem;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -20,7 +18,7 @@ import java.util.Map;
 public class StripeInvoiceService {
     Dotenv dotenv = Dotenv.load();
 
-    private CustomerRepository customerRepository;
+    private final CustomerRepository customerRepository;
     public StripeInvoiceService(CustomerRepository customerRepository){
         this.customerRepository = customerRepository;
         Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY");
@@ -37,6 +35,7 @@ public class StripeInvoiceService {
         params.put("customer", user.getStripeCustomerId());
 
         Invoice invoice = Invoice.create(params);
+//convert milliseconds to a local date time
 
         //Construct the invoice response with the necessary key value attributes
         return StripeInvoiceResponse.builder()
@@ -45,21 +44,21 @@ public class StripeInvoiceService {
                 .object(invoice.getObject())
                 .account_country(invoice.getAccountCountry())
                 .account_name(invoice.getAccountName())
-                .account_tax_ids(invoice.getAccountTaxIds())
                 .amount_due(invoice.getAmountDue())
                 .amount_paid(invoice.getAmountPaid())
                 .amount_remaining(invoice.getAmountRemaining())
-                .amount_shipping(String.valueOf(invoice.getCustomerShipping()))
-                .application(invoice.getApplication())
-                .application_fee_amount(invoice.getApplicationFeeAmount())
+
+
                 .attempt_count(invoice.getAttemptCount())
                 .attempted(invoice.getAttempted())
-                .auto_advance(invoice.getAutoAdvance())
+
                 .automatic_tax(String.valueOf(invoice.getAutomaticTax()))
                 .billing_reason(invoice.getBillingReason())
                 .charge(invoice.getCharge())
                 .collection_method(invoice.getCollectionMethod())
+
                 .created(invoice.getCreated())
+
                 .currency(invoice.getCurrency())
                 .customer(invoice.getCustomer())
                 .customer_address(invoice.getCustomerAddress())

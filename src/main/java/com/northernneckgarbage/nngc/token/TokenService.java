@@ -53,7 +53,7 @@ public class TokenService {
 
 
     public void saveUserToken(Customer user, String jwtToken) {
-        if(user.isEnabled()==false){
+        if(!user.isEnabled()){
             var token = Token.builder()
                     .customer(user)
                     .token(jwtToken)
@@ -88,6 +88,7 @@ public class TokenService {
             token.setExpiresAt(LocalDateTime.now());
         });
         tokenRepository.saveAll(validUserTokens);
+
     }
 
 

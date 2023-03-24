@@ -1,10 +1,10 @@
 package com.northernneckgarbage.nngc.entity;
 
 public class Services {
-    private String name;
-    private String description;
-    private String price;
-    private String id;
+    private final String name;
+    private final String description;
+    private final String price;
+    private final String id;
 
     public Services(String name, String description, String price, String id) {
         this.name = name;

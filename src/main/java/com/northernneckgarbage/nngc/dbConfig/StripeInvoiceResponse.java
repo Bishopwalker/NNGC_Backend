@@ -1,9 +1,6 @@
 package com.northernneckgarbage.nngc.dbConfig;
 
 import com.stripe.model.Address;
-import com.stripe.model.Invoice;
-import com.stripe.model.InvoiceLineItem;
-import com.stripe.model.ShippingDetails;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

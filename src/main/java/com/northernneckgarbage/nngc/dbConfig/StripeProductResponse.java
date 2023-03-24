@@ -1,6 +1,5 @@
 package com.northernneckgarbage.nngc.dbConfig;
 
-import com.stripe.model.Product;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

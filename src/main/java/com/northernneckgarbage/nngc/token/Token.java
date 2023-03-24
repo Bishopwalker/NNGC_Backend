@@ -2,10 +2,12 @@ package com.northernneckgarbage.nngc.token;
 
 import com.northernneckgarbage.nngc.entity.Customer;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @Builder

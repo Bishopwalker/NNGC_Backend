@@ -1,7 +1,6 @@
 package com.northernneckgarbage.nngc.email;
 
 import com.sendgrid.Content;
-import com.sendgrid.Email;
 
 public interface EmailSender {
 

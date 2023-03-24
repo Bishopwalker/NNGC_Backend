@@ -1,11 +1,8 @@
 package com.northernneckgarbage.nngc.repository;
 
 import com.northernneckgarbage.nngc.entity.Customer;
-
 import com.northernneckgarbage.nngc.registration.RegistrationRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 

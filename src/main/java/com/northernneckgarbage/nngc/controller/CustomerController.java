@@ -32,57 +32,93 @@ private final TokenRepository tokenRepository;
    public ResponseEntity<ApiResponse<List<Customer>>> getAllCustomers(@RequestHeader("Authorization") String headers) {
        log.info(headers);
        var user=tokenRepository.findByToken(headers).get().getCustomer().getAppUserRoles();
-         log.info(user.toString());
+        if(user==null){
+            return ResponseEntity.badRequest().body(ApiResponse.<List<Customer>>builder().message("You are not authorized to view this page").build());
+        }
          if(user.toString().equals("ADMIN")){
                 return ResponseEntity.ok(customerService.getCustomers());
          }
         return ResponseEntity.badRequest().body(ApiResponse.<List<Customer>>builder().message("You are not authorized to view this page").build());
 
     }
-    @GetMapping("/customers/{email}")
-    public ResponseEntity<StripeRegistrationResponse<Optional<Customer>>> getCustomerByEmail(@RequestHeader("Authorization") String headers, @PathVariable String email){
+    @GetMapping("/customers/")
+    public ResponseEntity<StripeRegistrationResponse<Optional<Customer>>> getCustomerByEmail(@RequestHeader("Authorization") String headers, @RequestParam String email){
         log.info(headers);
         var user = tokenRepository.findByToken(headers).get().getCustomer().getAppUserRoles();
+        if(user==null){
+            return ResponseEntity.badRequest().body(StripeRegistrationResponse.<Optional<Customer>>builder().message("You are not authorized to view this page").build());
+        }
         log.info(user.toString());
         if(user.toString().equals("ADMIN") || user.toString().equals("STRIPE_CUSTOMER")){
             return ResponseEntity.ok(customerService.findByEmail(email));
         }
         return ResponseEntity.badRequest().body(StripeRegistrationResponse.<Optional<Customer>>builder().message("You are not authorized to view this page").build());
     }
-
-
-    @PostMapping("/register")
-    public String processRegister(@RequestBody  Customer customer) {
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String encodedPassword = passwordEncoder.encode(customer.getPassword());
-        customer.setPassword(encodedPassword);
-        log.info("New customer object created"+customer);
-       customerService.addCustomer(customer);
-        return "register_success";
-    }
-
-
     @GetMapping("/customers/{id}")
-     public ResponseEntity<ApiResponse<Customer>> getCustomerById(@PathVariable Long id) {
-        return ResponseEntity.ok(customerService.getCustomerById(id));
+    public ResponseEntity<ApiResponse<Customer>> getCustomerById(@RequestHeader("Authorization")String headers, @PathVariable Long id) {
+        log.info(headers);
+        var user = tokenRepository.findByToken(headers).get().getCustomer();
+        if(user==null){
+            return ResponseEntity.badRequest().body(ApiResponse.<Customer>builder().message("You are not authorized to view this page").build());
+        }
+        log.info(user.toString());
+        if(user.getAppUserRoles().toString().equals("ADMIN") || user.getId()==id){
+            return ResponseEntity.ok(customerService.getCustomerById(id));
+        }
+        return ResponseEntity.badRequest().body(ApiResponse.<Customer>builder().message("You are not authorized to view this page").build());
     }
 
 
-//    public ApiResponse<Customer> updateCustomer( @RequestBody Customer customer, @PathVariable Long id) {
-//        return customerService.updateCustomer(customer, id);
-//    }
+
     @PutMapping("/customers/{id}")
-    public ResponseEntity<ApiResponse<Customer>> updateCustomer(@RequestBody Customer customer, @PathVariable Long id) throws StripeException {
-        return ResponseEntity.ok(customerService. updateCustomer(customer, id));
+    public ResponseEntity<ApiResponse<Customer>> updateCustomer(@RequestHeader("Authorization") String headers, @RequestBody Customer customer, @PathVariable Long id) throws StripeException {
+        log.info(headers);
+        var user = tokenRepository.findByToken(headers).get().getCustomer();
+        if(user==null){
+            return ResponseEntity.badRequest().body(ApiResponse.<Customer>builder().message("You are not authorized to view this page").build());
+        }
+       if (user.getAppUserRoles().toString().equals("ADMIN") || user.getId()==id){
+           return ResponseEntity.ok(customerService.updateCustomer(customer, id));
+         }
+        return ResponseEntity.badRequest().body(ApiResponse.<Customer>builder().message("You are not authorized to view this page").build());
     }
 
     @DeleteMapping("/customers/{id}")
-    public ResponseEntity<ApiResponse> deleteCustomer(@PathVariable Long id) {
-        customerService.deleteCustomer(id);
+    public ResponseEntity<ApiResponse> deleteCustomer(@RequestHeader("Authorization") String headers, @PathVariable Long id) {
+        var user = tokenRepository.findByToken(headers).get().getCustomer();
+        if(user==null){
+            return ResponseEntity.badRequest().body(ApiResponse.<Customer>builder().message("You are not authorized to view this page").build());
+        }
+        if (user.getAppUserRoles().toString().equals("ADMIN") || user.getId()==id){
+            customerService.deleteCustomer(id);
+            return ResponseEntity.ok(ApiResponse.builder()
+                    .message("Customer deleted")
+                    .build());
+        }
+
         return   ResponseEntity.ok(ApiResponse.builder()
-                .message("Customer deleted")
+                .message("Customer not deleted because you don't have permission to delete this customer")
                 .build());
     }
+
+    @PostMapping("/register")
+    public ResponseEntity processRegister(@RequestHeader("Authorization") String headers, @RequestBody  Customer customer) {
+        var user = tokenRepository.findByToken(headers).get().getCustomer().getAppUserRoles();
+        if(user==null || !user.toString().equals("ADMIN")){
+            return ResponseEntity.badRequest().body(ApiResponse.<Customer>builder().message("You Don't have authorization to add a new customers").build());
+        }
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encodedPassword = passwordEncoder.encode(customer.getPassword());
+        customer.setPassword(encodedPassword);
+
+        log.info("New customer object created"+customer);
+        customerService.addCustomer(customer);
+        return ResponseEntity.ok(ApiResponse.builder()
+                .message("Customer added")
+                .build());
+    }
+
+
 
 
 }

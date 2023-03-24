@@ -1,22 +1,17 @@
 package com.northernneckgarbage.nngc.registration;
-;
+
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.email.EmailSender;
 import com.northernneckgarbage.nngc.email.EmailValidator;
 import com.northernneckgarbage.nngc.entity.Customer;
-import com.northernneckgarbage.nngc.registration.auth.AuthenticationRequest;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.northernneckgarbage.nngc.security.JwtService;
-import com.northernneckgarbage.nngc.stripe.StripeRegistrationRequest;
-import com.northernneckgarbage.nngc.token.Token;
-import com.northernneckgarbage.nngc.token.TokenRepository;
 import com.northernneckgarbage.nngc.token.TokenService;
-import com.northernneckgarbage.nngc.token.TokenType;
 import com.sendgrid.Content;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
- import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -44,8 +39,8 @@ public ApiResponse resendToken(String email) throws IOException {
         tokenService.saveUserToken(user, jwtToken);
         String link = " https://d10b-209-42-140-216.ngrok.io/auth/nngc/confirm?token=" + jwtToken;
         //emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));;
-        emailSender.sendWithSendGrid((email),String.format("Validation email for",email), buildEmail(user.getFirstName(), link));;
-        return ApiResponse.builder()
+        emailSender.sendWithSendGrid((email),String.format("Validation email for",email), buildEmail(user.getFirstName(), link));
+    return ApiResponse.builder()
                 .customerDTO(user.toCustomerDTO())
                 .token(jwtToken)
                 .message("Token resent to: " + user.getEmail())
@@ -55,7 +50,7 @@ public ApiResponse resendToken(String email) throws IOException {
 
     public ApiResponse register(RegistrationRequest request) throws IOException {
 
-        if(!emailValidator.test(request.getEmail()))
+        if(!EmailValidator.test(request.getEmail()))
           throw new IllegalStateException("Email not valid");
         if(request.getPassword().length() < 2)
             throw new IllegalStateException("Password must be at least 3 characters long");
@@ -77,7 +72,7 @@ public ApiResponse resendToken(String email) throws IOException {
        tokenService.saveUserToken(savedUser, jwtToken);
         String link = " https://d10b-209-42-140-216.ngrok.io/auth/nngc/confirm?token=" + jwtToken;
      //emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));;
- emailSender.sendWithSendGrid((request.getEmail()),String.format("Validation email for",request.getEmail()), buildEmail(request.getFirstName(), link));;
+ emailSender.sendWithSendGrid((request.getEmail()),String.format("Validation email for",request.getEmail()), buildEmail(request.getFirstName(), link));
         return ApiResponse.builder()
                 .token(jwtToken)
                 .build();

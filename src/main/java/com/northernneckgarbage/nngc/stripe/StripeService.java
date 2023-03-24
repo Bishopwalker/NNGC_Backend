@@ -6,24 +6,18 @@ import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.StripeTransactions;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
+import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
-import com.stripe.model.Account;
 import com.stripe.model.Charge;
 import com.stripe.model.Customer;
-import com.stripe.model.Invoice;
-import com.stripe.model.reporting.ReportType;
-import lombok.RequiredArgsConstructor;
+import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionCreateParams;
+import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import com.stripe.Stripe;
-import io.github.cdimascio.dotenv.Dotenv;
-import com.stripe.Stripe;
-import com.stripe.model.checkout.Session;
-import com.stripe.param.checkout.SessionCreateParams;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -37,8 +31,8 @@ public class StripeService {
 
 Dotenv dotenv = Dotenv.load();
 
-private CustomerRepository customerRepository;
-private StripeTransactionRepository stripeTransactionRepository;
+private final CustomerRepository customerRepository;
+private final StripeTransactionRepository stripeTransactionRepository;
 public StripeService(CustomerRepository customerRepository, StripeTransactionRepository stripeTransactionRepository) throws StripeException {
     Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY");
     Stripe.setAppInfo(
