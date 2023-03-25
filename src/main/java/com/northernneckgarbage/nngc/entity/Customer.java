@@ -129,7 +129,7 @@ private boolean enabled = false;
                         .zipCode(zipCode)
                         .build())
 
-                .role(appUserRoles.name())
+                .role(appUserRoles)
                 .enabled(enabled)
                 .stripeCustomerId(stripeCustomerId)
                 .build();

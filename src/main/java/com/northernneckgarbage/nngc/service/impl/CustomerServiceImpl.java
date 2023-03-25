@@ -10,6 +10,7 @@ import com.stripe.exception.StripeException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.sql.Update;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,22 +28,41 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final StripeService stripeService;
+
     @Override
     public Customer addCustomer(Customer customer) {
         return customerRepository.save(customer);
     }
 
+
+    @Override
+    public void addBulkCustomers(List<Customer> customers) {
+        customers.stream().map(customer -> {
+            customer.setPassword(passwordEncoder.encode(customer.getPassword()));
+            customerRepository.save(customer);
+            return customer;
+        }).forEach(customer -> {
+            log.info(customer.toString());
+            try {
+                stripeService.createStripeCustomer(customer.getId());
+            } catch (StripeException e) {
+                e.printStackTrace();
+            }
+        });
+
+
+    }
+
     @Override
 
     public StripeRegistrationResponse<Optional<Customer>> findByEmail(String email) {
-      Optional<Customer> customer = Optional.ofNullable(customerRepository.findByEmail(email).orElseThrow(()->
-              new RuntimeException("Customer not found")));
+        Optional<Customer> customer = Optional.ofNullable(customerRepository.findByEmail(email).orElseThrow(() ->
+                new RuntimeException("Customer not found")));
         return StripeRegistrationResponse.<Optional<Customer>>builder()
                 .message("Customer fetched successfully")
                 .customerDTO(customer.get().toCustomerDTO())
                 .build();
     }
-
 
 
     @Override
@@ -74,6 +94,8 @@ public class CustomerServiceImpl implements CustomerService {
                 .build();
     }
 
+
+
     @Override
     public ApiResponse<Customer> updateCustomer(Customer customer, Long id) throws StripeException {
         var user = customerRepository.findById(id).orElseThrow(() ->
@@ -92,23 +114,25 @@ public class CustomerServiceImpl implements CustomerService {
                 .city(customer.getCity() == null ? user.getCity() : customer.getCity())
                 .state(customer.getState() == null ? user.getState() : customer.getState())
                 .zipCode(customer.getZipCode() == null ? user.getZipCode() : customer.getZipCode())
-                .appUserRoles(customer.getAppUserRoles())
+                .appUserRoles(user.getAppUserRoles())
                 .stripeCustomerId(user.getStripeCustomerId())
                 .enabled(true)
                 .build();
         log.info(updateCustomer.toString());
 customerRepository.save(updateCustomer);
+
+//If the user is a stripe customer update the stripe customer
 if(user.getStripeCustomerId() != null){
     log.info(updateCustomer.toString());
     stripeService.updateStripeCustomer(id);
     return ApiResponse.<Customer>builder()
             .customerDTO(updateCustomer.toCustomerDTO())
-            .message("Stripe Customer updated successfully")
+            .message(String.format("Stripe Customer updated successfully these are the new fields: %s ",customer ))
             .build();
 }
         return ApiResponse.<Customer>builder()
                 .customerDTO(updateCustomer.toCustomerDTO())
-                .message("Customer updated successfully")
+                .message(String.format("Customer updated successfully these are the new fields: ",customer ))
                 .build();
     }
 

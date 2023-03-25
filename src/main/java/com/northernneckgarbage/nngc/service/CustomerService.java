@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface CustomerService {
     Customer addCustomer(Customer customer);
 
-
+ void addBulkCustomers(List<Customer> customers);
     StripeRegistrationResponse <Optional<Customer>> findByEmail(String email);
 
    ApiResponse <List<Customer>> getCustomers();

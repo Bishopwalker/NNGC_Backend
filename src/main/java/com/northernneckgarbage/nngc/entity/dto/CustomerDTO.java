@@ -1,5 +1,6 @@
 package com.northernneckgarbage.nngc.entity.dto;
 
+import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,7 +16,7 @@ public class CustomerDTO {
     private AddressDTO address;
 
 
-    private String role;
+    private AppUserRoles role;
     private String stripeCustomerId;
     private boolean enabled;
 

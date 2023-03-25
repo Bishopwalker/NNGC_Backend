@@ -1,5 +1,6 @@
 package com.northernneckgarbage.nngc;
 
+import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.northernneckgarbage.nngc.route4me.RouteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ public class NngcApplication {
     }
 
  //Quickly run RouteService to test it
+//Auto load the DB with 1000 customers, make up address, and complete customer information
 
 
 }

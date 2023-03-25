@@ -28,6 +28,14 @@ public class CustomerController {
 private final TokenRepository tokenRepository;
 
 
+@PostMapping("/add_bulk")
+public ResponseEntity addBulkCustomers(@RequestBody List<Customer> customers) {
+    customerService.addBulkCustomers(customers);
+return ResponseEntity.ok(customers.size() + "Customers added: " + customers);
+
+}
+
+
     @GetMapping("/customers")
    public ResponseEntity<ApiResponse<List<Customer>>> getAllCustomers(@RequestHeader("Authorization") String headers) {
        log.info(headers);
@@ -72,8 +80,9 @@ private final TokenRepository tokenRepository;
 
     @PutMapping("/customers/{id}")
     public ResponseEntity<ApiResponse<Customer>> updateCustomer(@RequestHeader("Authorization") String headers, @RequestBody Customer customer, @PathVariable Long id) throws StripeException {
-        log.info(headers);
+
         var user = tokenRepository.findByToken(headers).get().getCustomer();
+        log.info(user.toString());
         if(user==null){
             return ResponseEntity.badRequest().body(ApiResponse.<Customer>builder().message("You are not authorized to view this page").build());
         }
