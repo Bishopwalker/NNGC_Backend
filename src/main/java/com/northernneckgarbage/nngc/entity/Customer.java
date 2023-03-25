@@ -57,7 +57,7 @@ public class Customer  implements UserDetails {
     private String zipCode;
     @Column(name = "county", length = 50)
     private String county;
-    @Column(name = "notes", length = 500)
+    @Column(name = "geo_location", length = 10000)
     private String  geoLocation;
 
 
