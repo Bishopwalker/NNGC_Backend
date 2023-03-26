@@ -26,5 +26,11 @@ public class RouteController {
         return  routeService.geoCodeEntireDB();
     }
 
+    @GetMapping("/route")
+    public String testRoute()  {
+
+        return  routeService.createRoute4OneDriver();
+    }
+
 
 }

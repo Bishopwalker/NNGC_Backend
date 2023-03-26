@@ -60,6 +60,8 @@ public class Customer  implements UserDetails {
     @Column(name = "geo_location", length = 10000)
     private String  geoLocation;
 
+    private Double latitude;
+    private Double longitude;
 
 
   @Column(name = "stripe_customer_id", length = 50)
