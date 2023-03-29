@@ -17,7 +17,7 @@ public class RouteController {
     @GetMapping("/geoCode/{id}")
     public String test(@PathVariable Long id) throws APIException {
 
-        return  routeService.geoCodeFromDatabase(id);
+        return  routeService.geoCodeSingleUserFromDatabase(id);
     }
 
     @GetMapping("/geoCodeAll")

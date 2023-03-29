@@ -67,7 +67,9 @@ public ApiResponse resendToken(String email) throws IOException {
                 .zipCode(request.getZipCode())
                .appUserRoles(AppUserRoles.USER)
                 .build();
+
         var savedUser = customerRepository.save(user);
+
         var jwtToken = jwtService.generateToken(user);
        tokenService.saveUserToken(savedUser, jwtToken);
         String link = " https://d10b-209-42-140-216.ngrok.io/auth/nngc/confirm?token=" + jwtToken;

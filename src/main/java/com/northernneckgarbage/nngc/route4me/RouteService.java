@@ -1,5 +1,6 @@
 package com.northernneckgarbage.nngc.route4me;
 
+import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.route4me.sdk.exception.APIException;
 import com.route4me.sdk.services.geocoding.GeocoderOptions;
@@ -10,7 +11,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,25 +60,30 @@ public class RouteService {
                         + customer.getCity().toUpperCase() + ", "
                         + customer.getState().toUpperCase() + " "
                         + customer.getZipCode())
+                .filter(Objects::nonNull)
+                .filter(address ->address.length() > 0)
                 .collect(Collectors.toList());
 
         List<Address> geocodedAddresses =  geocodingManager.bulkGeocoder(  addresses, geocoderOptions);
 
         //loop through the list of addresses and save the results to the database
+        List<Customer> modifiedUsers = new ArrayList<>();
         for (int i = 0; i < geocodedAddresses.size(); i++) {
-            users.get(i).setGeoLocation(geocodedAddresses.get(i).getGeocodings().get(0).toString());
-            users.get(i).setLatitude(geocodedAddresses.get(i).getGeocodings().get(0).getLatitude());
-            users.get(i).setLongitude(geocodedAddresses.get(i).getGeocodings().get(0).getLongitude());
-            customerRepository.save(users.get(i));
+            Geocodings geocoding = geocodedAddresses.get(i).getGeocodings().get(0);
+            Customer user = users.get(i);
+            user.setGeoLocation(geocoding.toString());
+            user.setLatitude(geocoding.getLatitude());
+            user.setLongitude(geocoding.getLongitude());
+            modifiedUsers.add(user);
         }
-
+        customerRepository.saveAll(modifiedUsers);
 
 
         return geocodedAddresses.stream().map(address -> address.getGeocodings()).collect( Collectors.toList()).toString();
 
     }
 
-     public String geoCodeFromDatabase(Long id){
+     public String geoCodeSingleUserFromDatabase(Long id){
          //get the address from the database
          //return the address
 init();
@@ -91,12 +99,13 @@ init();
                          + customer.getZipCode()).collect(Collectors.toList());
 
 
+
             log.debug("Running Geocoder with " + geocoderOptions.getMaxThreads() + " threads");
 
-         long startTime = System.currentTimeMillis();
 
             List<Address> geocodedAddresses =  geocodingManager.bulkGeocoder(  addresses, geocoderOptions);
 log.info("Geocoded addresses: " + geocodedAddresses);
+
 
  user.get().setGeoLocation(geocodedAddresses.stream().map(Address::getGeocodings).collect( Collectors.toList()).toString());
          customerRepository.save(user.get());

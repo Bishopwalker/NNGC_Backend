@@ -10,7 +10,6 @@ import com.stripe.exception.StripeException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.sql.Update;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -46,7 +45,7 @@ public class CustomerServiceImpl implements CustomerService {
             try {
                 stripeService.createStripeCustomer(customer.getId());
             } catch (StripeException e) {
-                e.printStackTrace();
+                               e.printStackTrace();
             }
         });
 

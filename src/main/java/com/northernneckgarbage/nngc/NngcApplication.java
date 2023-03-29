@@ -1,9 +1,5 @@
 package com.northernneckgarbage.nngc;
 
-import com.northernneckgarbage.nngc.entity.Customer;
-import com.northernneckgarbage.nngc.repository.CustomerRepository;
-import com.northernneckgarbage.nngc.route4me.RouteService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

@@ -1,8 +1,9 @@
 package com.northernneckgarbage.nngc.entity.dto;
 
- ;
 import lombok.Builder;
 import lombok.Data;
+
+;
 
 @Data
 @Builder
