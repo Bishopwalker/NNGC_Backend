@@ -18,6 +18,7 @@ public class CustomerDTO {
 
     private AppUserRoles role;
     private String stripeCustomerId;
+    private String geoLocation;
     private boolean enabled;
 
 

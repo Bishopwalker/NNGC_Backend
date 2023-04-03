@@ -36,8 +36,51 @@ public class StripeProductService {
                 .name(product.getName())
                 .description(product.getDescription())
                 .price(price.getUnitAmount().toString())
+                .imageUrl(product.getImages())
                 .message("Product Retrieved")
                 .build();
     }
 
+    public StripeProductResponse<Product>  residential_trash_sub() throws StripeException {
+        log.info("Residential_TR");
+        Product product = Product.retrieve("prod_NTexfN4Dfxy2h4");
+        Price price = Price.retrieve(product.getDefaultPrice());
+        return StripeProductResponse.<Product>builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(price.getUnitAmount().toString())
+                .imageUrl(product.getImages())
+                .message("Product Retrieved")
+                .build();
+    }
+    //When user clicks on this product, it will return the product id, name, description, and price
+    public StripeProductResponse<Product> dumpster() throws StripeException {
+        log.info("Dumpster");
+        Product product = Product.retrieve("prod_NTzwClciqi6zCh");
+        Price price = Price.retrieve("price_1Mj1wXACOG92rmQ4eB6LWple");
+        return StripeProductResponse.<Product>builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(price.getUnitAmount().toString())
+                .imageUrl(product.getImages())
+                .message("Product Retrieved")
+                .build();
+    }
+
+    public StripeProductResponse<Product>  residential_TOnce() throws StripeException {
+        log.info("Residential_TL");
+        Product product = Product.retrieve("prod_NTexfN4Dfxy2h4");
+        Price price = Price.retrieve("price_1MiksRACOG92rmQ4nQev74WZ");
+
+        return StripeProductResponse.<Product>builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(price.getUnitAmount().toString())
+                .imageUrl(product.getImages())
+                .message("Product Retrieved One Time Trash PickUp")
+                .build();
+    }
 }

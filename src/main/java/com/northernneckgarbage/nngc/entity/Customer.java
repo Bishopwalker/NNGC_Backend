@@ -135,6 +135,7 @@ private boolean enabled = false;
                 .role(appUserRoles)
                 .enabled(enabled)
                 .stripeCustomerId(stripeCustomerId)
+                .geoLocation(geoLocation)
                 .build();
     }
 }

@@ -194,14 +194,15 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
     }
 
     String YOUR_DOMAIN = "http://localhost:5173";
-    public Session createSessionForTrashOnce() throws StripeException {
+    public Session createSessionForTrashOnce(String customerID) throws StripeException {
         // This is your test secret API key.
       //  Stripe.apiKey = "sk_test_51MiJlWACOG92rmQ4BY6VTYcXZQUBTsHzKkrG96OujKC6W1HBSOUMXCYIN9tgHZDpWjkyUcGzAYOZtAKGoS1oOmmE00cOVU7uIO";
 
 
         SessionCreateParams params =
                 SessionCreateParams.builder()
-                        .setMode(SessionCreateParams.Mode.PAYMENT)
+                        .setCustomer(customerID)
+                       .setMode(SessionCreateParams.Mode.PAYMENT)
                         .setSuccessUrl(YOUR_DOMAIN + "/")
                         .setCancelUrl(YOUR_DOMAIN + "?canceled=true")
                         .setAutomaticTax(
@@ -213,22 +214,21 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
                                         .setQuantity(1L)
                                         // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
                                         .setPrice("price_1MiksRACOG92rmQ4nQev74WZ")
+
                                         .build())
                         .build();
         return Session.create(params);
     }
 
-    public Session createSessionForTrashSubscription() throws StripeException{
+    public Session createSessionForTrashSubscription(String customerID) throws StripeException{
 
         SessionCreateParams params =
                 SessionCreateParams.builder()
+                        .setCustomer(customerID)
                         .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
                         .setSuccessUrl(YOUR_DOMAIN + "?success=true")
                         .setCancelUrl(YOUR_DOMAIN + "?canceled=true")
-                        .setAutomaticTax(
-                                SessionCreateParams.AutomaticTax.builder()
-                                        .setEnabled(true)
-                                        .build())
+
                         .addLineItem(
                                 SessionCreateParams.LineItem.builder()
                                         .setQuantity(1L)
@@ -240,10 +240,11 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
         return Session.create(params);
     }
 
-    public Session createSessionForDumpster() throws StripeException{
+    public Session createSessionForDumpster(String customerID) throws StripeException{
 
         SessionCreateParams params =
                 SessionCreateParams.builder()
+                        .setCustomerEmail(customerID)
                         .setMode(SessionCreateParams.Mode.PAYMENT)
                         .setSuccessUrl(YOUR_DOMAIN + "?success=true")
                         .setCancelUrl(YOUR_DOMAIN + "?canceled=true")
