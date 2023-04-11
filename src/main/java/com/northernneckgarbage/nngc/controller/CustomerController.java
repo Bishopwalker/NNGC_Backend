@@ -20,7 +20,6 @@ import java.util.Optional;
 @Controller
 @RequestMapping("api/nngc/")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*")
 public class CustomerController {
 
 

@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("auth/route/")
-@CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*")
 @RequiredArgsConstructor
 public class RouteController {
 

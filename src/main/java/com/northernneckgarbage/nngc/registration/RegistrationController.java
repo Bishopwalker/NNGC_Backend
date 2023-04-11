@@ -19,7 +19,6 @@ import java.io.IOException;
 @Controller
 @RequestMapping("auth/nngc/")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*")
 public class RegistrationController {
 
     private final CustomerService customerService;

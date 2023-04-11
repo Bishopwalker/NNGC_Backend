@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 @Slf4j
 @RestController
 @RequestMapping("auth/stripe/")
-@CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*")
 @RequiredArgsConstructor
 public class StripeController {
 

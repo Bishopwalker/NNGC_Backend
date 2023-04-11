@@ -12,7 +12,6 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/nngc")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*")
 public class GeocodingController {
 
     private final GeocodingService geocodingService;
