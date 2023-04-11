@@ -18,7 +18,7 @@ public class AddressDTO {
      private String city;
         private String state;
         private String zipCode;
-        private String latitude;
-        private String longitude;
+        private double latitude;
+        private double longitude;
 
 }

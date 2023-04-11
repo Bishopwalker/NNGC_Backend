@@ -2,6 +2,7 @@ package com.northernneckgarbage.nngc.entity;
 
 import com.northernneckgarbage.nngc.entity.dto.AddressDTO;
 import com.northernneckgarbage.nngc.entity.dto.CustomerDTO;
+import com.northernneckgarbage.nngc.google.GeocodingData;
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.northernneckgarbage.nngc.token.Token;
 import jakarta.persistence.*;
@@ -60,6 +61,7 @@ public class Customer  implements UserDetails {
     private String county;
     @Column(name = "geo_location", length = 10000,unique = true)
     private String  geoLocation;
+
 
     private Double latitude;
     private Double longitude;
@@ -130,6 +132,8 @@ private boolean enabled = false;
                         .city(city)
                         .state(state)
                         .zipCode(zipCode)
+                        .latitude(latitude)
+                        .longitude(longitude)
                         .build())
 
                 .role(appUserRoles)

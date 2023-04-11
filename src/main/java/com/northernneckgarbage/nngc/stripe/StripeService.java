@@ -228,7 +228,6 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
                         .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
                         .setSuccessUrl(YOUR_DOMAIN + "?success=true")
                         .setCancelUrl(YOUR_DOMAIN + "?canceled=true")
-
                         .addLineItem(
                                 SessionCreateParams.LineItem.builder()
                                         .setQuantity(1L)

@@ -23,7 +23,7 @@ public class RegistrationService {
     private final CustomerRepository customerRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtService jwtService;
-    private final EmailValidator emailValidator;
+
     private final TokenService tokenService;
 
     private final EmailSender emailSender;
