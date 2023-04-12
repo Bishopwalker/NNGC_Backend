@@ -194,14 +194,13 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
     }
 
     String YOUR_DOMAIN = "http://localhost:5173";
-    public Session createSessionForTrashOnce(String customerID) throws StripeException {
+    public Session createSessionForTrashOnce(String customerEmail) throws StripeException {
         // This is your test secret API key.
       //  Stripe.apiKey = "sk_test_51MiJlWACOG92rmQ4BY6VTYcXZQUBTsHzKkrG96OujKC6W1HBSOUMXCYIN9tgHZDpWjkyUcGzAYOZtAKGoS1oOmmE00cOVU7uIO";
 
-
         SessionCreateParams params =
                 SessionCreateParams.builder()
-                        .setCustomer(customerID)
+                        .setCustomerEmail(customerEmail)
                        .setMode(SessionCreateParams.Mode.PAYMENT)
                         .setSuccessUrl(YOUR_DOMAIN + "/")
                         .setCancelUrl(YOUR_DOMAIN + "?canceled=true")
@@ -217,14 +216,46 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
 
                                         .build())
                         .build();
+
         return Session.create(params);
     }
 
-    public Session createSessionForTrashSubscription(String customerID) throws StripeException{
+
+    public Session createSessionForTrashOnceWID(long id) throws StripeException {
+
+        var user = customerRepository.findById(id).orElseThrow(() ->
+                new RuntimeException("Customer not found"));
+if(user.getStripeCustomerId() == null){
+    createStripeCustomer(id);
+    user = customerRepository.findById(id).orElseThrow(() ->
+            new RuntimeException("Customer not found"));
+}
+        SessionCreateParams params =
+                SessionCreateParams.builder()
+                        .setCustomerEmail(user.getEmail())
+                        .setMode(SessionCreateParams.Mode.PAYMENT)
+                        .setSuccessUrl(YOUR_DOMAIN + "/")
+                        .setCancelUrl(YOUR_DOMAIN + "?canceled=true")
+                        .setAutomaticTax(
+                                SessionCreateParams.AutomaticTax.builder()
+                                        .setEnabled(true)
+                                        .build())
+                        .addLineItem(
+                                SessionCreateParams.LineItem.builder()
+                                        .setQuantity(1L)
+                                        // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                                        .setPrice("price_1MiksRACOG92rmQ4nQev74WZ")
+
+                                        .build())
+                        .build();
+
+        return Session.create(params);
+    }
+    public Session createSessionForTrashSubscription(String customerEmail) throws StripeException{
 
         SessionCreateParams params =
                 SessionCreateParams.builder()
-                        .setCustomer(customerID)
+                        .setCustomerEmail(customerEmail)
                         .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
                         .setSuccessUrl(YOUR_DOMAIN + "?success=true")
                         .setCancelUrl(YOUR_DOMAIN + "?canceled=true")
@@ -236,14 +267,69 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
                                         .build())
                         .build();
 
+
         return Session.create(params);
     }
 
-    public Session createSessionForDumpster(String customerID) throws StripeException{
+    public Session createSessionForTrashSubscriptionWID(long id) throws StripeException{
+        var user = customerRepository.findById(id).orElseThrow(() ->
+                new RuntimeException("Customer not found"));
+        if(user.getStripeCustomerId() == null){
+            createStripeCustomer(id);
+            user = customerRepository.findById(id).orElseThrow(() ->
+                    new RuntimeException("Customer not found"));
+        }
+        SessionCreateParams params =
+                SessionCreateParams.builder()
+                        .setCustomerEmail(user.getEmail())
+                        .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
+                        .setSuccessUrl(YOUR_DOMAIN + "?success=true")
+                        .setCancelUrl(YOUR_DOMAIN + "?canceled=true")
+                        .addLineItem(
+                                SessionCreateParams.LineItem.builder()
+                                        .setQuantity(1L)
+                                        // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                                        .setPrice("price_1MiksRACOG92rmQ4YhSY0DOU")
+                                        .build())
+                        .build();
+
+
+        return Session.create(params);
+    }
+
+    public Session createSessionForDumpster(String customerEmail) throws StripeException{
 
         SessionCreateParams params =
                 SessionCreateParams.builder()
-                        .setCustomerEmail(customerID)
+                        .setCustomerEmail(customerEmail)
+                        .setMode(SessionCreateParams.Mode.PAYMENT)
+                        .setSuccessUrl(YOUR_DOMAIN + "?success=true")
+                        .setCancelUrl(YOUR_DOMAIN + "?canceled=true")
+                        .setAutomaticTax(
+                                SessionCreateParams.AutomaticTax.builder()
+                                        .setEnabled(true)
+                                        .build())
+                        .addLineItem(
+                                SessionCreateParams.LineItem.builder()
+                                        .setQuantity(1L)
+                                        // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                                        .setPrice("price_1Mj1wXACOG92rmQ4eB6LWple")
+                                        .build())
+                        .build();
+        return Session.create(params);
+    }
+
+    public Session createSessionForDumpsterWID(long id) throws StripeException{
+        var user = customerRepository.findById(id).orElseThrow(() ->
+                new RuntimeException("Customer not found"));
+        if(user.getStripeCustomerId() == null){
+            createStripeCustomer(id);
+            user = customerRepository.findById(id).orElseThrow(() ->
+                    new RuntimeException("Customer not found"));
+        }
+        SessionCreateParams params =
+                SessionCreateParams.builder()
+                        .setCustomerEmail(user.getEmail())
                         .setMode(SessionCreateParams.Mode.PAYMENT)
                         .setSuccessUrl(YOUR_DOMAIN + "?success=true")
                         .setCancelUrl(YOUR_DOMAIN + "?canceled=true")

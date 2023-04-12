@@ -107,6 +107,15 @@ log.warn("expired: " + expired);
                 .build());
     }
 
+    @GetMapping("/create-checkout-session_wid/res_trash_once/{id}")
+    public ResponseEntity<StripeApiResponse> checkoutSession(@PathVariable long id) throws StripeException {
+        // Logic to create a Stripe session
+        Session session = stripeService.createSessionForTrashOnceWID(id);
+        return ResponseEntity.ok(StripeApiResponse.builder()
+                .message(session.getUrl())
+                .build());
+    }
+
     //Create Stripe Customer by customer id
     @GetMapping("/create-customer/{id}")
     public ResponseEntity<StripeApiResponse<com.stripe.model.Customer>> createStripeCustomer(@PathVariable Long id) throws StripeException {
@@ -128,11 +137,26 @@ log.warn("expired: " + expired);
         return "redirect: " + session.getUrl();
     }
 
+    @GetMapping("/create-checkout-session_wid/res_trash_sub/{id}")
+    public String checkoutSessionSub(@PathVariable long id) throws StripeException {
+        // Logic to create a Stripe session
+        Session session = stripeService.createSessionForTrashSubscriptionWID(id);
+        return "redirect: " + session.getUrl();
+    }
+
+
 
     @GetMapping("/create-checkout-session/dumpster/{stripeID}")
     public String checkoutSessionDumpster(@PathVariable String stripeID) throws StripeException {
         // Logic to create a Stripe session
         Session session = stripeService.createSessionForDumpster(stripeID);
+        return "redirect: " + session.getUrl();
+    }
+
+    @GetMapping("/create-checkout-session_wid/dumpster/{id}")
+    public String checkoutSessionDumpsterID(@PathVariable long id) throws StripeException {
+        // Logic to create a Stripe session
+        Session session = stripeService.createSessionForDumpsterWID(id);
         return "redirect: " + session.getUrl();
     }
 

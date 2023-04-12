@@ -27,4 +27,10 @@ public class GeocodingController {
         return ResponseEntity.ok(geocodingService.getGeocodeByID(id));
     }
 
+    @GetMapping("/geocode_all")
+    public ResponseEntity<GeocodingData> geocodeAll() throws InterruptedException, ApiException, IOException {
+        log.info("Geocoding all addresses");
+        return ResponseEntity.ok(geocodingService.updateAllUsersGeocodes());
+    }
+
 }
