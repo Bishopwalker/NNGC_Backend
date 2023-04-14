@@ -63,8 +63,11 @@ public class Customer  implements UserDetails {
     private String  geoLocation;
 
 
-    private Double latitude;
-    private Double longitude;
+    @Column(name = "latitude", length = 150)
+
+    private double latitude ;
+    @Column(name = "longitude", length = 150)
+    private double longitude;
 
 
   @Column(name = "stripe_customer_id", length = 50)
