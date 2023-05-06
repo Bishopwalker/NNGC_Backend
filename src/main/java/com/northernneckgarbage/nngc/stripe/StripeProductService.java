@@ -5,9 +5,14 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Price;
 import com.stripe.model.Product;
+import com.stripe.model.ProductCollection;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -83,4 +88,28 @@ public class StripeProductService {
                 .message("Product Retrieved One Time Trash PickUp")
                 .build();
     }
+    public List<StripeProductResponse<Product>> getAllProducts() throws StripeException {
+        log.info("Fetching all products");
+
+        // Fetch all products from Stripe
+        ProductCollection products = Product.list(new HashMap<>());
+
+        // Process the products and build the response objects
+        List<StripeProductResponse<Product>> productResponses = new ArrayList<>();
+        for (Product product : products.getData()) {
+            Price price = Price.retrieve(product.getDefaultPrice());
+            StripeProductResponse<Product> response = StripeProductResponse.<Product>builder()
+                    .id(product.getId())
+                    .name(product.getName())
+                    .description(product.getDescription())
+                    .price(price.getUnitAmount().toString())
+                    .imageUrl(product.getImages())
+                    .message("Product Retrieved")
+                    .build();
+            productResponses.add(response);
+        }
+
+        return productResponses;
+    }
+
 }
