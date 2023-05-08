@@ -15,7 +15,7 @@ import java.io.IOException;
 public class GeocodingController {
 
     private final GeocodingService geocodingService;
-
+private final RoutingService routingService;
     @GetMapping("/geocoding")
     public GeocodingData getGeocoding(@RequestParam String address) throws InterruptedException, ApiException, IOException {
         return geocodingService.getGeocoding(address);
@@ -27,10 +27,18 @@ public class GeocodingController {
         return ResponseEntity.ok(geocodingService.getGeocodeByID(id));
     }
 
+    @GetMapping("/google/create-route-4-driver")
+            public ResponseEntity<String> createRoute4Driver() throws InterruptedException, ApiException, IOException{
+            log.info("Creating route for driver");
+            return ResponseEntity.ok(routingService.createRoute4OneDriver());
+
+    }
+
     @GetMapping("/geocode_all")
-    public ResponseEntity<GeocodingData> geocodeAll() throws InterruptedException, ApiException, IOException {
+    public ResponseEntity<?> geocodeAll() throws InterruptedException, ApiException, IOException {
         log.info("Geocoding all addresses");
-        return ResponseEntity.ok(geocodingService.updateAllUsersGeocodes());
+        geocodingService.updateAllUsersGeocodes();
+        return ResponseEntity.ok().build();
     }
 
 }

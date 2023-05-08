@@ -65,9 +65,9 @@ public class Customer  implements UserDetails {
 
     @Column(name = "latitude", length = 150)
 
-    private double latitude ;
+    private Double latitude ;
     @Column(name = "longitude", length = 150)
-    private double longitude;
+    private Double longitude;
 
 
   @Column(name = "stripe_customer_id", length = 50)

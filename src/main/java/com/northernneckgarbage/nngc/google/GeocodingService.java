@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -23,7 +24,11 @@ public class GeocodingService {
     Dotenv dotenv = Dotenv.load();
 private final CustomerRepository customerRepository;
     private final String apiKey = dotenv.get("GOOGLE_MAPS_API_KEY");
-
+    public GeoApiContext getContext() {
+        return new GeoApiContext.Builder()
+                .apiKey(apiKey)
+                .build();
+    }
     private GeocodingData fetchGeocodingData(String address) throws InterruptedException, ApiException, IOException {
         GeoApiContext context = new GeoApiContext.Builder()
                 .apiKey(apiKey)
@@ -54,20 +59,23 @@ private final CustomerRepository customerRepository;
     }
 
     //GeoCode the entire Database and update the lat and long
-    public GeocodingData updateAllUsersGeocodes() throws InterruptedException, ApiException, IOException {
+    public List<Customer> updateAllUsersGeocodes() throws InterruptedException, ApiException, IOException {
         List<Customer> users = customerRepository.findAll();
+        List<Customer> updatedUsers = new ArrayList<>();
 
         for (Customer user : users) {
             String address = user.getHouseNumber() + " " + user.getStreetName().toUpperCase() + ", " + user.getCity().toUpperCase() + ", " + user.getState().toUpperCase() + " " + user.getZipCode();
             GeocodingData geoData = getGeocoding(address);
 
-            if (user.getLatitude() != geoData.getGeometry().getLocation().getLat() || user.getLongitude() != geoData.getGeometry().getLocation().getLng()) {
+            if ((user.getLatitude() == null || user.getLongitude() == null) ||
+                    (user.getLatitude() != geoData.getGeometry().getLocation().getLat() ||
+                            user.getLongitude() != geoData.getGeometry().getLocation().getLng())) {
                 user.setLatitude(geoData.getGeometry().getLocation().getLat());
                 user.setLongitude(geoData.getGeometry().getLocation().getLng());
-                   customerRepository.save(user);
-                return geoData;
+                customerRepository.save(user);
+                updatedUsers.add(user);
             }
         }
-        return null;
+        return updatedUsers;
     }
 }
