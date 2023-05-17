@@ -6,15 +6,20 @@ import java.util.List;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import io.github.cdimascio.dotenv.Dotenv;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class RouteServiceImpl implements RouteService{
 
-	@Autowired
-	private CustomerRepository customerRepository;
+
+	private final CustomerRepository customerRepository;
+
 
 	public List<RouteResponse> calculateRoutesForAllCustomers() {
 		List<Customer> customers = customerRepository.findAll();
@@ -195,4 +200,5 @@ public class RouteServiceImpl implements RouteService{
 
 interface RouteService{
 	RouteResponse calculateOptimizedRoute(RouteRequest request);
+	List<RouteResponse> calculateRoutesForAllCustomers();
 }

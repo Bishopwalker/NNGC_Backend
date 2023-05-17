@@ -21,6 +21,8 @@ public class GoogleRouteController {
 	}
 	@GetMapping("/auto-route")
 	public ResponseEntity<RouteResponse> getAutoRoute(){
-		return ResponseEntity.ok(routeService.calculateOptimizedRoute(new RouteRequest()));
+		RouteResponse routeResponse = routeService.calculateOptimizedRoute((RouteRequest) routeService.calculateRoutesForAllCustomers());
+		return ResponseEntity.ok(routeResponse);
 	}
+
 }
