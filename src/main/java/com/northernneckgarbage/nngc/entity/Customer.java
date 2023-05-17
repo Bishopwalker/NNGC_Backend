@@ -2,7 +2,6 @@ package com.northernneckgarbage.nngc.entity;
 
 import com.northernneckgarbage.nngc.entity.dto.AddressDTO;
 import com.northernneckgarbage.nngc.entity.dto.CustomerDTO;
-import com.northernneckgarbage.nngc.google.GeocodingData;
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.northernneckgarbage.nngc.token.Token;
 import jakarta.persistence.*;
