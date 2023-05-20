@@ -112,6 +112,7 @@
             <artifactId>google-maps-services</artifactId>
             <version>2.1.2</version>
         </dependency>
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>

@@ -1,6 +1,9 @@
 package com.northernneckgarbage.nngc.google;
 
 import com.google.maps.errors.ApiException;
+import com.google.maps.model.DirectionsResult;
+import com.google.maps.model.DirectionsRoute;
+import com.northernneckgarbage.nngc.dbConfig.RouteResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +18,7 @@ import java.io.IOException;
 public class GeocodingController {
 
     private final GeocodingService geocodingService;
-
+private final RoutingService routingService;
     @GetMapping("/geocoding")
     public GeocodingData getGeocoding(@RequestParam String address) throws InterruptedException, ApiException, IOException {
         return geocodingService.getGeocoding(address);
@@ -27,10 +30,18 @@ public class GeocodingController {
         return ResponseEntity.ok(geocodingService.getGeocodeByID(id));
     }
 
+    @GetMapping("/google/create-route-4-driver")
+            public ResponseEntity<RouteResponse> createRoute4Driver() throws InterruptedException, ApiException, IOException{
+            log.info("Creating route for driver");
+            return ResponseEntity.ok(routingService.createRoute4OneDriver());
+
+    }
+
     @GetMapping("/geocode_all")
-    public ResponseEntity<GeocodingData> geocodeAll() throws InterruptedException, ApiException, IOException {
+    public ResponseEntity<?> geocodeAll() throws InterruptedException, ApiException, IOException {
         log.info("Geocoding all addresses");
-        return ResponseEntity.ok(geocodingService.updateAllUsersGeocodes());
+        geocodingService.updateAllUsersGeocodes();
+        return ResponseEntity.ok().build();
     }
 
 }

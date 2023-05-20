@@ -185,4 +185,9 @@ log.warn("expired: " + expired);
                 .stripeTransactions(payment)
                 .build());
     }
+
+    @GetMapping("/all-products")
+    public ResponseEntity<StripeProductResponse> getAllProducts() throws StripeException {
+        return ResponseEntity.ok((StripeProductResponse) stripeProductService.getAllProducts());
+    }
 }

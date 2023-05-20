@@ -35,7 +35,9 @@ Dotenv dotenv = Dotenv.load();
 private final CustomerRepository customerRepository;
 private final StripeTransactionRepository stripeTransactionRepository;
 public StripeService(CustomerRepository customerRepository, StripeTransactionRepository stripeTransactionRepository) throws StripeException {
+
     Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY");
+    log.info("Stripe Secret Key: {}", dotenv.get("STRIPE_SECRET_KEY"));
     Stripe.setAppInfo(
             "NNGC-Server",
             "0.0.2",
