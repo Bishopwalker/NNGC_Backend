@@ -1,6 +1,6 @@
 package com.northernneckgarbage.nngc.google_routing;
 
-import org.springframework.http.ResponseEntity;
+import com.northernneckgarbage.nngc.dbConfig.RouteResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,10 +19,8 @@ public class GoogleRouteController {
 		// RouteResponse routeResponse = new RouteResponse();
 		return routeService.calculateOptimizedRoute(routeRequest);
 	}
-	@GetMapping("/auto-route")
-	public ResponseEntity<RouteResponse> getAutoRoute(){
-		RouteResponse routeResponse = routeService.calculateOptimizedRoute((RouteRequest) routeService.calculateRoutesForAllCustomers());
-		return ResponseEntity.ok(routeResponse);
+	@GetMapping("/hello")
+	public String getHello(){
+		return "HELLO FROM GET";
 	}
-
 }

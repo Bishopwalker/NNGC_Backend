@@ -3,47 +3,12 @@ package com.northernneckgarbage.nngc.google_routing;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.northernneckgarbage.nngc.entity.Customer;
-import com.northernneckgarbage.nngc.repository.CustomerRepository;
-import io.github.cdimascio.dotenv.Dotenv;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.northernneckgarbage.nngc.dbConfig.RouteResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class RouteServiceImpl implements RouteService{
-
-
-	private final CustomerRepository customerRepository;
-
-
-	public List<RouteResponse> calculateRoutesForAllCustomers() {
-		List<Customer> customers = customerRepository.findAll();
-		List<RouteResponse> routeResponses = new ArrayList<>();
-
-		for (Customer customer : customers) {
-			Location startLocation = new Location();
-			startLocation.setLatitude(customer.getLatitude());
-			startLocation.setLongitude(customer.getLongitude());
-
-			RouteRequest routeRequest = new RouteRequest();
-			routeRequest.setStartLocation(startLocation);
-			// Set other properties of routeRequest as per your requirement
-
-			RouteResponse routeResponse = calculateOptimizedRoute(routeRequest);
-
-			// Add customer's information to routeResponse
-			routeResponse.setCustomerInfo(customer);
-
-			routeResponses.add(routeResponse);
-		}
-
-		return routeResponses;
-	}
 	@Override
 	public RouteResponse calculateOptimizedRoute(RouteRequest routeRequest){
 		RouteResponse routeResponse = new RouteResponse();
@@ -120,7 +85,7 @@ public class RouteServiceImpl implements RouteService{
 			}
 			//System.out.println(); // Move to the next line after printing each row
 		}
-
+		
 		double destLat = 34.0522; // Latitude of destination (Los Angeles)
 		double destLng = -118.2437; // Longitude of destination (Los Angeles)
 
@@ -138,7 +103,7 @@ public class RouteServiceImpl implements RouteService{
 		int minimalCost = pathInfo.getTotalMinimalCost();
 		int totalStops = routeLocations.size()+1;
 
-
+		
 		// String plusCode = googleDistanceMatrixAPI.getPlusCodeName();
 		String metric = googleDistanceMatrixAPI.getMetric(originLat, originLng, destLat, destLng);
 
@@ -176,11 +141,11 @@ public class RouteServiceImpl implements RouteService{
 			route.setProjectedStartTime(projStartTime);
 			route.setProjectedArrivaltime(projArrivTime);
 			route.setProjectedDepartureTime(projDprtTime);
-
+			
 			routeList.add(route);
         }
 
-		totalDuration += (optimalPath.size()-1)*300;
+		totalDuration += (optimalPath.size()-1)*300;		
 
 		String destinationArrivalTime = Integer.toString(Integer.parseInt(startTime) + totalDuration);
 
@@ -200,5 +165,4 @@ public class RouteServiceImpl implements RouteService{
 
 interface RouteService{
 	RouteResponse calculateOptimizedRoute(RouteRequest request);
-	List<RouteResponse> calculateRoutesForAllCustomers();
 }

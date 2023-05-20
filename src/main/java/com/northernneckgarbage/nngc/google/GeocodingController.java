@@ -1,6 +1,9 @@
 package com.northernneckgarbage.nngc.google;
 
 import com.google.maps.errors.ApiException;
+import com.google.maps.model.DirectionsResult;
+import com.google.maps.model.DirectionsRoute;
+import com.northernneckgarbage.nngc.dbConfig.RouteResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +31,7 @@ private final RoutingService routingService;
     }
 
     @GetMapping("/google/create-route-4-driver")
-            public ResponseEntity<String> createRoute4Driver() throws InterruptedException, ApiException, IOException{
+            public ResponseEntity<RouteResponse> createRoute4Driver() throws InterruptedException, ApiException, IOException{
             log.info("Creating route for driver");
             return ResponseEntity.ok(routingService.createRoute4OneDriver());
 
