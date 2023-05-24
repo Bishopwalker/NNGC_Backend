@@ -9,6 +9,7 @@ import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.entity.StripeTransactions;
 import com.northernneckgarbage.nngc.token.TokenRepository;
 import com.stripe.exception.StripeException;
+import com.stripe.model.ChargeCollection;
 import com.stripe.model.checkout.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -98,14 +99,6 @@ log.warn("expired: " + expired);
         return ResponseEntity.ok().body((Page<StripeTransactions>) StripeApiResponse.builder().message("You are not authorized to view this page").build());
     }
 
-    @GetMapping("/create-checkout-session/res_trash_once/{stripeID}")
-    public ResponseEntity<StripeApiResponse> checkoutSession(@PathVariable String stripeID) throws StripeException {
-        // Logic to create a Stripe session
-        Session session = stripeService.createSessionForTrashOnce(stripeID);
-        return ResponseEntity.ok(StripeApiResponse.builder()
-                .message(session.getUrl())
-                .build());
-    }
 
     @GetMapping("/create-checkout-session_wid/res_trash_once/{id}")
     public ResponseEntity<StripeApiResponse> checkoutSession(@PathVariable long id) throws StripeException {
@@ -130,12 +123,6 @@ log.warn("expired: " + expired);
         return ResponseEntity.ok(stripeService.addStripeTransaction2Customer(id, customerID));
     }
 
-    @GetMapping("/create-checkout-session/res_trash_sub/{stripeID}")
-    public String checkoutSessionSub(@PathVariable String stripeID) throws StripeException {
-        // Logic to create a Stripe session
-        Session session = stripeService.createSessionForTrashSubscription(stripeID);
-        return "redirect: " + session.getUrl();
-    }
 
     @GetMapping("/create-checkout-session_wid/res_trash_sub/{id}")
     public String checkoutSessionSub(@PathVariable long id) throws StripeException {
@@ -146,12 +133,6 @@ log.warn("expired: " + expired);
 
 
 
-    @GetMapping("/create-checkout-session/dumpster/{stripeID}")
-    public String checkoutSessionDumpster(@PathVariable String stripeID) throws StripeException {
-        // Logic to create a Stripe session
-        Session session = stripeService.createSessionForDumpster(stripeID);
-        return "redirect: " + session.getUrl();
-    }
 
     @GetMapping("/create-checkout-session_wid/dumpster/{id}")
     public String checkoutSessionDumpsterID(@PathVariable long id) throws StripeException {
@@ -189,5 +170,10 @@ log.warn("expired: " + expired);
     @GetMapping("/all-products")
     public ResponseEntity<StripeProductResponse> getAllProducts() throws StripeException {
         return ResponseEntity.ok((StripeProductResponse) stripeProductService.getAllProducts());
+    }
+
+    @GetMapping("/all-invoices/{id}")
+    public ResponseEntity<StripeApiResponse<StripeTransactions>> getAllInvoicesByID(@PathVariable Long id) throws StripeException {
+        return ResponseEntity.ok(stripeService.getAllTransactionsFromStripeByCustomerId(id));
     }
 }

@@ -1,5 +1,6 @@
 package com.northernneckgarbage.nngc.stripe;
 
+import com.stripe.model.ChargeCollection;
 import com.stripe.model.Price;
 
 import com.northernneckgarbage.nngc.dbConfig.StripeApiResponse;
@@ -12,6 +13,7 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
 import com.stripe.model.Customer;
 import com.stripe.model.checkout.Session;
+import com.stripe.param.ChargeListParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -37,7 +40,7 @@ private final StripeTransactionRepository stripeTransactionRepository;
 public StripeService(CustomerRepository customerRepository, StripeTransactionRepository stripeTransactionRepository) throws StripeException {
 
     Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY");
-    log.info("Stripe Secret Key: {}", dotenv.get("STRIPE_SECRET_KEY"));
+
     Stripe.setAppInfo(
             "NNGC-Server",
             "0.0.2",
@@ -45,8 +48,6 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
     );
     this.customerRepository = customerRepository;
     this.stripeTransactionRepository = stripeTransactionRepository;
-    Map<String, Object> params = new HashMap<>();
-    params.put("customer","cus_NU0gEq31snHVZx");
 
 
 }
@@ -181,6 +182,24 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
                 .message("Stripe Customer created")
                 .build();
     }
+    public void createStripeCustomersForAllUsers() {
+        // Get all users
+        List<com.northernneckgarbage.nngc.entity.Customer> users = customerRepository.findAll();
+
+        // Loop through each user
+        for (com.northernneckgarbage.nngc.entity.Customer user : users) {
+            // Check if user has a Stripe ID
+            if (user.getStripeCustomerId() == null) {
+                // If not, create a Stripe customer for that user
+                try {
+                    createStripeCustomer(user.getId());
+                } catch (StripeException e) {
+                    // Handle the exception (you may want to log the error and continue with the next user)
+                    System.err.println("Failed to create a Stripe customer for user " + user.getId() + ": " + e.getMessage());
+                }
+            }
+        }
+    }
 
     public StripeApiResponse charge(StripeTransactions payment) throws StripeException {
         Map<String, Object> chargeParams = new HashMap<>();
@@ -234,7 +253,7 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
         Session session = Session.create(params);
 
         StripeTransactions transactions = StripeTransactions.builder()
-                .amount(Math.toIntExact(price.getUnitAmount())) // Set the transaction amount using the price object
+                .amount((long) Math.toIntExact(price.getUnitAmount())) // Set the transaction amount using the price object
                 .currency(StripeTransactions.Currency.USD)
                 .description(price.getProduct())
                 .stripeToken(session.getId())
@@ -249,7 +268,28 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
         return session;
     }
 
+    public StripeApiResponse<StripeTransactions> getAllTransactionsFromStripeByCustomerId(Long id) throws StripeException {
+        var user = customerRepository.findById(id).orElseThrow(() ->
+                new RuntimeException("Customer not found"));
+        if(user.getStripeCustomerId() == null){
+            createStripeCustomer(id);
+            user = customerRepository.findById(id).orElseThrow(() ->
+                    new RuntimeException("Customer not found"));
+        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("customer", user.getStripeCustomerId());
+log.info(params.toString());
+        ChargeListParams listParams = ChargeListParams.builder().setCustomer(user.getStripeCustomerId()).build();
+        ChargeCollection charges = Charge.list(listParams);
+log.info("Charges: " + charges);
 
+        return StripeApiResponse.<StripeTransactions>builder()
+                .stripeTransactionsList(charges.getData().stream()
+                        .map(StripeTransactions::fromCharge).collect(Collectors.toList()))
+                .charge(Charge.retrieve(params.toString()))
+                .message("All transactions for customer " + user.getStripeCustomerId())
+                .build();
+    }
     public Session createSessionForTrashSubscriptionWID(long id) throws StripeException{
         var user = customerRepository.findById(id).orElseThrow(() ->
                 new RuntimeException("Customer not found"));
@@ -280,7 +320,7 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
         Session session = Session.create(params);
 
         StripeTransactions transactions = StripeTransactions.builder()
-                .amount(Math.toIntExact(price.getUnitAmount())) // Set the transaction amount using the price object
+                .amount((long) Math.toIntExact(price.getUnitAmount())) // Set the transaction amount using the price object
                 .currency(StripeTransactions.Currency.USD)
                 .description(price.getProduct())
                 .stripeToken(session.getId())
@@ -328,7 +368,7 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
 
         Session session = Session.create(params);
         StripeTransactions transactions = StripeTransactions.builder()
-                .amount(Math.toIntExact(price.getUnitAmount())) // Set the transaction amount using the price object
+                .amount((long) Math.toIntExact(price.getUnitAmount())) // Set the transaction amount using the price object
                 .currency(StripeTransactions.Currency.USD)
                 .description(price.getProduct())
                 .stripeToken(session.getId())
