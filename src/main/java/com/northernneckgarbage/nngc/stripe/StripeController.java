@@ -7,6 +7,7 @@ import com.northernneckgarbage.nngc.dbConfig.StripeProductResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.entity.StripeTransactions;
+import com.northernneckgarbage.nngc.stripe.transaction.StripeCustomApiResponse;
 import com.northernneckgarbage.nngc.token.TokenRepository;
 import com.stripe.exception.StripeException;
 import com.stripe.model.ChargeCollection;
@@ -173,7 +174,7 @@ log.warn("expired: " + expired);
     }
 
     @GetMapping("/all-invoices/{id}")
-    public ResponseEntity<StripeApiResponse<StripeTransactions>> getAllInvoicesByID(@PathVariable Long id) throws StripeException {
+    public ResponseEntity<StripeCustomApiResponse> getAllInvoicesByID(@PathVariable Long id) throws StripeException {
         return ResponseEntity.ok(stripeService.getAllTransactionsFromStripeByCustomerId(id));
     }
 }

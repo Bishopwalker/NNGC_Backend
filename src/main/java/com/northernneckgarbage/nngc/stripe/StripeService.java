@@ -1,5 +1,6 @@
 package com.northernneckgarbage.nngc.stripe;
 
+import com.northernneckgarbage.nngc.stripe.transaction.*;
 import com.stripe.model.ChargeCollection;
 import com.stripe.model.Price;
 
@@ -13,6 +14,7 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
 import com.stripe.model.Customer;
 import com.stripe.model.checkout.Session;
+import com.stripe.net.RequestOptions;
 import com.stripe.param.ChargeListParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -268,7 +270,7 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
         return session;
     }
 
-    public StripeApiResponse<StripeTransactions> getAllTransactionsFromStripeByCustomerId(Long id) throws StripeException {
+    public StripeCustomApiResponse getAllTransactionsFromStripeByCustomerId(Long id) throws StripeException {
         var user = customerRepository.findById(id).orElseThrow(() ->
                 new RuntimeException("Customer not found"));
         if(user.getStripeCustomerId() == null){
@@ -276,20 +278,35 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
             user = customerRepository.findById(id).orElseThrow(() ->
                     new RuntimeException("Customer not found"));
         }
-        Map<String, Object> params = new HashMap<>();
-        params.put("customer", user.getStripeCustomerId());
-log.info(params.toString());
         ChargeListParams listParams = ChargeListParams.builder().setCustomer(user.getStripeCustomerId()).build();
         ChargeCollection charges = Charge.list(listParams);
-log.info("Charges: " + charges);
+        log.info("Charges: " + charges);
 
-        return StripeApiResponse.<StripeTransactions>builder()
-                .stripeTransactionsList(charges.getData().stream()
-                        .map(StripeTransactions::fromCharge).collect(Collectors.toList()))
-                .charge(Charge.retrieve(params.toString()))
-                .message("All transactions for customer " + user.getStripeCustomerId())
-                .build();
+        List<StripeTransaction> stripeTransactions = charges.getData().stream()
+                .map(charge -> {
+                    BillingDetails billingDetails = new BillingDetails(charge.getBillingDetails().getEmail(),
+                            charge.getBillingDetails().getName(),
+                            new Address(charge.getBillingDetails().getAddress().getCity(),
+                                    charge.getBillingDetails().getAddress().getCountry(),
+                                    charge.getBillingDetails().getAddress().getLine1(),
+                                    charge.getBillingDetails().getAddress().getPostalCode(),
+                                    charge.getBillingDetails().getAddress().getState()));
+
+                    PaymentMethodDetails paymentMethodDetails = new PaymentMethodDetails(charge.getPaymentMethodDetails().getType(),
+                            new Card(charge.getPaymentMethodDetails().getCard().getBrand(),
+                                    charge.getPaymentMethodDetails().getCard().getCountry(),
+                                    Math.toIntExact(charge.getPaymentMethodDetails().getCard().getExpMonth()),
+                                    Math.toIntExact(charge.getPaymentMethodDetails().getCard().getExpYear()),
+                                    charge.getPaymentMethodDetails().getCard().getLast4()));
+
+                    return new StripeTransaction(charge.getId(), Math.toIntExact(charge.getAmount()), charge.getCurrency(),
+                            charge.getDescription(), charge.getCaptured(), charge.getStatus(), billingDetails, paymentMethodDetails);
+                }).collect(Collectors.toList());
+
+        return new StripeCustomApiResponse(stripeTransactions, charges.getHasMore(), charges.getUrl(),
+                new RequestParams(user.getStripeCustomerId()));
     }
+
     public Session createSessionForTrashSubscriptionWID(long id) throws StripeException{
         var user = customerRepository.findById(id).orElseThrow(() ->
                 new RuntimeException("Customer not found"));
