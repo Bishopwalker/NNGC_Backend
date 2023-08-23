@@ -20,7 +20,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -30,22 +29,24 @@ public class SecurityConfiguration {
     private final AuthenticationProvider authenticationProvider;
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin("http://localhost:5173");
-        corsConfiguration.addAllowedOrigin("https://c629-209-42-140-216.ngrok.io");
-        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
-        corsConfiguration.setAllowCredentials(true);
-
-        CorsConfigurationSource corsConfigurationSource = new UrlBasedCorsConfigurationSource();
-        ((UrlBasedCorsConfigurationSource) corsConfigurationSource).registerCorsConfiguration("/**", corsConfiguration);
-
         http
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .cors().configurationSource(corsConfigurationSource()) // Apply global CORS configuration
+                .and()
+                .csrf().disable()
                 .authorizeRequests(auth -> {
-                    auth.anyRequest().authenticated();
+                    auth.anyRequest().permitAll();
                 });
         http.oauth2Login()
                 .successHandler(new SimpleUrlAuthenticationSuccessHandler() {
@@ -63,4 +64,5 @@ public class SecurityConfiguration {
 
         return http.build();
     }
+
 }
