@@ -33,4 +33,7 @@ public class Appointment {
 
     @Column(name = "appointment_time")
     private LocalTime appointmentTime;
+
+    @Column(name = "appointment_type")
+    private String appointmentType;
 }

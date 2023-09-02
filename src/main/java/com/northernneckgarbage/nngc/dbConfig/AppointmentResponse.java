@@ -18,6 +18,7 @@ public class AppointmentResponse<T> {
     private CustomerDTO customer;
     private LocalTime appointmentTime;
     private LocalDate appointmentDate;
+    private String appointmentType;
     private String message;
     private T response;
 }
