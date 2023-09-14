@@ -1,5 +1,8 @@
 package com.northernneckgarbage.nngc.stripe;
 
+import com.northernneckgarbage.nngc.stripe.transaction.*;
+import com.stripe.model.ChargeCollection;
+import com.stripe.model.Price;
 
 import com.northernneckgarbage.nngc.dbConfig.StripeApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
@@ -11,6 +14,8 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
 import com.stripe.model.Customer;
 import com.stripe.model.checkout.Session;
+import com.stripe.net.RequestOptions;
+import com.stripe.param.ChargeListParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -36,7 +42,7 @@ private final StripeTransactionRepository stripeTransactionRepository;
 public StripeService(CustomerRepository customerRepository, StripeTransactionRepository stripeTransactionRepository) throws StripeException {
 
     Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY");
-    log.info("Stripe Secret Key: {}", dotenv.get("STRIPE_SECRET_KEY"));
+
     Stripe.setAppInfo(
             "NNGC-Server",
             "0.0.2",
@@ -44,8 +50,6 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
     );
     this.customerRepository = customerRepository;
     this.stripeTransactionRepository = stripeTransactionRepository;
-    Map<String, Object> params = new HashMap<>();
-    params.put("customer","cus_NU0gEq31snHVZx");
 
 
 }
@@ -180,6 +184,24 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
                 .message("Stripe Customer created")
                 .build();
     }
+    public void createStripeCustomersForAllUsers() {
+        // Get all users
+        List<com.northernneckgarbage.nngc.entity.Customer> users = customerRepository.findAll();
+
+        // Loop through each user
+        for (com.northernneckgarbage.nngc.entity.Customer user : users) {
+            // Check if user has a Stripe ID
+            if (user.getStripeCustomerId() == null) {
+                // If not, create a Stripe customer for that user
+                try {
+                    createStripeCustomer(user.getId());
+                } catch (StripeException e) {
+                    // Handle the exception (you may want to log the error and continue with the next user)
+                    System.err.println("Failed to create a Stripe customer for user " + user.getId() + ": " + e.getMessage());
+                }
+            }
+        }
+    }
 
     public StripeApiResponse charge(StripeTransactions payment) throws StripeException {
         Map<String, Object> chargeParams = new HashMap<>();
@@ -196,42 +218,23 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
     }
 
     String YOUR_DOMAIN = "http://localhost:5173";
-    public Session createSessionForTrashOnce(String customerEmail) throws StripeException {
-        // This is your test secret API key.
-      //  Stripe.apiKey = "sk_test_51MiJlWACOG92rmQ4BY6VTYcXZQUBTsHzKkrG96OujKC6W1HBSOUMXCYIN9tgHZDpWjkyUcGzAYOZtAKGoS1oOmmE00cOVU7uIO";
-
-        SessionCreateParams params =
-                SessionCreateParams.builder()
-                        .setCustomerEmail(customerEmail)
-                       .setMode(SessionCreateParams.Mode.PAYMENT)
-                        .setSuccessUrl(YOUR_DOMAIN + "/")
-                        .setCancelUrl(YOUR_DOMAIN + "?canceled=true")
-                        .setAutomaticTax(
-                                SessionCreateParams.AutomaticTax.builder()
-                                        .setEnabled(true)
-                                        .build())
-                        .addLineItem(
-                                SessionCreateParams.LineItem.builder()
-                                        .setQuantity(1L)
-                                        // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                                        .setPrice("price_1MiksRACOG92rmQ4nQev74WZ")
-
-                                        .build())
-                        .build();
-
-        return Session.create(params);
-    }
 
 
     public Session createSessionForTrashOnceWID(long id) throws StripeException {
 
         var user = customerRepository.findById(id).orElseThrow(() ->
                 new RuntimeException("Customer not found"));
-if(user.getStripeCustomerId() == null){
-    createStripeCustomer(id);
-    user = customerRepository.findById(id).orElseThrow(() ->
-            new RuntimeException("Customer not found"));
-}
+        if(user.getStripeCustomerId() == null){
+            createStripeCustomer(id);
+            user = customerRepository.findById(id).orElseThrow(() ->
+                    new RuntimeException("Customer not found"));
+        }
+
+        String priceId = "price_1MiksRACOG92rmQ4nQev74WZ";
+
+        // Retrieve the price object from Stripe
+        Price price = Price.retrieve(priceId);
+
         SessionCreateParams params =
                 SessionCreateParams.builder()
                         .setCustomerEmail(user.getEmail())
@@ -245,32 +248,63 @@ if(user.getStripeCustomerId() == null){
                         .addLineItem(
                                 SessionCreateParams.LineItem.builder()
                                         .setQuantity(1L)
-                                        // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                                        .setPrice("price_1MiksRACOG92rmQ4nQev74WZ")
-
+                                        .setPrice(priceId)
                                         .build())
                         .build();
 
-        return Session.create(params);
+        Session session = Session.create(params);
+
+        StripeTransactions transactions = StripeTransactions.builder()
+                .amount((long) Math.toIntExact(price.getUnitAmount())) // Set the transaction amount using the price object
+                .currency(StripeTransactions.Currency.USD)
+                .description(price.getProduct())
+                .stripeToken(session.getId())
+                .stripeEmail(user.getEmail())
+                .transactionId(params.getClientReferenceId())
+                .customer(user)
+                .build();
+
+        // Call the updateStripeCustomerTransaction method to update the transaction
+        updateStripeCustomerTransaction(id, transactions);
+
+        return session;
     }
-    public Session createSessionForTrashSubscription(String customerEmail) throws StripeException{
 
-        SessionCreateParams params =
-                SessionCreateParams.builder()
-                        .setCustomerEmail(customerEmail)
-                        .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
-                        .setSuccessUrl(YOUR_DOMAIN + "?success=true")
-                        .setCancelUrl(YOUR_DOMAIN + "?canceled=true")
-                        .addLineItem(
-                                SessionCreateParams.LineItem.builder()
-                                        .setQuantity(1L)
-                                        // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                                        .setPrice("price_1MiksRACOG92rmQ4YhSY0DOU")
-                                        .build())
-                        .build();
+    public StripeCustomApiResponse getAllTransactionsFromStripeByCustomerId(Long id) throws StripeException {
+        var user = customerRepository.findById(id).orElseThrow(() ->
+                new RuntimeException("Customer not found"));
+        if(user.getStripeCustomerId() == null){
+            createStripeCustomer(id);
+            user = customerRepository.findById(id).orElseThrow(() ->
+                    new RuntimeException("Customer not found"));
+        }
+        ChargeListParams listParams = ChargeListParams.builder().setCustomer(user.getStripeCustomerId()).build();
+        ChargeCollection charges = Charge.list(listParams);
+        log.info("Charges: " + charges);
 
+        List<StripeTransaction> stripeTransactions = charges.getData().stream()
+                .map(charge -> {
+                    BillingDetails billingDetails = new BillingDetails(charge.getBillingDetails().getEmail(),
+                            charge.getBillingDetails().getName(),
+                            new Address(charge.getBillingDetails().getAddress().getCity(),
+                                    charge.getBillingDetails().getAddress().getCountry(),
+                                    charge.getBillingDetails().getAddress().getLine1(),
+                                    charge.getBillingDetails().getAddress().getPostalCode(),
+                                    charge.getBillingDetails().getAddress().getState()));
 
-        return Session.create(params);
+                    PaymentMethodDetails paymentMethodDetails = new PaymentMethodDetails(charge.getPaymentMethodDetails().getType(),
+                            new Card(charge.getPaymentMethodDetails().getCard().getBrand(),
+                                    charge.getPaymentMethodDetails().getCard().getCountry(),
+                                    Math.toIntExact(charge.getPaymentMethodDetails().getCard().getExpMonth()),
+                                    Math.toIntExact(charge.getPaymentMethodDetails().getCard().getExpYear()),
+                                    charge.getPaymentMethodDetails().getCard().getLast4()));
+
+                    return new StripeTransaction(charge.getId(), Math.toIntExact(charge.getAmount()), charge.getCurrency(),
+                            charge.getDescription(), charge.getCaptured(), charge.getStatus(), billingDetails, paymentMethodDetails);
+                }).collect(Collectors.toList());
+
+        return new StripeCustomApiResponse(stripeTransactions, charges.getHasMore(), charges.getUrl(),
+                new RequestParams(user.getStripeCustomerId()));
     }
 
     public Session createSessionForTrashSubscriptionWID(long id) throws StripeException{
@@ -281,7 +315,12 @@ if(user.getStripeCustomerId() == null){
             user = customerRepository.findById(id).orElseThrow(() ->
                     new RuntimeException("Customer not found"));
         }
-        SessionCreateParams params =
+
+        String priceId = "price_1MiksRACOG92rmQ4YhSY0DOU";
+        Price price = Price.retrieve(priceId);
+
+
+                SessionCreateParams params =
                 SessionCreateParams.builder()
                         .setCustomerEmail(user.getEmail())
                         .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
@@ -295,31 +334,24 @@ if(user.getStripeCustomerId() == null){
                                         .build())
                         .build();
 
+        Session session = Session.create(params);
 
-        return Session.create(params);
+        StripeTransactions transactions = StripeTransactions.builder()
+                .amount((long) Math.toIntExact(price.getUnitAmount())) // Set the transaction amount using the price object
+                .currency(StripeTransactions.Currency.USD)
+                .description(price.getProduct())
+                .stripeToken(session.getId())
+                .stripeEmail(user.getEmail())
+                .transactionId(params.getClientReferenceId())
+                .customer(user)
+                .build();
+
+        // Call the updateStripeCustomerTransaction method to update the transaction
+        updateStripeCustomerTransaction(id, transactions);
+
+        return session;
     }
 
-    public Session createSessionForDumpster(String customerEmail) throws StripeException{
-
-        SessionCreateParams params =
-                SessionCreateParams.builder()
-                        .setCustomerEmail(customerEmail)
-                        .setMode(SessionCreateParams.Mode.PAYMENT)
-                        .setSuccessUrl(YOUR_DOMAIN + "?success=true")
-                        .setCancelUrl(YOUR_DOMAIN + "?canceled=true")
-                        .setAutomaticTax(
-                                SessionCreateParams.AutomaticTax.builder()
-                                        .setEnabled(true)
-                                        .build())
-                        .addLineItem(
-                                SessionCreateParams.LineItem.builder()
-                                        .setQuantity(1L)
-                                        // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                                        .setPrice("price_1Mj1wXACOG92rmQ4eB6LWple")
-                                        .build())
-                        .build();
-        return Session.create(params);
-    }
 
     public Session createSessionForDumpsterWID(long id) throws StripeException{
         var user = customerRepository.findById(id).orElseThrow(() ->
@@ -329,6 +361,10 @@ if(user.getStripeCustomerId() == null){
             user = customerRepository.findById(id).orElseThrow(() ->
                     new RuntimeException("Customer not found"));
         }
+
+        String priceId = "price_1Mj1wXACOG92rmQ4eB6LWple";
+        Price price = Price.retrieve(priceId);
+
         SessionCreateParams params =
                 SessionCreateParams.builder()
                         .setCustomerEmail(user.getEmail())
@@ -346,7 +382,22 @@ if(user.getStripeCustomerId() == null){
                                         .setPrice("price_1Mj1wXACOG92rmQ4eB6LWple")
                                         .build())
                         .build();
-        return Session.create(params);
+
+        Session session = Session.create(params);
+        StripeTransactions transactions = StripeTransactions.builder()
+                .amount((long) Math.toIntExact(price.getUnitAmount())) // Set the transaction amount using the price object
+                .currency(StripeTransactions.Currency.USD)
+                .description(price.getProduct())
+                .stripeToken(session.getId())
+                .stripeEmail(user.getEmail())
+                .transactionId(params.getClientReferenceId())
+                .customer(user)
+                .build();
+
+        // Call the updateStripeCustomerTransaction method to update the transaction
+        updateStripeCustomerTransaction(id, transactions);
+
+        return session;
     }
 
     //get all stripe_transactions with page

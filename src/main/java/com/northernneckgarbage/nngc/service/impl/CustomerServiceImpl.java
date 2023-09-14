@@ -47,6 +47,7 @@ public class CustomerServiceImpl implements CustomerService {
             } catch (StripeException e) {
                                e.printStackTrace();
             }
+            stripeService.createStripeCustomersForAllUsers();
         });
 
 
