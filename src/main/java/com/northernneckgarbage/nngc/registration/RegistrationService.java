@@ -37,7 +37,7 @@ public ApiResponse resendToken(String email) throws IOException {
         var jwtToken = jwtService.generateToken(user);
         //save old token
         tokenService.saveUserToken(user, jwtToken);
-        String link = " https://d10b-209-42-140-216.ngrok.io/auth/nngc/confirm?token=" + jwtToken;
+        String link = " http://locahost:5000/auth/nngc/confirm?token=" + jwtToken;
         //emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));;
         emailSender.sendWithSendGrid((email),String.format("Validation email for",email), buildEmail(user.getFirstName(), link));
     return ApiResponse.builder()

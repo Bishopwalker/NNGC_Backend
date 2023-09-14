@@ -125,7 +125,7 @@ log.warn("expired: " + expired);
     }
 
 
-    @GetMapping("/create-checkout-session_wid/res_trash_sub/{id}")
+    @GetMapping("/create-checkout-session_wid/res_sub/{id}")
     public String checkoutSessionSub(@PathVariable long id) throws StripeException {
         // Logic to create a Stripe session
         Session session = stripeService.createSessionForTrashSubscriptionWID(id);
