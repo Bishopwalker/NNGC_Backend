@@ -16,69 +16,69 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
-@Service
-@RequiredArgsConstructor
-@Slf4j
-public class RegistrationService {
-    private final CustomerRepository customerRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final JwtService jwtService;
+    @Service
+    @RequiredArgsConstructor
+    @Slf4j
+    public class RegistrationService {
+        private final CustomerRepository customerRepository;
+        private final BCryptPasswordEncoder bCryptPasswordEncoder;
+        private final JwtService jwtService;
 
-    private final TokenService tokenService;
+        private final TokenService tokenService;
 
-    private final EmailSender emailSender;
+        private final EmailSender emailSender;
 
-public ApiResponse resendToken(String email) throws IOException {
-        var user = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalStateException("User not found"));
-    //revokes all tokens for user
-        tokenService.revokeAllUserTokens(user);
-        //generate new token
-        var jwtToken = jwtService.generateToken(user);
-        //save old token
-        tokenService.saveUserToken(user, jwtToken);
-        String link = " http://locahost:5000/auth/nngc/confirm?token=" + jwtToken;
-        //emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));;
-        emailSender.sendWithSendGrid((email),String.format("Validation email for",email), buildEmail(user.getFirstName(), link));
-    return ApiResponse.builder()
-                .customerDTO(user.toCustomerDTO())
-                .token(jwtToken)
-                .message("Token resent to: " + user.getEmail())
-                .build();
-    }
+        public ApiResponse resendToken(String email) throws IOException {
+            var user = customerRepository.findByEmail(email)
+                    .orElseThrow(() -> new IllegalStateException("User not found"));
+            //revokes all tokens for user
+            tokenService.revokeAllUserTokens(user);
+            //generate new token
+            var jwtToken = jwtService.generateToken(user);
+            //save old token
+            tokenService.saveUserToken(user, jwtToken);
+            String link = " http://locahost:5000/auth/nngc/confirm?token=" + jwtToken;
+            //emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));;
+            emailSender.sendWithSendGrid((email),String.format("Validation email for",email), buildEmail(user.getFirstName(), link));
+            return ApiResponse.builder()
+                    .customerDTO(user.toCustomerDTO())
+                    .token(jwtToken)
+                    .message("Token resent to: " + user.getEmail())
+                    .build();
+        }
 
 
-    public ApiResponse register(RegistrationRequest request) throws IOException {
+        public ApiResponse register(RegistrationRequest request) throws IOException {
 
-        if(!EmailValidator.test(request.getEmail()))
-          throw new IllegalStateException("Email not valid");
-        if(request.getPassword().length() < 2)
-            throw new IllegalStateException("Password must be at least 3 characters long");
-        var user = Customer.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .email(request.getEmail())
-                .password(bCryptPasswordEncoder.encode(request.getPassword()))
-                .phone(request.getPhone())
-                .houseNumber(request.getHouseNumber())
-                .streetName(request.getStreetName())
-                .city(request.getCity())
-                .state(request.getState())
-                .zipCode(request.getZipCode())
-               .appUserRoles(AppUserRoles.USER)
-                .build();
+            if(!EmailValidator.test(request.getEmail()))
+                throw new IllegalStateException("Email not valid");
+            if(request.getPassword().length() < 2)
+                throw new IllegalStateException("Password must be at least 3 characters long");
+            var user = Customer.builder()
+                    .firstName(request.getFirstName())
+                    .lastName(request.getLastName())
+                    .email(request.getEmail())
+                    .password(bCryptPasswordEncoder.encode(request.getPassword()))
+                    .phone(request.getPhone())
+                    .houseNumber(request.getHouseNumber())
+                    .streetName(request.getStreetName())
+                    .city(request.getCity())
+                    .state(request.getState())
+                    .zipCode(request.getZipCode())
+                    .appUserRoles(AppUserRoles.USER)
+                    .build();
 
-        var savedUser = customerRepository.save(user);
+            var savedUser = customerRepository.save(user);
 
-        var jwtToken = jwtService.generateToken(user);
-       tokenService.saveUserToken(savedUser, jwtToken);
-        String link = " https://d10b-209-42-140-216.ngrok.io/auth/nngc/confirm?token=" + jwtToken;
-     //emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));;
- emailSender.sendWithSendGrid((request.getEmail()),String.format("Validation email for",request.getEmail()), buildEmail(request.getFirstName(), link));
-        return ApiResponse.builder()
-                .token(jwtToken)
-                .build();
-    }
+            var jwtToken = jwtService.generateToken(user);
+            tokenService.saveUserToken(savedUser, jwtToken);
+            String link = " https://d10b-209-42-140-216.ngrok.io/auth/nngc/confirm?token=" + jwtToken;
+            //emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));;
+            emailSender.sendWithSendGrid((request.getEmail()),String.format("Validation email for",request.getEmail()), buildEmail(request.getFirstName(), link));
+            return ApiResponse.builder()
+                    .token(jwtToken)
+                    .build();
+        }
 
 
     Content buildEmail(String name, String link) {
