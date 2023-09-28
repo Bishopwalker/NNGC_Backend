@@ -33,5 +33,5 @@ build/
 .vscode/
 
 ### Maven ###
-.env
+src/main/resources/.env
 .json
