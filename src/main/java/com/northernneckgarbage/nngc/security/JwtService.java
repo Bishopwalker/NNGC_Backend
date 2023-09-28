@@ -25,38 +25,59 @@ import static javax.crypto.Cipher.SECRET_KEY;
 
 public class JwtService {
 
-
-    private String SECRET_KEY;
     private Key decodedSecretKey;  // Decoded secret key
 
 
+
+// ... other imports
+
     @PostConstruct
-    public void init() throws NoSuchAlgorithmException {
+    public void init() {
         log.info("Entering @PostConstruct");
 
         // Load environment variable
         Dotenv dotenv = Dotenv.load();
-//        log.info("Environment Variables: " + dotenv.entries());
-        SECRET_KEY = dotenv.get("JWT_SECRET_KEY");
-log.info("Secret Key: " + SECRET_KEY);
+        String localSecretKey = dotenv.get("JWT_SECRET_KEY");
+        log.info("Secret Key: " + localSecretKey);
+
+        // Decode the localSecretKey to byte array
+        byte[] decodedKey = decodeSecretKey(localSecretKey);
+
         // Validate and initialize SECRET_KEY
-        if (SECRET_KEY == null || SECRET_KEY.isEmpty()) {
-            log.info("SECRET_KEY is null or empty. Generating a new one.");
-            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA512");
-            keyGen.init(512);  // for 512-bit key
-            byte[] secretKey = keyGen.generateKey().getEncoded();
-            SECRET_KEY = Base64.getEncoder().encodeToString(secretKey);
-            log.info("Generated new SECRET_KEY of size: " + secretKey.length * 8 + " bits");
+        validateAndInitializeSecretKey(decodedKey, localSecretKey);
+
+        log.info("Exiting @PostConstruct" + decodedSecretKey);
+    }
+
+    private byte[] decodeSecretKey(String key) {
+        try {
+            return Base64.getDecoder().decode(key);
+        } catch (IllegalArgumentException e) {
+            log.info("Invalid Base64 encoding. Generating a new key.");
+            return new byte[0];
+        }
+    }
+
+    private void validateAndInitializeSecretKey(byte[] decodedKey, String localSecretKey) {
+        int keyLengthInBits = decodedKey.length * 8;
+        String SECRET_KEY;
+        if (localSecretKey == null || localSecretKey.isEmpty() || keyLengthInBits < 512) {
+            log.info("SECRET_KEY is null, empty, or less than 512 bits. Generating a new one.");
+
+            // Generate a secure key for HS512
+            Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+            SECRET_KEY = Base64.getEncoder().encodeToString(key.getEncoded());
+
+            log.info("Generated new SECRET_KEY of size: " + key.getEncoded().length * 8 + " bits");
         } else {
-            byte[] decodedKey = Base64.getDecoder().decode(SECRET_KEY);
-            log.info("Using existing SECRET_KEY of size: " + decodedKey.length * 8 + " bits");
+            SECRET_KEY = localSecretKey;
+            log.info("Using existing SECRET_KEY of size: " + keyLengthInBits + " bits");
         }
 
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         decodedSecretKey = Keys.hmacShaKeyFor(keyBytes);
-
-        log.info("Exiting @PostConstruct" + decodedSecretKey);
     }
+
     public String extractUsername(String token) {
 
     return extractClaim(token, Claims::getSubject);
