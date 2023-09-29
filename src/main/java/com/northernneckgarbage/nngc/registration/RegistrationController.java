@@ -75,11 +75,11 @@ public class RegistrationController {
         switch (confirmationStatus) {
             case SUCCESS:
                 // Redirect to your website or return a success message
-                redirectUrl = isProduction() ? "http://www.northernneckgarbage.com" : "http://localhost:5173";
+                redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/success" : "http://localhost:5173/success";
                 break;
             case ALREADY_CONFIRMED:
                 // Redirect to your website or return a message indicating the token is already confirmed
-                redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/already-confirmed" : "http://localhost:5173/already-confirmed";
+                redirectUrl = isProduction() ? "http://www.northernneckgarbage.com" : "http://localhost:5173/already-confirmed";
                 break;
             case EXPIRED:
                 // Redirect to an expired token page
@@ -100,7 +100,7 @@ public class RegistrationController {
     }
     @GetMapping("/login/google")
     public ResponseEntity<?> redirectToGoogle() {
-        String redirectUrl = "http:// 3.85.8.238:5000/oauth2/authorization/google"; // replace with your redirect URL
+        String redirectUrl = "http://3.85.8.238:5000/oauth2/authorization/google"; // replace with your redirect URL
         URI uri = UriComponentsBuilder.fromUriString(redirectUrl).build().toUri();
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(uri);

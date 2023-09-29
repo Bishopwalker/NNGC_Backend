@@ -29,7 +29,7 @@ public class StripeInvoiceService {
         Stripe.setAppInfo(
                 "NNGC-Server",
                 "0.0.2",
-                "http:// 3.85.8.238:5000"
+                "http://3.85.8.238:5000"
         );
     }
 

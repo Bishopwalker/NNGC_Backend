@@ -44,7 +44,7 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
     Stripe.setAppInfo(
             "NNGC-Server",
             "0.0.2",
-            "http:// 3.85.8.238:5000"
+            "http://3.85.8.238:5000"
     );
     this.customerRepository = customerRepository;
     this.stripeTransactionRepository = stripeTransactionRepository;
