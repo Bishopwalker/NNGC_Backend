@@ -49,12 +49,20 @@ private final CustomerRepository customerRepository;
         var user = customerRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         String address = user.getHouseNumber() + " " + user.getStreetName().toUpperCase() + ", " + user.getCity().toUpperCase() + ", " + user.getState().toUpperCase() + " " + user.getZipCode();
         GeocodingData geoData = fetchGeocodingData(address);
-        if (user.getLatitude() != geoData.getGeometry().getLocation().getLat() || user.getLongitude() != geoData.getGeometry().getLocation().getLng()) {
-            user.setLatitude(geoData.getGeometry().getLocation().getLat());
-            user.setLongitude(geoData.getGeometry().getLocation().getLng());
-            customerRepository.save(user);
 
+        Double userLatitude = user.getLatitude();
+        Double userLongitude = user.getLongitude();
+        Double geoDataLatitude = geoData.getGeometry().getLocation().getLat();
+        Double geoDataLongitude = geoData.getGeometry().getLocation().getLng();
+
+        // Check for null latitude and longitude
+        if (userLatitude == null || userLongitude == null ||
+                !userLatitude.equals(geoDataLatitude) || !userLongitude.equals(geoDataLongitude)) {
+            user.setLatitude(geoDataLatitude);
+            user.setLongitude(geoDataLongitude);
+            customerRepository.save(user);
         }
+
         return geoData;
     }
 

@@ -1,12 +1,14 @@
 package com.northernneckgarbage.nngc.registration;
 
 
+import com.google.maps.errors.ApiException;
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.registration.auth.AuthenticationRequest;
 import com.northernneckgarbage.nngc.service.CustomerService;
 import com.northernneckgarbage.nngc.token.TokenService;
 import com.stripe.exception.StripeException;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -65,13 +67,41 @@ public class RegistrationController {
 
 
     @GetMapping("/confirm")
-  public ResponseEntity<ApiResponse> confirmMail(@RequestParam("token") String token) throws StripeException {
-    return ResponseEntity.ok(tokenService.confirmToken(token));
+    public void confirmMail(@RequestParam("token") String token, HttpServletResponse response) throws StripeException, IOException, InterruptedException, ApiException {
+        // Call the confirmToken method from the TokenService and get the status
+        TokenService.TokenConfirmationStatus confirmationStatus = tokenService.confirmToken(token);
+
+        // Handle different confirmation statuses
+        String redirectUrl;
+        switch (confirmationStatus) {
+            case SUCCESS:
+                // Redirect to your website or return a success message
+                redirectUrl = isProduction() ? "https://www.northernneckgarbage.com/success" : "http://localhost:5173/success";
+                break;
+            case ALREADY_CONFIRMED:
+                // Redirect to your website or return a message indicating the token is already confirmed
+                redirectUrl = isProduction() ? "https://www.northernneckgarbage.com/already-confirmed" : "http://localhost:5173/already-confirmed";
+                break;
+            case EXPIRED:
+                // Redirect to an expired token page
+                redirectUrl = isProduction() ? "https://www.northernneckgarbage.com/expired" : "http://localhost:5173/expired";
+                break;
+            default:
+                // Redirect to a generic error page
+                redirectUrl = isProduction() ? "https://www.northernneckgarbage.com/error" : "http://localhost:5173/error";
+                break;
+        }
+        response.sendRedirect(redirectUrl);
     }
 
+    private boolean isProduction() {
+        // Implement your logic to determine if the application is running in production
+        // For example, you can check an environment variable
+        return "production".equals(System.getenv("APP_ENV"));
+    }
     @GetMapping("/login/google")
     public ResponseEntity<?> redirectToGoogle() {
-        String redirectUrl = "http://localhost:5000/oauth2/authorization/google"; // replace with your redirect URL
+        String redirectUrl = "http://localHost:5000/oauth2/authorization/google"; // replace with your redirect URL
         URI uri = UriComponentsBuilder.fromUriString(redirectUrl).build().toUri();
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(uri);

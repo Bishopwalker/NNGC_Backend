@@ -29,7 +29,7 @@ public class StripeInvoiceService {
         Stripe.setAppInfo(
                 "NNGC-Server",
                 "0.0.2",
-                "http://localhost:5000"
+                "http://localHost:5000"
         );
     }
 
