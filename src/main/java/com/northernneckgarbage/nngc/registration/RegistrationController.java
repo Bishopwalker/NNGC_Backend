@@ -11,6 +11,7 @@ import com.stripe.exception.StripeException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,8 +20,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.http.HttpHeaders;
-
 
 import java.io.IOException;
 import java.net.URI;
@@ -76,7 +75,7 @@ public class RegistrationController {
         switch (confirmationStatus) {
             case SUCCESS:
                 // Redirect to your website or return a success message
-                redirectUrl = isProduction() ? "https://www.northernneckgarbage.com/success" : "http://localhost:5173/success";
+                redirectUrl = isProduction() ? "https://www.northernneckgarbage.com" : "http://localhost:5173";
                 break;
             case ALREADY_CONFIRMED:
                 // Redirect to your website or return a message indicating the token is already confirmed
