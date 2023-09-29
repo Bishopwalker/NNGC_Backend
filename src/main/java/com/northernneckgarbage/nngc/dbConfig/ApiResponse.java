@@ -18,6 +18,7 @@ public class ApiResponse<T> {
     private CustomerDTO customerDTO;
     private String message;
     private List<Customer> customers;
+    private String status;
 
     T response;
 

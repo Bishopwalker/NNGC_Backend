@@ -1,7 +1,9 @@
 package com.northernneckgarbage.nngc.token;
 
+import com.google.maps.errors.ApiException;
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
+import com.northernneckgarbage.nngc.google.GeocodingService;
 import com.northernneckgarbage.nngc.registration.auth.AuthenticationRequest;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.northernneckgarbage.nngc.security.JwtService;
@@ -14,7 +16,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
+
 
 
 @Service
@@ -27,7 +31,14 @@ public class TokenService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final StripeService stripeService;
+    private final GeocodingService geocodingService;
 
+    public enum TokenConfirmationStatus {
+        SUCCESS,
+        ALREADY_CONFIRMED,
+        EXPIRED
+
+    }
     public ApiResponse authenticate(AuthenticationRequest request){
         var user = customerRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -96,37 +107,63 @@ public class TokenService {
 
 
 
-    public ApiResponse confirmToken(String token) throws StripeException {
+    public TokenConfirmationStatus confirmToken(String token) throws StripeException, IOException, InterruptedException, ApiException {
+        // Initialize the variable to hold the token confirmation status
+        TokenConfirmationStatus confirmationStatus;
+
+        // Find the token
         var userToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new RuntimeException("Token not found"));
-  //findByID
+
+        // Find the associated person (customer)
         var person = customerRepository.findById(userToken.getCustomer().getId())
                 .orElseThrow(() -> new RuntimeException("Person not found"));
-        //If personal is not enabled then enabled them
-        //create stripe customer
-        if(!person.isEnabled()) {
+
+        // Check if the person is already enabled
+        if (!person.isEnabled()) {
+            // Enable the person and save
             person.setEnabled(true);
             customerRepository.save(person);
+
+            // Create a Stripe customer
             stripeService.createStripeCustomer(person.getId());
-            return ApiResponse.builder()
+
+            // Fetch and save Geocode information
+            geocodingService.getGeocodeByID(person.getId());
+
+            // Build the ApiResponse (you might want to do something with this)
+            ApiResponse.builder()
                     .token(token)
                     .customerDTO(person.toCustomerDTO())
                     .message("User confirmed and enabled. Stripe customer created")
+                    .status("success adding geocode")
                     .build();
+
+            // Set the confirmation status to SUCCESS
+            confirmationStatus = TokenConfirmationStatus.SUCCESS;
+        } else if (userToken.getConfirmedAt() != null) {
+            // Token is already confirmed
+            confirmationStatus = TokenConfirmationStatus.ALREADY_CONFIRMED;
+        } else if (LocalDateTime.now().isAfter(userToken.getExpiresAt())) {
+            // Token is expired
+            confirmationStatus = TokenConfirmationStatus.EXPIRED;
+        } else {
+            // Confirm the token and save
+            userToken.setConfirmedAt(LocalDateTime.now());
+            userToken.setExpiresAt(LocalDateTime.now().plusMinutes(45));
+            tokenRepository.save(userToken);
+
+            // Build the ApiResponse (you might want to do something with this)
+            ApiResponse.builder()
+                    .token(token)
+                    .customerDTO(person.toCustomerDTO())
+                    .build();
+
+            // Set the confirmation status to SUCCESS
+            confirmationStatus = TokenConfirmationStatus.SUCCESS;
         }
 
-        if (userToken.getConfirmedAt() != null)
-            throw new RuntimeException("Token already confirmed");
-        if(LocalDateTime.now().isAfter(userToken.getExpiresAt()))
-            throw new RuntimeException("Token expired");
-
-        userToken.setConfirmedAt(LocalDateTime.now());
-        userToken.setExpiresAt(LocalDateTime.now().plusMinutes(45));
-        tokenRepository.save(userToken);
-        return ApiResponse.builder()
-                .token(token)
-                .customerDTO(person.toCustomerDTO())
-               // .customer(person)
-                .build();
+        return confirmationStatus;
     }
+
 }

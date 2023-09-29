@@ -46,7 +46,7 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
     Stripe.setAppInfo(
             "NNGC-Server",
             "0.0.2",
-            "http://localhost:5000"
+            "http://localHost:5000"
     );
     this.customerRepository = customerRepository;
     this.stripeTransactionRepository = stripeTransactionRepository;
@@ -217,7 +217,7 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
                 .build() ;
     }
 
-    String YOUR_DOMAIN = "http://localhost:5173";
+    String YOUR_DOMAIN = "http://www.northernneckgarbage.com/";
 
 
     public Session createSessionForTrashOnceWID(long id) throws StripeException {

@@ -53,7 +53,7 @@ public class SecurityConfiguration {
                     @Override
                     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                                         Authentication authentication) throws IOException {
-                        response.sendRedirect("http://localhost:5173/myProfile");
+                        response.sendRedirect("http://localHost:5173/myProfile");
                     }
                 });
 

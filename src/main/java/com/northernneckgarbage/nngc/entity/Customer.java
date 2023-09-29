@@ -123,21 +123,26 @@ private boolean enabled = false;
 
 
     public CustomerDTO toCustomerDTO() {
+        AddressDTO.AddressDTOBuilder addressBuilder = AddressDTO.builder()
+                .line1(houseNumber + " " + streetName)
+                .city(city)
+                .state(state)
+                .zipCode(zipCode);
+
+        // Check for null latitude and longitude
+        if (latitude != null) {
+            addressBuilder.latitude(latitude);
+        }
+        if (longitude != null) {
+            addressBuilder.longitude(longitude);
+        }
+
         return CustomerDTO.builder()
                 .id(id)
                 .fullName(firstName + " " + lastName)
                 .email(email)
                 .phoneNumber(phone)
-
-                .address(AddressDTO.builder()
-                        .line1(houseNumber + " " + streetName)
-                        .city(city)
-                        .state(state)
-                        .zipCode(zipCode)
-                        .latitude(latitude)
-                        .longitude(longitude)
-                        .build())
-
+                .address(addressBuilder.build())
                 .role(appUserRoles)
                 .enabled(enabled)
                 .stripeCustomerId(stripeCustomerId)
