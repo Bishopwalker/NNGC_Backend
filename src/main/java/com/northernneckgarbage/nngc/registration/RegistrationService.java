@@ -72,7 +72,7 @@ import java.io.IOException;
 
             var jwtToken = jwtService.generateToken(user);
             tokenService.saveUserToken(savedUser, jwtToken);
-            String link = "http://localHost:5000/auth/nngc/confirm?token=" + jwtToken;
+            String link = "http:// 3.85.8.238:5000/auth/nngc/confirm?token=" + jwtToken;
             //emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));;
             emailSender.sendWithSendGrid((request.getEmail()),String.format("Validation email for",request.getEmail()), buildEmail(request.getFirstName(), link));
             return ApiResponse.builder()

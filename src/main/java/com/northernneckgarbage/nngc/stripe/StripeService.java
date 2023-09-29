@@ -1,20 +1,18 @@
 package com.northernneckgarbage.nngc.stripe;
 
-import com.northernneckgarbage.nngc.stripe.transaction.*;
-import com.stripe.model.ChargeCollection;
-import com.stripe.model.Price;
-
 import com.northernneckgarbage.nngc.dbConfig.StripeApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.StripeTransactions;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
+import com.northernneckgarbage.nngc.stripe.transaction.*;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
+import com.stripe.model.ChargeCollection;
 import com.stripe.model.Customer;
+import com.stripe.model.Price;
 import com.stripe.model.checkout.Session;
-import com.stripe.net.RequestOptions;
 import com.stripe.param.ChargeListParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -46,7 +44,7 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
     Stripe.setAppInfo(
             "NNGC-Server",
             "0.0.2",
-            "http://localHost:5000"
+            "http:// 3.85.8.238:5000"
     );
     this.customerRepository = customerRepository;
     this.stripeTransactionRepository = stripeTransactionRepository;

@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localHost:5000/auth/nngc/**"
+      "url": "http:// 3.85.8.238:5000/auth/nngc/**"
     }
   ],
   "paths": {

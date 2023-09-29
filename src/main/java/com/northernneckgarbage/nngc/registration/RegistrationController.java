@@ -100,7 +100,7 @@ public class RegistrationController {
     }
     @GetMapping("/login/google")
     public ResponseEntity<?> redirectToGoogle() {
-        String redirectUrl = "http://localHost:5000/oauth2/authorization/google"; // replace with your redirect URL
+        String redirectUrl = "http:// 3.85.8.238:5000/oauth2/authorization/google"; // replace with your redirect URL
         URI uri = UriComponentsBuilder.fromUriString(redirectUrl).build().toUri();
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(uri);
