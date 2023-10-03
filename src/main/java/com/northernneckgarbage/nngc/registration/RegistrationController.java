@@ -87,7 +87,7 @@ public class RegistrationController {
                 break;
             default:
                 // Redirect to a generic error page
-                redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/error" : "http://localhost:5173/error";
+                redirectUrl = isProduction() ? "http://www.northernneckgarbage.com " : "http://localhost:5173";
                 break;
         }
         response.sendRedirect(redirectUrl);
@@ -100,7 +100,7 @@ public class RegistrationController {
     }
     @GetMapping("/google/login")
     public ResponseEntity<?> redirectToGoogle() {
-        String  redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/error" : "http://localhost:5173/error";
+        String redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/login/oauth2/code/google" : "http://3.85.8.238:5000/login/oauth2/code/google";
         URI uri = UriComponentsBuilder.fromUriString(redirectUrl).build().toUri();
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(uri);
