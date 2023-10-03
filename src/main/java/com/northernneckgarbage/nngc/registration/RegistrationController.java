@@ -75,19 +75,19 @@ public class RegistrationController {
         switch (confirmationStatus) {
             case SUCCESS:
                 // Redirect to your website or return a success message
-                redirectUrl = isProduction() ? "https://www.northernneckgarbage.com" : "http://localhost:5173";
+                redirectUrl = isProduction() ? "http://www.northernneckgarbage.com" : "http://localhost:5173";
                 break;
             case ALREADY_CONFIRMED:
                 // Redirect to your website or return a message indicating the token is already confirmed
-                redirectUrl = isProduction() ? "https://www.northernneckgarbage.com/already-confirmed" : "http://localhost:5173/already-confirmed";
+                redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/already-confirmed" : "http://localhost:5173/already-confirmed";
                 break;
             case EXPIRED:
                 // Redirect to an expired token page
-                redirectUrl = isProduction() ? "https://www.northernneckgarbage.com/expired" : "http://localhost:5173/expired";
+                redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/expired" : "http://localhost:5173/expired";
                 break;
             default:
                 // Redirect to a generic error page
-                redirectUrl = isProduction() ? "https://www.northernneckgarbage.com/error" : "http://localhost:5173/error";
+                redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/error" : "http://localhost:5173/error";
                 break;
         }
         response.sendRedirect(redirectUrl);
@@ -96,11 +96,11 @@ public class RegistrationController {
     private boolean isProduction() {
         // Implement your logic to determine if the application is running in production
         // For example, you can check an environment variable
-        return "production".equals(System.getenv("APP_ENV"));
+        return false;
     }
-    @GetMapping("/login/google")
+    @GetMapping("/google/login")
     public ResponseEntity<?> redirectToGoogle() {
-        String redirectUrl = "http://localHost:5000/oauth2/authorization/google"; // replace with your redirect URL
+        String  redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/error" : "http://localhost:5173/error";
         URI uri = UriComponentsBuilder.fromUriString(redirectUrl).build().toUri();
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(uri);
