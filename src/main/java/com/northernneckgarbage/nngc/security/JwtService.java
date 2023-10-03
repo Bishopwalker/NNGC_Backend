@@ -8,6 +8,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -23,60 +24,29 @@ import static javax.crypto.Cipher.SECRET_KEY;
 @Slf4j
 @Service
 
-public class JwtService {
+    public class JwtService {
 
-    private Key decodedSecretKey;  // Decoded secret key
+    private final Key decodedSecretKey;  // Decoded secret key
 
-
-
-// ... other imports
-
-    @PostConstruct
-    public void init() {
-        log.info("Entering @PostConstruct");
-
-        // Load environment variable
-        Dotenv dotenv = Dotenv.load();
-        String localSecretKey = dotenv.get("JWT_SECRET_KEY");
-        log.info("Secret Key: " + localSecretKey);
-
-        // Decode the localSecretKey to byte array
-        byte[] decodedKey = decodeSecretKey(localSecretKey);
-
-        // Validate and initialize SECRET_KEY
-        validateAndInitializeSecretKey(decodedKey, localSecretKey);
-
-        log.info("Exiting @PostConstruct" + decodedSecretKey);
-    }
-
-    private byte[] decodeSecretKey(String key) {
-        try {
-            return Base64.getDecoder().decode(key);
-        } catch (IllegalArgumentException e) {
-            log.info("Invalid Base64 encoding. Generating a new key.");
-            return new byte[0];
-        }
-    }
-
-    private void validateAndInitializeSecretKey(byte[] decodedKey, String localSecretKey) {
-        int keyLengthInBits = decodedKey.length * 8;
-        String SECRET_KEY;
-        if (localSecretKey == null || localSecretKey.isEmpty() || keyLengthInBits < 512) {
-            log.info("SECRET_KEY is null, empty, or less than 512 bits. Generating a new one.");
-
-            // Generate a secure key for HS512
-            Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-            SECRET_KEY = Base64.getEncoder().encodeToString(key.getEncoded());
-
-            log.info("Generated new SECRET_KEY of size: " + key.getEncoded().length * 8 + " bits");
-        } else {
-            SECRET_KEY = localSecretKey;
-            log.info("Using existing SECRET_KEY of size: " + keyLengthInBits + " bits");
+        public JwtService() {
+            Dotenv dotenv = Dotenv.load();
+            // Secret key from application properties
+            String secretKey = dotenv.get("JWT_SECRET_KEY");
+            // Decode the secret key from Base64 to a byte array
+            byte[] decodedKey = decodeSecretKey(secretKey);
+            log.info(Arrays.toString(decodedKey));
+            // Initialize decodedSecretKey with the final secret key
+            decodedSecretKey = Keys.hmacShaKeyFor(decodedKey);
+            log.info(String.valueOf(decodedSecretKey));
         }
 
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
-        decodedSecretKey = Keys.hmacShaKeyFor(keyBytes);
-    }
+        private byte[] decodeSecretKey(String key) {
+            try {
+                return Base64.getDecoder().decode(key);
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Invalid Base64 encoding for JWT_SECRET_KEY");
+            }
+        }
 
     public String extractUsername(String token) {
 

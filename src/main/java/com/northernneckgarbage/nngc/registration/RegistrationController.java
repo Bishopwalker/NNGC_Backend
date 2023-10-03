@@ -100,7 +100,7 @@ public class RegistrationController {
     }
     @GetMapping("/google/login")
     public ResponseEntity<?> redirectToGoogle() {
-        String redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/login/oauth2/code/google" : "http://3.85.8.238:5000/login/oauth2/code/google";
+        String redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/login/oauth2/code/google" : "http://localHost:5000/login/oauth2/code/google";
         URI uri = UriComponentsBuilder.fromUriString(redirectUrl).build().toUri();
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(uri);

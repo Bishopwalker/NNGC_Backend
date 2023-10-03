@@ -49,15 +49,15 @@ public class SecurityConfiguration {
                     auth.anyRequest().permitAll();
                 })
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .oauth2Login()
-                .successHandler(new SimpleUrlAuthenticationSuccessHandler() {
-                    @Override
-                    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                                        Authentication authentication) throws IOException {
-                        response.sendRedirect("http://localHost:5173/myProfile");
-                    }
-                })
-                .and()
+//                .oauth2Login()
+//                .successHandler(new SimpleUrlAuthenticationSuccessHandler() {
+//                    @Override
+//                    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+//                                                        Authentication authentication) throws IOException {
+//                        response.sendRedirect("http://localHost:5173/myProfile");
+//                    }
+//                })
+//                .and()
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider);
         return http.build();
