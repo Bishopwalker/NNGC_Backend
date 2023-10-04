@@ -2,6 +2,7 @@ package com.northernneckgarbage.nngc.entity;
 
 import com.northernneckgarbage.nngc.entity.dto.AddressDTO;
 import com.northernneckgarbage.nngc.entity.dto.CustomerDTO;
+import com.northernneckgarbage.nngc.entity.dto.CustomerRouteInfoDTO;
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.northernneckgarbage.nngc.token.Token;
 import jakarta.persistence.*;
@@ -121,7 +122,30 @@ private boolean enabled = false;
         return enabled ;
     }
 
+    public CustomerRouteInfoDTO toCustomerRouteInfoDTO() {
+        AddressDTO.AddressDTOBuilder addressBuilder = AddressDTO.builder()
+                .line1(houseNumber + " " + streetName)
+                .city(city)
+                .state(state)
+                .zipCode(zipCode);
 
+        // Check for null latitude and longitude
+        if (latitude != null) {
+            addressBuilder.latitude(latitude);
+        }
+        if (longitude != null) {
+            addressBuilder.longitude(longitude);
+        }
+
+        return CustomerRouteInfoDTO.builder()
+                .id(id)
+                .fullName(firstName + " " + lastName)
+                .phoneNumber(phone)
+                .address(String.valueOf(addressBuilder.build()))
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
+    }
     public CustomerDTO toCustomerDTO() {
         AddressDTO.AddressDTOBuilder addressBuilder = AddressDTO.builder()
                 .line1(houseNumber + " " + streetName)

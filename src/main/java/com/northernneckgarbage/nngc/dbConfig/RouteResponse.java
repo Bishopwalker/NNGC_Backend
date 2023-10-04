@@ -1,28 +1,28 @@
 package com.northernneckgarbage.nngc.dbConfig;
 
+import com.northernneckgarbage.nngc.entity.dto.CustomerRouteDetailsDTO;
 import com.northernneckgarbage.nngc.google_routing.RouteList;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
-
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class RouteResponse{
-	private String startingTime;
-	private String destinationArrivalTime;
-	private int totalStops;
-	private String totalDuration;
-	private String routeDistance;
-	private String routeType;
-	private List<RouteList> routeList;
-	private  String polyline;
-	private  List<String> instructions;
+@AllArgsConstructor(access = AccessLevel.PUBLIC)  //
+ 	public class RouteResponse {
+		public String polyline;
+		public String routeDistance;
+		public String totalDuration;
+		public Integer totalStops;
+		public List<String> instructions;
+		public List<CustomerRouteDetailsDTO> customerRouteDetails;
+		public String startingTime;
+		public String routeType;
+		public List<RouteList> routeList;
+		public String destinationArrivalTime;
+	}
 
 
 
-}
+
+

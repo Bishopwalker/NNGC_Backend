@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -67,9 +66,9 @@ private final CustomerRepository customerRepository;
     }
 
     //GeoCode the entire Database and update the lat and long
-    public List<Customer> updateAllUsersGeocodes() throws InterruptedException, ApiException, IOException {
+    public void updateAllUsersGeocodes() throws InterruptedException, ApiException, IOException {
         List<Customer> users = customerRepository.findAll();
-        List<Customer> updatedUsers = new ArrayList<>();
+     //   List<Customer> updatedUsers = new ArrayList<>();
 
         for (Customer user : users) {
             String address = user.getHouseNumber() + " " + user.getStreetName().toUpperCase() + ", " + user.getCity().toUpperCase() + ", " + user.getState().toUpperCase() + " " + user.getZipCode();
@@ -81,9 +80,8 @@ private final CustomerRepository customerRepository;
                 user.setLatitude(geoData.getGeometry().getLocation().getLat());
                 user.setLongitude(geoData.getGeometry().getLocation().getLng());
                 customerRepository.save(user);
-                updatedUsers.add(user);
+               // updatedUsers.add(user);
             }
         }
-        return updatedUsers;
     }
 }
