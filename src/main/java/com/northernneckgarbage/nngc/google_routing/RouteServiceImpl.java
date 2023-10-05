@@ -1,12 +1,14 @@
 package com.northernneckgarbage.nngc.google_routing;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.northernneckgarbage.nngc.dbConfig.RouteResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@Slf4j
 @Service
 public class RouteServiceImpl implements RouteService{
 	@Override
@@ -86,12 +88,12 @@ public class RouteServiceImpl implements RouteService{
 			//System.out.println(); // Move to the next line after printing each row
 		}
 		
-		double destLat = 34.0522; // Latitude of destination (Los Angeles)
-		double destLng = -118.2437; // Longitude of destination (Los Angeles)
+		double destLat = 37.968418;
+		double destLng = -76.4839841;
 
 		int distance = googleDistanceMatrixAPI.getDistance(originLat, originLng, destLat, destLng);
 		String distanceString = Integer.toString(distance);
-		// System.out.println("Distance between New York and Los Angeles: " + distance + " meters");
+		 log.info("Distance between New York and Los Angeles: " + distance + " meters");
 		PathInfo pathInfo = new PathInfo(distances, totalLocations);
 
 		// int noOfVertices = pathInfo.getNoOfVertices();
@@ -106,7 +108,7 @@ public class RouteServiceImpl implements RouteService{
 		
 		// String plusCode = googleDistanceMatrixAPI.getPlusCodeName();
 		String metric = googleDistanceMatrixAPI.getMetric(originLat, originLng, destLat, destLng);
-
+log.info(metric);
 		//System.out.println(optimalPath);
 		//System.out.println(minimalCost);
 		// System.out.println(plusCode);
@@ -141,7 +143,7 @@ public class RouteServiceImpl implements RouteService{
 			route.setProjectedStartTime(projStartTime);
 			route.setProjectedArrivaltime(projArrivTime);
 			route.setProjectedDepartureTime(projDprtTime);
-			
+
 			routeList.add(route);
         }
 

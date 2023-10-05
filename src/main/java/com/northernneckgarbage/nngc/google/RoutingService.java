@@ -11,6 +11,7 @@ import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -24,21 +25,22 @@ public class RoutingService {
     private final CustomerRepository customerRepository;
     private final GeocodingService geocodingService;
 
-
-    public RouteResponse createRoute4OneDriver() throws IOException, InterruptedException, ApiException {
+public static int totalUsers;
+    public RouteResponse createRoute4OneDriver(int pageNumber) throws IOException, InterruptedException, ApiException {
         GeoApiContext context = geocodingService.getContext();
-        customerRepository.findAll().forEach(customer -> {
-            if (customer.getLatitude() == null || customer.getLongitude() == null) {
-                try {
-                    geocodingService.getGeocodeByID(customer.getId());
-                } catch (InterruptedException | ApiException | IOException e) {
-                    log.info("Error updating geocode for user: " + customer.getId());
-                }
-            }
-        });
-        geocodingService.updateAllUsersGeocodes();
+//        customerRepository.findAll().forEach(customer -> {
+//            if (customer.getLatitude() == null || customer.getLongitude() == null) {
+//                try {
+//                    geocodingService.getGeocodeByID(customer.getId());
+//                } catch (InterruptedException | ApiException | IOException e) {
+//                    log.info("Error updating geocode for user: " + customer.getId());
+//                }
+//            }
+//        });
+//        geocodingService.updateAllUsersGeocodes();
         // Step 2: Fetch all customer addresses from the customer repository
-        var users = customerRepository.findAll();
+        var users = customerRepository.findAll(PageRequest.of(pageNumber - 1, 25));
+        totalUsers = (int) customerRepository.count();  // Update totalUsers with the total count of users
 
         // Step 3: Create a list of LatLng objects from the customer addresses
 
@@ -77,7 +79,9 @@ public class RoutingService {
                     .waypoints(waypoints)
                     .optimizeWaypoints(true)
                     .mode(TravelMode.DRIVING)
-                    .await();
+                    .departureTimeNow()
+                    .origin("37.968418,-76.4839841")
+                              .await();
 
             // Step 8-9: Handle the response and print the route information
             if (result != null && result.routes != null && result.routes.length > 0) {
@@ -113,11 +117,12 @@ public class RoutingService {
 
             return RouteResponse.builder()
                     .polyline(route.overviewPolyline.getEncodedPath())
-                    .routeDistance(String.valueOf(totalDistance))
-                    .totalDuration(String.valueOf(totalDuration))
+                    .routeDistance(String.valueOf(totalDistance/1609.344 ))
+                    .totalDuration(String.valueOf(totalDuration/60))
                     .totalStops(totalStops)
                     .instructions(instructions)
                     .customerRouteDetails(customerRouteDetails)
+                    .totalCustomers(totalUsers)
                     .build();
         }
 
@@ -125,3 +130,4 @@ public class RoutingService {
         return RouteResponse.builder().build();
     }
 }
+

@@ -150,6 +150,11 @@
             <artifactId>hibernate-validator</artifactId>
             <version>7.0.1.Final</version> <!-- Use the latest version -->
         </dependency>
+        <dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>1.0.2</version>
+        </dependency>
 
     </dependencies>
 

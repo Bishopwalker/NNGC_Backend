@@ -1,8 +1,6 @@
 package com.northernneckgarbage.nngc.google;
 
 import com.google.maps.errors.ApiException;
-import com.google.maps.model.DirectionsResult;
-import com.google.maps.model.DirectionsRoute;
 import com.northernneckgarbage.nngc.dbConfig.RouteResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,10 +28,10 @@ private final RoutingService routingService;
         return ResponseEntity.ok(geocodingService.getGeocodeByID(id));
     }
 
-    @GetMapping("/google/create-route-4-driver")
-            public ResponseEntity<RouteResponse> createRoute4Driver() throws InterruptedException, ApiException, IOException{
+    @GetMapping("/google/create-route-4-driver/{pageNumber}")
+            public ResponseEntity<RouteResponse> createRoute4Driver(@PathVariable int pageNumber) throws InterruptedException, ApiException, IOException{
             log.info("Creating route for driver");
-            return ResponseEntity.ok(routingService.createRoute4OneDriver());
+            return ResponseEntity.ok(routingService.createRoute4OneDriver(pageNumber));
 
     }
 

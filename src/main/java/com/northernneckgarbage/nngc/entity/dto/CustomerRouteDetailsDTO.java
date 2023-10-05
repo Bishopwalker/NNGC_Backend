@@ -9,4 +9,5 @@ import lombok.Data;
 public class CustomerRouteDetailsDTO {
     private CustomerRouteInfoDTO customerInfo;
     private LatLng location;
+    private String totalUsers;
 }

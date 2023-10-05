@@ -5,6 +5,8 @@ import com.northernneckgarbage.nngc.google_routing.RouteList;
 import lombok.*;
 
 import java.util.List;
+
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -20,6 +22,7 @@ import java.util.List;
 		public String routeType;
 		public List<RouteList> routeList;
 		public String destinationArrivalTime;
+		public int totalCustomers;
 	}
 
 
