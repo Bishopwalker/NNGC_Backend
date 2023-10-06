@@ -76,6 +76,11 @@ return ResponseEntity.ok(customers.size() + "Customers added: " + customers);
     }
 
 
+@GetMapping("/update_stripe")
+public void updateStripeForAllUsers() throws StripeException {
+    customerService.updateStripeForAllUsers();
+}
+
 
     @PutMapping("/customers/{id}")
     public ResponseEntity<ApiResponse<Customer>> updateCustomer(@RequestHeader("Authorization") String headers, @RequestBody Customer customer, @PathVariable Long id) throws StripeException {

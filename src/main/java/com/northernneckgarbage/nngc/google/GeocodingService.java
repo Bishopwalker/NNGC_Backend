@@ -34,7 +34,17 @@ private final CustomerRepository customerRepository;
                 .build();
         com.google.maps.model.GeocodingResult[] results = GeocodingApi.geocode(context, address).await();
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        System.out.println(gson.toJson(results[0].addressComponents));
+
+        // Check if results array is empty
+        if (results.length == 0) {
+            // Optionally, log an error or throw an exception
+           log.info("No geocoding results found for address: " + address);
+           //#looking for a checked exception good for end of an array
+
+            return null;  // or throw new SomeException("No geocoding results found for address: " + address);
+        }
+
+        log.info(gson.toJson(results[0].addressComponents));
 
         // Deserialize the JSON response into a GeocodingData object
         return gson.fromJson(gson.toJson(results[0]), GeocodingData.class);

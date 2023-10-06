@@ -1,8 +1,10 @@
 package com.northernneckgarbage.nngc.service.impl;
 
+import com.google.maps.errors.ApiException;
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
+import com.northernneckgarbage.nngc.google.GeocodingService;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.northernneckgarbage.nngc.service.CustomerService;
 import com.northernneckgarbage.nngc.stripe.StripeService;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +30,8 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final StripeService stripeService;
+    private final GeocodingService geocodingService;
+
 
     @Override
     public Customer addCustomer(Customer customer) {
@@ -43,18 +48,26 @@ public class CustomerServiceImpl implements CustomerService {
         }).forEach(customer -> {
             log.info(customer.toString());
             try {
+                geocodingService.getGeocodeByID(customer.getId());
                 stripeService.createStripeCustomer(customer.getId());
             } catch (StripeException e) {
-                               e.printStackTrace();
+                               log.info("Error creating stripe customer for user: " + customer.getId() + e.getMessage());
+            } catch (IOException | InterruptedException | ApiException e) {
+                log.info(e.getMessage());
+                throw new RuntimeException(e);
             }
             stripeService.createStripeCustomersForAllUsers();
         });
 
 
     }
+    @Override
+    public void updateStripeForAllUsers()  {
+        stripeService.createStripeCustomersForAllUsers();
+
+    }
 
     @Override
-
     public StripeRegistrationResponse<Optional<Customer>> findByEmail(String email) {
         Optional<Customer> customer = Optional.ofNullable(customerRepository.findByEmail(email).orElseThrow(() ->
                 new RuntimeException("Customer not found")));
