@@ -4,7 +4,6 @@ import com.northernneckgarbage.nngc.entity.StripeTransactions;
 import com.northernneckgarbage.nngc.entity.dto.CustomerDTO;
 import com.stripe.model.Account;
 import com.stripe.model.Charge;
-import com.stripe.model.ChargeCollection;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,4 +27,5 @@ private CustomerDTO customerDTO;
 private List<StripeTransactions> stripeTransactionsList;
 private String stripeCustomer;
     private String message;
+    private String productID;
 }

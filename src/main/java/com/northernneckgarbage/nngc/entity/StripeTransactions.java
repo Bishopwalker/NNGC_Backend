@@ -37,7 +37,8 @@ public class StripeTransactions {
     private Currency currency = Currency.USD;
     private String stripeEmail;
     private String stripeToken;
-    public String invoice;
+    private String invoice;
+    private String productID;
      @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id", nullable = false)
     private Customer customer;

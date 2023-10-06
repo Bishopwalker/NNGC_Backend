@@ -10,7 +10,6 @@ import com.northernneckgarbage.nngc.entity.StripeTransactions;
 import com.northernneckgarbage.nngc.stripe.transaction.StripeCustomApiResponse;
 import com.northernneckgarbage.nngc.token.TokenRepository;
 import com.stripe.exception.StripeException;
-import com.stripe.model.ChargeCollection;
 import com.stripe.model.checkout.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -88,7 +87,10 @@ private final StripeInvoiceService stripeInvoiceService;
 
     //Get all transactions by customer id
     @GetMapping("/transaction/{id}")
-    public ResponseEntity<Page<StripeTransactions>>  getAllTransactionsByCustomerID(@RequestHeader("Authorization") String headers, @PathVariable Long id, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
+    public ResponseEntity<Page<StripeTransactions>>  getAllTransactionsByCustomerID(@RequestHeader("Authorization")
+                                                                                        String headers, @PathVariable Long id,
+                                                                                    @RequestParam(defaultValue = "0")
+                                                                                    int page, @RequestParam(defaultValue = "10") int size) {
        log.info("headers: " + headers);
         var user=tokenRepository.findByToken(headers).get().getCustomer().getAppUserRoles();
         var expired=tokenRepository.findByToken(headers).get().getExpiresAt().isBefore(LocalDateTime.now());
@@ -102,12 +104,22 @@ log.warn("expired: " + expired);
 
 
     @GetMapping("/create-checkout-session_wid/res_trash_once/{id}")
-    public ResponseEntity<StripeApiResponse> checkoutSession(@PathVariable long id) throws StripeException {
+    public ResponseEntity<StripeApiResponse> checkoutSession(@PathVariable long id ) throws StripeException {
         // Logic to create a Stripe session
-        Session session = stripeService.createSessionForTrashOnceWID(id);
+        Session session = stripeService.createSessionForTrashOnceWID(id );
         return ResponseEntity.ok(StripeApiResponse.builder()
                 .message(session.getUrl())
                 .build());
+    }
+//create a get mapping that will take the long customerID and string productID in the body and return a session
+    @GetMapping("/create-checkout-session/{id}")
+     public  StripeApiResponse<ResponseEntity<StripeTransactions>> checkoutProduct(@PathVariable long id , @RequestParam String productID) throws StripeException {
+        // Logic to create a Stripe session
+        log.info( productID);
+        Session session = stripeService.checkoutProduct(id, productID);
+        return StripeApiResponse.<ResponseEntity<StripeTransactions>>builder()
+                .message(session.getUrl())
+                .build();
     }
 
     //Create Stripe Customer by customer id

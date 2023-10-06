@@ -1,20 +1,17 @@
 package com.northernneckgarbage.nngc.stripe;
 
-import com.northernneckgarbage.nngc.stripe.transaction.*;
-import com.stripe.model.ChargeCollection;
-import com.stripe.model.Price;
-
 import com.northernneckgarbage.nngc.dbConfig.StripeApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.StripeTransactions;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
+import com.northernneckgarbage.nngc.stripe.transaction.Address;
+import com.northernneckgarbage.nngc.stripe.transaction.Card;
+import com.northernneckgarbage.nngc.stripe.transaction.*;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
-import com.stripe.model.Charge;
-import com.stripe.model.Customer;
+import com.stripe.model.*;
 import com.stripe.model.checkout.Session;
-import com.stripe.net.RequestOptions;
 import com.stripe.param.ChargeListParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -269,8 +266,8 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
 
         return session;
     }
+    public Session checkoutProduct(long id, String productId) throws StripeException {
 
-    public StripeCustomApiResponse getAllTransactionsFromStripeByCustomerId(Long id) throws StripeException {
         var user = customerRepository.findById(id).orElseThrow(() ->
                 new RuntimeException("Customer not found"));
         if(user.getStripeCustomerId() == null){
@@ -278,34 +275,53 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
             user = customerRepository.findById(id).orElseThrow(() ->
                     new RuntimeException("Customer not found"));
         }
-        ChargeListParams listParams = ChargeListParams.builder().setCustomer(user.getStripeCustomerId()).build();
-        ChargeCollection charges = Charge.list(listParams);
-        log.info("Charges: " + charges);
 
-        List<StripeTransaction> stripeTransactions = charges.getData().stream()
-                .map(charge -> {
-                    BillingDetails billingDetails = new BillingDetails(charge.getBillingDetails().getEmail(),
-                            charge.getBillingDetails().getName(),
-                            new Address(charge.getBillingDetails().getAddress().getCity(),
-                                    charge.getBillingDetails().getAddress().getCountry(),
-                                    charge.getBillingDetails().getAddress().getLine1(),
-                                    charge.getBillingDetails().getAddress().getPostalCode(),
-                                    charge.getBillingDetails().getAddress().getState()));
+       Product product = Product.retrieve(productId);
+        log.info("Product: " +productId);
+        log.info("Product: " +product);
+        Price price = Price.retrieve(product.getDefaultPrice());
+log.info("Price: " + price);
+        SessionCreateParams.Mode mode =
+                (price.getRecurring() != null && price.getRecurring().getIntervalCount() > 0)
+                        ? SessionCreateParams.Mode.SUBSCRIPTION
+                        : SessionCreateParams.Mode.PAYMENT;
 
-                    PaymentMethodDetails paymentMethodDetails = new PaymentMethodDetails(charge.getPaymentMethodDetails().getType(),
-                            new Card(charge.getPaymentMethodDetails().getCard().getBrand(),
-                                    charge.getPaymentMethodDetails().getCard().getCountry(),
-                                    Math.toIntExact(charge.getPaymentMethodDetails().getCard().getExpMonth()),
-                                    Math.toIntExact(charge.getPaymentMethodDetails().getCard().getExpYear()),
-                                    charge.getPaymentMethodDetails().getCard().getLast4()));
+        SessionCreateParams params =
+                SessionCreateParams.builder()
+                        .setCustomerEmail(user.getEmail())
+                        .setMode(mode)
+                        .setSuccessUrl(YOUR_DOMAIN + "/")
+                        .setCancelUrl(YOUR_DOMAIN + "?canceled=true")
+                        .setAutomaticTax(
+                                SessionCreateParams.AutomaticTax.builder()
+                                        .setEnabled(true)
+                                        .build())
+                        .addLineItem(
+                                SessionCreateParams.LineItem.builder()
+                                        .setQuantity(1L)
+                                        .setPrice(price.getId())
+                                        .build())
+                        .build();
 
-                    return new StripeTransaction(charge.getId(), Math.toIntExact(charge.getAmount()), charge.getCurrency(),
-                            charge.getDescription(), charge.getCaptured(), charge.getStatus(), billingDetails, paymentMethodDetails);
-                }).collect(Collectors.toList());
+        Session session = Session.create(params);
 
-        return new StripeCustomApiResponse(stripeTransactions, charges.getHasMore(), charges.getUrl(),
-                new RequestParams(user.getStripeCustomerId()));
+        StripeTransactions transactions = StripeTransactions.builder()
+                .amount((long) Math.toIntExact(price.getUnitAmount())) // Set the transaction amount using the price object
+                .currency(StripeTransactions.Currency.USD)
+                .description(product.getDescription())
+                .stripeToken(session.getId())
+                .stripeEmail(user.getEmail())
+                .transactionId(params.getClientReferenceId())
+                .productID(productId)
+                .customer(user)
+                .build();
+
+        // Call the updateStripeCustomerTransaction method to update the transaction
+        updateStripeCustomerTransaction(id, transactions);
+
+        return session;
     }
+
 
     public Session createSessionForTrashSubscriptionWID(long id) throws StripeException{
         var user = customerRepository.findById(id).orElseThrow(() ->
@@ -317,6 +333,7 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
         }
 
         String priceId = "price_1MiksRACOG92rmQ4YhSY0DOU";
+        log.info("Price ID: " + priceId);
         Price price = Price.retrieve(priceId);
 
 
@@ -398,6 +415,43 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
         updateStripeCustomerTransaction(id, transactions);
 
         return session;
+    }
+
+    public StripeCustomApiResponse getAllTransactionsFromStripeByCustomerId(Long id) throws StripeException {
+        var user = customerRepository.findById(id).orElseThrow(() ->
+                new RuntimeException("Customer not found"));
+        if(user.getStripeCustomerId() == null){
+            createStripeCustomer(id);
+            user = customerRepository.findById(id).orElseThrow(() ->
+                    new RuntimeException("Customer not found"));
+        }
+        ChargeListParams listParams = ChargeListParams.builder().setCustomer(user.getStripeCustomerId()).build();
+        ChargeCollection charges = Charge.list(listParams);
+        log.info("Charges: " + charges);
+
+        List<StripeTransaction> stripeTransactions = charges.getData().stream()
+                .map(charge -> {
+                    BillingDetails billingDetails = new BillingDetails(charge.getBillingDetails().getEmail(),
+                            charge.getBillingDetails().getName(),
+                            new Address(charge.getBillingDetails().getAddress().getCity(),
+                                    charge.getBillingDetails().getAddress().getCountry(),
+                                    charge.getBillingDetails().getAddress().getLine1(),
+                                    charge.getBillingDetails().getAddress().getPostalCode(),
+                                    charge.getBillingDetails().getAddress().getState()));
+
+                    PaymentMethodDetails paymentMethodDetails = new PaymentMethodDetails(charge.getPaymentMethodDetails().getType(),
+                            new Card(charge.getPaymentMethodDetails().getCard().getBrand(),
+                                    charge.getPaymentMethodDetails().getCard().getCountry(),
+                                    Math.toIntExact(charge.getPaymentMethodDetails().getCard().getExpMonth()),
+                                    Math.toIntExact(charge.getPaymentMethodDetails().getCard().getExpYear()),
+                                    charge.getPaymentMethodDetails().getCard().getLast4()));
+
+                    return new StripeTransaction(charge.getId(), Math.toIntExact(charge.getAmount()), charge.getCurrency(),
+                            charge.getDescription(), charge.getCaptured(), charge.getStatus(), billingDetails, paymentMethodDetails);
+                }).collect(Collectors.toList());
+
+        return new StripeCustomApiResponse(stripeTransactions, charges.getHasMore(), charges.getUrl(),
+                new RequestParams(user.getStripeCustomerId()));
     }
 
     //get all stripe_transactions with page
