@@ -54,7 +54,7 @@ public class SecurityConfiguration {
                     @Override
                     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                                         Authentication authentication) throws IOException {
-                        response.sendRedirect("http://localHost:5173");
+                        response.sendRedirect("http://www.northernneckgarbage.com");
                     }
                 })
                 .and()
