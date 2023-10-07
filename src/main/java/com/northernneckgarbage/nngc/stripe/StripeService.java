@@ -43,7 +43,7 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
     Stripe.setAppInfo(
             "NNGC-Server",
             "0.0.2",
-            "http://localHost:5000"
+            "http://localhost:5000"
     );
     this.customerRepository = customerRepository;
     this.stripeTransactionRepository = stripeTransactionRepository;
@@ -291,7 +291,7 @@ log.info("Price: " + price);
                         .setCustomerEmail(user.getEmail())
                         .setMode(mode)
                         .setSuccessUrl(YOUR_DOMAIN + "/")
-                        .setCancelUrl(YOUR_DOMAIN + "?canceled=true")
+                        .setCancelUrl(YOUR_DOMAIN + "/services")
                         .setAutomaticTax(
                                 SessionCreateParams.AutomaticTax.builder()
                                         .setEnabled(true)

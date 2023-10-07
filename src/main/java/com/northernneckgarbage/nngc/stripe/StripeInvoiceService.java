@@ -6,7 +6,10 @@ import com.northernneckgarbage.nngc.entity.dto.CustomerDTO;
 import com.northernneckgarbage.nngc.entity.dto.PaymentDTO;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
 import com.stripe.model.Invoice;
+import com.stripe.model.billingportal.Session;
+import com.stripe.param.billingportal.SessionCreateParams;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,7 +32,7 @@ public class StripeInvoiceService {
         Stripe.setAppInfo(
                 "NNGC-Server",
                 "0.0.2",
-                "http://localHost:5000"
+                "http://localhost:5000"
         );
     }
 
@@ -147,7 +150,17 @@ var payment = PaymentDTO.builder()
                 .build();
     }
 
+    public String createCustomerPortalSession(Long customerId) throws StripeException {
+        var user = customerRepository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found: " + customerId));
+        String stripeCustomerId = user.getStripeCustomerId();
+// TODO: 10/7/2023 need to build a front end to signify billing completed
+        SessionCreateParams params = SessionCreateParams.builder()
+                .setCustomer(stripeCustomerId)
+                .setReturnUrl("http://localhost:5173/")
+                .build();
 
-
-
+        Session session = Session.create(params);
+        return session.getUrl();
+    }
 }

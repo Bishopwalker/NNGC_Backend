@@ -1,17 +1,17 @@
 package com.northernneckgarbage.nngc.dbConfig;
 
-//
 //@Component
 //@RequiredArgsConstructor
 //public class DatabaseSender {
-
-//     private final CustomerRepository customerRepository;
 //
+//     private final CustomerRepository customerRepository;
+//private final GeocodingService geocodingService;
+//private final StripeService stripeService;
 //    @EventListener
-//    public void seed(ContextRefreshedEvent event) {
+//    public void seed(ContextRefreshedEvent event) throws IOException, InterruptedException, ApiException {
 //        Faker faker = new Faker(new Locale("en-US"));
 //
-//        for (int i = 0; i < 50; i++) {
+//        for (int i = 0; i < 100; i++) {
 //            String firstName = faker.name().firstName();
 //            String lastName = faker.name().lastName();
 //            String email = faker.internet().emailAddress();
@@ -21,7 +21,7 @@ package com.northernneckgarbage.nngc.dbConfig;
 //            String streetName = faker.address().streetName();
 //            String city = faker.address().city();
 //            String state = "VA";  // Virginia
-//            String zipCode = faker.address().zipCodeByState(state);
+//            String zipCode = faker.address().zipCodeByState("VA");
 //            String county = "Northumberland County";
 //
 //            Customer customer = Customer.builder()
@@ -41,6 +41,8 @@ package com.northernneckgarbage.nngc.dbConfig;
 //                    .build();
 //
 //            customerRepository.save(customer);
+//            stripeService.createStripeCustomersForAllUsers( );
+//            geocodingService.updateAllUsersGeocodes();
 //        }
 //    }
 //}

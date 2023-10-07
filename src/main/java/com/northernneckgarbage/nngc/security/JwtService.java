@@ -4,22 +4,17 @@ import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.KeyGenerator;
 import java.security.Key;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Date;
+import java.util.Map;
 import java.util.function.Function;
-
-import static javax.crypto.Cipher.SECRET_KEY;
 
 @Slf4j
 @Service
@@ -38,6 +33,8 @@ import static javax.crypto.Cipher.SECRET_KEY;
             // Initialize decodedSecretKey with the final secret key
             decodedSecretKey = Keys.hmacShaKeyFor(decodedKey);
             log.info(String.valueOf(decodedSecretKey));
+            log.info("Decoded key length: " + (decodedKey.length * 8) + " bits");
+
         }
 
         private byte[] decodeSecretKey(String key) {

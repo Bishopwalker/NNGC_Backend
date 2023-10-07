@@ -14,6 +14,7 @@ import com.stripe.model.checkout.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -174,10 +175,15 @@ log.warn("expired: " + expired);
                 .build());
     }
 
-    public ResponseEntity<StripeApiResponse> charge(@RequestBody StripeTransactions payment) throws StripeException {
-        return ResponseEntity.ok(StripeApiResponse.builder()
-                .stripeTransactions(payment)
-                .build());
+    @GetMapping("/create-customer-portal-session/{id}")
+    public ResponseEntity<String> createCustomerPortalSession(@PathVariable Long id) {
+        try {
+            String sessionUrl = stripeInvoiceService.createCustomerPortalSession(id);
+            return ResponseEntity.ok(sessionUrl);
+        } catch (StripeException e) {
+           log.error("An error occurred while creating the customer portal session.", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the customer portal session.");
+        }
     }
 
     @GetMapping("/all-products")

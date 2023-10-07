@@ -8,6 +8,7 @@ import com.northernneckgarbage.nngc.registration.auth.AuthenticationRequest;
 import com.northernneckgarbage.nngc.service.CustomerService;
 import com.northernneckgarbage.nngc.token.TokenService;
 import com.stripe.exception.StripeException;
+import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +36,7 @@ public class RegistrationController {
     private final RegistrationService service;
     private final TokenService tokenService;
 
-
+Dotenv dotenv = Dotenv.load();
     @PostMapping("admin/register")
     public String processRegister(@RequestBody Customer customer) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -69,7 +70,7 @@ public class RegistrationController {
     public void confirmMail(@RequestParam("token") String token, HttpServletResponse response) throws StripeException, IOException, InterruptedException, ApiException {
         // Call the confirmToken method from the TokenService and get the status
         TokenService.TokenConfirmationStatus confirmationStatus = tokenService.confirmToken(token);
-
+log.info(String.valueOf(isProduction()));
         // Handle different confirmation statuses
         String redirectUrl;
         switch (confirmationStatus) {
@@ -96,11 +97,11 @@ public class RegistrationController {
     private boolean isProduction() {
         // Implement your logic to determine if the application is running in production
         // For example, you can check an environment variable
-        return false;
+        return dotenv.get("ENVIRONMENT").equals("prod") ;
     }
     @GetMapping("/google/login")
     public ResponseEntity<?> redirectToGoogle() {
-        String redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/login/oauth2/code/google" : "http://localHost:5000/login/oauth2/code/google";
+        String redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/login/oauth2/code/google" : "http://localhost:5000/login/oauth2/code/google";
         URI uri = UriComponentsBuilder.fromUriString(redirectUrl).build().toUri();
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(uri);
