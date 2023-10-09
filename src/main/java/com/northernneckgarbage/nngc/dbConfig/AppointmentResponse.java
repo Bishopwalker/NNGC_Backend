@@ -1,6 +1,5 @@
 package com.northernneckgarbage.nngc.dbConfig;
 
-import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.entity.dto.CustomerDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,11 +13,11 @@ import java.time.LocalTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AppointmentResponse<T> {
+public class AppointmentResponse {
     private CustomerDTO customer;
     private LocalTime appointmentTime;
     private LocalDate appointmentDate;
     private String appointmentType;
     private String message;
-    private T response;
+
 }

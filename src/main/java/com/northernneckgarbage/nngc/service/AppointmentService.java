@@ -1,18 +1,16 @@
 package com.northernneckgarbage.nngc.service;
 
-import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.AppointmentResponse;
 import com.northernneckgarbage.nngc.entity.Appointment;
-import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.entity.dto.CustomerDTO;
 import com.northernneckgarbage.nngc.exceptions.AppointmentNotFoundException;
 import com.northernneckgarbage.nngc.repository.AppointmentRepository;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;

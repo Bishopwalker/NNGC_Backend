@@ -2,12 +2,9 @@ package com.northernneckgarbage.nngc.controller;
 
 import com.northernneckgarbage.nngc.dbConfig.AppointmentResponse;
 import com.northernneckgarbage.nngc.entity.Appointment;
-import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.service.AppointmentService;
-import com.northernneckgarbage.nngc.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;

@@ -285,12 +285,14 @@ log.info("Price: " + price);
                 (price.getRecurring() != null && price.getRecurring().getIntervalCount() > 0)
                         ? SessionCreateParams.Mode.SUBSCRIPTION
                         : SessionCreateParams.Mode.PAYMENT;
-
+        String successUrl = (mode == SessionCreateParams.Mode.SUBSCRIPTION)
+                ? YOUR_DOMAIN + "/dashboard"
+                : YOUR_DOMAIN + "/appointment";
         SessionCreateParams params =
                 SessionCreateParams.builder()
                         .setCustomerEmail(user.getEmail())
                         .setMode(mode)
-                        .setSuccessUrl(YOUR_DOMAIN + "/")
+                        .setSuccessUrl(YOUR_DOMAIN +  successUrl)
                         .setCancelUrl(YOUR_DOMAIN + "/services")
                         .setAutomaticTax(
                                 SessionCreateParams.AutomaticTax.builder()

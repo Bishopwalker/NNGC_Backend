@@ -26,26 +26,21 @@ public class RoutingService {
     private final GeocodingService geocodingService;
 
 public static int totalUsers;
+public static int totalEnabledUsers;
     public RouteResponse createRoute4OneDriver(int pageNumber) throws IOException, InterruptedException, ApiException {
         GeoApiContext context = geocodingService.getContext();
-//        customerRepository.findAll().forEach(customer -> {
-//            if (customer.getLatitude() == null || customer.getLongitude() == null) {
-//                try {
-//                    geocodingService.getGeocodeByID(customer.getId());
-//                } catch (InterruptedException | ApiException | IOException e) {
-//                    log.info("Error updating geocode for user: " + customer.getId());
-//                }
-//            }
-//        });
-//        geocodingService.updateAllUsersGeocodes();
+//     search for enabled users in the database and create a list of those users first
+       var enabledUsers = customerRepository.findEnabledCustomers(PageRequest.of(pageNumber - 1, 25));
         // Step 2: Fetch all customer addresses from the customer repository
-        var users = customerRepository.findAll(PageRequest.of(pageNumber - 1, 25));
+      //  var users = customerRepository.findAll(PageRequest.of(pageNumber - 1, 25));
+
         totalUsers = (int) customerRepository.count();  // Update totalUsers with the total count of users
-
+        log.info("totalUsers: "+totalUsers );
+        totalEnabledUsers = enabledUsers.size();  // Update totalEnabledUsers with the total count of enabled users
         // Step 3: Create a list of LatLng objects from the customer addresses
-
+log.info("enabledUsersCount: "+totalEnabledUsers );
         // Step 3: Create a list of CustomerRouteDetailsDTO objects from the customer addresses
-        List<CustomerRouteDetailsDTO> customerRouteDetails = users.stream().map(user -> {
+        List<CustomerRouteDetailsDTO> customerRouteDetails = enabledUsers.stream().map(user -> {
                     CustomerRouteInfoDTO customerInfo = user.toCustomerRouteInfoDTO();
                     LatLng location = new LatLng(customerInfo.getLatitude(), customerInfo.getLongitude());
                     return CustomerRouteDetailsDTO.builder()
