@@ -59,16 +59,39 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
         }
 
         switch (event.getType()) {
-            case "payment_intent.succeeded":
+            case "payment_intent.succeeded", "payment_intent.created":
                 PaymentIntent paymentIntent = (PaymentIntent) stripeObject;
                 // Then define and call a method to handle the successful payment intent.
                 // handlePaymentIntentSucceeded(paymentIntent);
+                log.info("Payment Intent: " + paymentIntent);
                 break;
             case "payment_method.attached":
                 PaymentMethod paymentMethod = (PaymentMethod) stripeObject;
                 // Then define and call a method to handle the successful attachment of a PaymentMethod.
                 // handlePaymentMethodAttached(paymentMethod);
+              case"checkout.session.completed":
+                  assert stripeObject instanceof Session;
+                  Session session = (Session) stripeObject;
+                  log.info("Session: " + session);
+              case "invoice.payment_succeeded":
+                  assert stripeObject instanceof Invoice;
+                  Invoice invoice = (Invoice) stripeObject;
+                  log.info("Invoice: " + invoice);
                 break;
+                case "invoice.payment_failed", "invoice.finalized","invoice.finalization_failed":
+                    Invoice invoice1 = (Invoice) stripeObject;
+                    log.info("Invoice: " + invoice1);
+                    break;
+            case "customer.source.created", "customer.updated":
+                Customer customer = (Customer) stripeObject;
+                // Then define and call a method to handle the successful attachment of a PaymentMethod.
+                // handlePaymentMethodAttached(paymentMethod);
+                log.info("Customer: " + customer);
+                break;
+            // Then define and call a method to handle the successful attachment of a PaymentMethod.
+                // handlePaymentMethodAttached(paymentMethod);
+
+
             // ... handle other event types
             default:
                 System.out.println("Unhandled event type: " + event.getType());
