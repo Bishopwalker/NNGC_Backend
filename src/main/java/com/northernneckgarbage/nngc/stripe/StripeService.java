@@ -50,6 +50,30 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
 
 
 }
+    public void handleEvent(Event event) {
+        StripeObject stripeObject = event.getDataObjectDeserializer().getObject().orElse(null);
+
+        if (stripeObject == null) {
+            // Handle deserialization failure, e.g., log an error or throw an exception
+            return;
+        }
+
+        switch (event.getType()) {
+            case "payment_intent.succeeded":
+                PaymentIntent paymentIntent = (PaymentIntent) stripeObject;
+                // Then define and call a method to handle the successful payment intent.
+                // handlePaymentIntentSucceeded(paymentIntent);
+                break;
+            case "payment_method.attached":
+                PaymentMethod paymentMethod = (PaymentMethod) stripeObject;
+                // Then define and call a method to handle the successful attachment of a PaymentMethod.
+                // handlePaymentMethodAttached(paymentMethod);
+                break;
+            // ... handle other event types
+            default:
+                System.out.println("Unhandled event type: " + event.getType());
+        }
+    }
 //get stripe account from customer stripeId
 public StripeApiResponse<Customer> getStripeCustomer(Long id) throws StripeException {
     var user = customerRepository.findById(id)
@@ -214,8 +238,7 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
                 .build() ;
     }
 
-    String YOUR_DOMAIN = "http://www.northernneckgarbage.com/";
-
+    String YOUR_DOMAIN = "http://localhost:5173/";//
 
     public Session createSessionForTrashOnceWID(long id) throws StripeException {
 
@@ -286,14 +309,15 @@ log.info("Price: " + price);
                         ? SessionCreateParams.Mode.SUBSCRIPTION
                         : SessionCreateParams.Mode.PAYMENT;
         String successUrl = (mode == SessionCreateParams.Mode.SUBSCRIPTION)
-                ? YOUR_DOMAIN + "/dashboard"
-                : YOUR_DOMAIN + "/appointment";
+                ? YOUR_DOMAIN + "dashboard"
+                : YOUR_DOMAIN + "appointment";
+        log.info("Success URL: " + successUrl);
         SessionCreateParams params =
                 SessionCreateParams.builder()
                         .setCustomerEmail(user.getEmail())
                         .setMode(mode)
-                        .setSuccessUrl(YOUR_DOMAIN +  successUrl)
-                        .setCancelUrl(YOUR_DOMAIN + "/services")
+                        .setSuccessUrl( successUrl)
+                        .setCancelUrl(YOUR_DOMAIN + "services")
                         .setAutomaticTax(
                                 SessionCreateParams.AutomaticTax.builder()
                                         .setEnabled(true)
