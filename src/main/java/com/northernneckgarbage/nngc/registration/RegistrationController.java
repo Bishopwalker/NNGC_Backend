@@ -76,7 +76,7 @@ log.info(String.valueOf(isProduction()));
         switch (confirmationStatus) {
             case SUCCESS:
                 // Redirect to your website or return a success message
-                redirectUrl = isProduction() ? "http://www.northernneckgarbage.com" : "http://localhost:5173";
+                redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/success" : "http://localhost:5173/success";
                 break;
             case ALREADY_CONFIRMED:
                 // Redirect to your website or return a message indicating the token is already confirmed

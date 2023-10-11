@@ -1,5 +1,6 @@
 package com.northernneckgarbage.nngc.stripe;
 
+import com.northernneckgarbage.nngc.controller.SseController;
 import com.northernneckgarbage.nngc.dbConfig.StripeApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.StripeTransactions;
@@ -36,7 +37,10 @@ Dotenv dotenv = Dotenv.load();
 
 private final CustomerRepository customerRepository;
 private final StripeTransactionRepository stripeTransactionRepository;
-public StripeService(CustomerRepository customerRepository, StripeTransactionRepository stripeTransactionRepository) throws StripeException {
+    private final SseController sseController;
+
+public StripeService(CustomerRepository customerRepository, StripeTransactionRepository stripeTransactionRepository, SseController sseController) throws StripeException {
+    this.sseController = sseController;
 
     Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY");
 
@@ -59,10 +63,11 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
         }
 
         switch (event.getType()) {
-            case "payment_intent.succeeded", "payment_intent.created":
+            case "payment_intent.succeeded", "payment_intent.created","charge.succeeded":
                 PaymentIntent paymentIntent = (PaymentIntent) stripeObject;
                 // Then define and call a method to handle the successful payment intent.
                 // handlePaymentIntentSucceeded(paymentIntent);
+                sseController.sendEventToClients("Payment succeeded");
                 log.info("Payment Intent: " + paymentIntent);
                 break;
             case "payment_method.attached":
