@@ -69,6 +69,16 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
                 // handlePaymentIntentSucceeded(paymentIntent);
                 sseController.sendEventToClients("Payment succeeded");
                 log.info("Payment Intent: " + paymentIntent);
+                var updateTransaction = StripeTransactions.builder()
+                        .amount((long) Math.toIntExact(paymentIntent.getAmount()))
+                        .currency(StripeTransactions.Currency.USD)
+                        .description(paymentIntent.getDescription())
+                        .stripeToken(paymentIntent.getId())
+                        .stripeEmail(paymentIntent.getReceiptEmail())
+                        .transactionId(paymentIntent.getPaymentMethod())
+                        .build();
+                log.info("updateTransaction: {}", updateTransaction);
+
                 break;
             case "payment_method.attached":
                 PaymentMethod paymentMethod = (PaymentMethod) stripeObject;
