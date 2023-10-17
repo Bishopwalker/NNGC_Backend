@@ -7,7 +7,7 @@ import com.northernneckgarbage.nngc.dbConfig.StripeProductResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.entity.StripeTransactions;
-import com.northernneckgarbage.nngc.stripe.transaction.StripeCustomApiResponse;
+import com.northernneckgarbage.nngc.dbConfig.StripeCustomApiResponse;
 import com.northernneckgarbage.nngc.token.TokenRepository;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;

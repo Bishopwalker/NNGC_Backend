@@ -2,6 +2,7 @@ package com.northernneckgarbage.nngc.stripe;
 
 import com.northernneckgarbage.nngc.controller.SseController;
 import com.northernneckgarbage.nngc.dbConfig.StripeApiResponse;
+import com.northernneckgarbage.nngc.dbConfig.StripeCustomApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.StripeTransactions;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
@@ -22,10 +23,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +44,24 @@ private final CustomerRepository customerRepository;
 private final StripeTransactionRepository stripeTransactionRepository;
     private final SseController sseController;
 
+    public static LocalDateTime convertMillisToLocalDateTime(long millis) {
+        // Convert milliseconds to Duration
+        Duration duration = Duration.ofMillis(millis);
+
+        // Extract hours, minutes, and seconds from the duration
+        long hours = duration.toHours();
+        long minutes = duration.toMinutes() - (hours * 60);
+        long seconds = duration.getSeconds() - (hours * 3600 + minutes * 60);
+
+        // Get the current date
+        LocalDate currentDate = LocalDate.now();
+
+        // Create a LocalTime object using the hours, minutes, and seconds
+        LocalTime extractedTime = LocalTime.of((int) hours, (int) minutes, (int) seconds);
+
+        // Combine currentDate and extractedTime to create LocalDateTime
+        return LocalDateTime.of(currentDate, extractedTime);
+    }
 public StripeService(CustomerRepository customerRepository, StripeTransactionRepository stripeTransactionRepository, SseController sseController) throws StripeException {
     this.sseController = sseController;
 
@@ -47,7 +70,7 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
     Stripe.setAppInfo(
             "NNGC-Server",
             "0.0.2",
-            "http://localhost:5000"
+            "http://localhost:8080"
     );
     this.customerRepository = customerRepository;
     this.stripeTransactionRepository = stripeTransactionRepository;
@@ -67,7 +90,9 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
                 PaymentIntent paymentIntent = (PaymentIntent) stripeObject;
                 // Then define and call a method to handle the successful payment intent.
                 // handlePaymentIntentSucceeded(paymentIntent);
-                sseController.sendEventToClients("Payment succeeded");
+                sseController.sendEventToClients("payment.succeeded");
+                sseController.sendEventToClients("charge.succeeded");
+
                 log.info("Payment Intent: " + paymentIntent);
                 var updateTransaction = StripeTransactions.builder()
                         .amount((long) Math.toIntExact(paymentIntent.getAmount()))
@@ -87,7 +112,30 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
               case"checkout.session.completed":
                   assert stripeObject instanceof Session;
                   Session session = (Session) stripeObject;
+                  sseController.sendEventToClients("checkout.session.completed");
                   log.info("Session: " + session);
+                  var email =session.getCustomerEmail();
+                  Optional<com.northernneckgarbage.nngc.entity.Customer> customer = Optional.ofNullable(customerRepository.findByEmail(email).orElseThrow(() ->
+                          new RuntimeException("Customer not found")));
+
+                  var trans = StripeTransactions.builder()
+                          .billingDetails(session.getBillingAddressCollection())
+                          .amount(session.getAmountTotal())
+                          .transactionId(session.getId())
+                          .stripeToken(session.getClientReferenceId())
+                          .createdAt(convertMillisToLocalDateTime(session.getCreated()))
+                          .expiresAt(convertMillisToLocalDateTime(session.getExpiresAt()))
+                          .stripeEmail(email)
+                          .description(session.getInvoiceObject().getDescription())
+                          .invoice(session.getInvoice())
+                          .status(session.getPaymentStatus())
+                          .currency(StripeTransactions.Currency.valueOf(session.getCurrency()))
+                          .build();
+
+             var id = customer.get().getId();
+                  updateStripeCustomerTransaction(id,trans);
+                  break;
+
               case "invoice.payment_succeeded":
                   assert stripeObject instanceof Invoice;
                   Invoice invoice = (Invoice) stripeObject;
@@ -98,10 +146,10 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
                     log.info("Invoice: " + invoice1);
                     break;
             case "customer.source.created", "customer.updated":
-                Customer customer = (Customer) stripeObject;
+                Customer customer1 = (Customer) stripeObject;
                 // Then define and call a method to handle the successful attachment of a PaymentMethod.
                 // handlePaymentMethodAttached(paymentMethod);
-                log.info("Customer: " + customer);
+                log.info("Customer: " + customer1);
                 break;
             // Then define and call a method to handle the successful attachment of a PaymentMethod.
                 // handlePaymentMethodAttached(paymentMethod);
@@ -493,7 +541,7 @@ log.info("Price: " + price);
         ChargeCollection charges = Charge.list(listParams);
         log.info("Charges: " + charges);
 
-        List<StripeTransaction> stripeTransactions = charges.getData().stream()
+        List<StripeTransactions> stripeTransactions = charges.getData().stream()
                 .map(charge -> {
                     BillingDetails billingDetails = new BillingDetails(charge.getBillingDetails().getEmail(),
                             charge.getBillingDetails().getName(),
@@ -510,7 +558,7 @@ log.info("Price: " + price);
                                     Math.toIntExact(charge.getPaymentMethodDetails().getCard().getExpYear()),
                                     charge.getPaymentMethodDetails().getCard().getLast4()));
 
-                    return new StripeTransaction(charge.getId(), Math.toIntExact(charge.getAmount()), charge.getCurrency(),
+                    return new StripeTransactions(charge.getId(), Math.toIntExact(charge.getAmount()), charge.getCurrency(),
                             charge.getDescription(), charge.getCaptured(), charge.getStatus(), billingDetails, paymentMethodDetails);
                 }).collect(Collectors.toList());
 

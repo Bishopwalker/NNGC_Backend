@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:5000/auth/nngc/**"
+      "url": "http://localhost:8080/auth/nngc/**"
     }
   ],
   "paths": {

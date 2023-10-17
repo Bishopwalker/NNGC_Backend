@@ -101,7 +101,7 @@ log.info(String.valueOf(isProduction()));
     }
     @GetMapping("/google/login")
     public ResponseEntity<?> redirectToGoogle() {
-        String redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/login/oauth2/code/google" : "http://localhost:5000/login/oauth2/code/google";
+        String redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/login/oauth2/code/google" : "http://localhost:8080/login/oauth2/code/google";
         URI uri = UriComponentsBuilder.fromUriString(redirectUrl).build().toUri();
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(uri);

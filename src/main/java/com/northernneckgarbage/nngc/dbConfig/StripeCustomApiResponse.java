@@ -1,5 +1,7 @@
-package com.northernneckgarbage.nngc.stripe.transaction;
+package com.northernneckgarbage.nngc.dbConfig;
 
+import com.northernneckgarbage.nngc.entity.StripeTransactions;
+import com.northernneckgarbage.nngc.stripe.transaction.RequestParams;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,11 +14,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class StripeCustomApiResponse {
-    private List<StripeTransaction> data;
+    private List<StripeTransactions> data;
     private Boolean has_more;
     private String url;
     private RequestParams request_params;
 
-    public StripeCustomApiResponse(List<StripeTransaction> stripeTransactions, String s) {
+    public StripeCustomApiResponse(List<StripeTransactions> stripeTransactions, String s) {
     }
 }
+
