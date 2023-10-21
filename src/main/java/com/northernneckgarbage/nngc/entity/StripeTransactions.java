@@ -12,18 +12,15 @@ import java.util.Objects;
 
 
 @Entity
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
 @Builder
+@Data
+@NoArgsConstructor
 @AllArgsConstructor
+@ToString
 @Table(name = "stripe_transactions")
 public class StripeTransactions {
 
-    public StripeTransactions(String id, int intExact, String currency, String description, Boolean captured, String status, BillingDetails billingDetails, PaymentMethodDetails paymentMethodDetails) {
 
-    }
 
     public enum Currency {
         USD, EUR
@@ -39,7 +36,7 @@ public class StripeTransactions {
     private String transactionId;
     private String description;
     private Long amount;
-    private Currency currency = Currency.USD;
+    private com.northernneckgarbage.nngc.entity.StripeTransactions.Currency currency = com.northernneckgarbage.nngc.entity.StripeTransactions.Currency.USD;
     private String stripeEmail;
     private String stripeToken;
     private String invoice;
@@ -47,16 +44,21 @@ public class StripeTransactions {
     private Boolean captured;
     private String status;
     private LocalDateTime expiresAt;
+    private String invoiceURL;
+    private String invoicePDF;
+    private String receiptUrl;
+    private boolean paid;
 
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id", nullable = false)
     private Customer customer;
-String  billingDetails;
+
+    String billingDetails;
     private String paymentMethodDetails;
 
     // Add any additional methods that were in either of the original classes
 
-    // For example, if you had a static method to create StripeTransactions from Charge
+  //   For example, if you had a static method to create StripeTransactions from Charge
     public static StripeTransactions fromCharge(Charge charge) {
         StripeTransactions transaction = new StripeTransactions();
         transaction.setTransactionId(charge.getId());
@@ -65,25 +67,9 @@ String  billingDetails;
         transaction.setCurrency(Currency.valueOf(charge.getCurrency()));
         transaction.setStripeEmail(charge.getReceiptEmail());
         transaction.setStripeToken(charge.getAuthorizationCode());
-        transaction.setInvoice(charge.getInvoice());
+        transaction.setInvoice(charge.getReceiptUrl());
         // ... add any other fields you need to set
 
         return transaction;
-    }
-
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        StripeTransactions that = (StripeTransactions) o;
-        return getId() != null && Objects.equals(getId(), that.getId());
-    }
-
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

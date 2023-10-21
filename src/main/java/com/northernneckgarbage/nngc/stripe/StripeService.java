@@ -3,6 +3,7 @@ package com.northernneckgarbage.nngc.stripe;
 import com.northernneckgarbage.nngc.controller.SseController;
 import com.northernneckgarbage.nngc.dbConfig.StripeApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeCustomApiResponse;
+import com.northernneckgarbage.nngc.dbConfig.StripeInvoiceResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.StripeTransactions;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
@@ -62,7 +63,7 @@ private final StripeTransactionRepository stripeTransactionRepository;
         // Combine currentDate and extractedTime to create LocalDateTime
         return LocalDateTime.of(currentDate, extractedTime);
     }
-public StripeService(CustomerRepository customerRepository, StripeTransactionRepository stripeTransactionRepository, SseController sseController) throws StripeException {
+public StripeService(CustomerRepository customerRepository, StripeTransactionRepository stripeTransactionRepository, SseController sseController) {
     this.sseController = sseController;
 
     Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY");
@@ -77,6 +78,7 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
 
 
 }
+
     public void handleEvent(Event event) {
         StripeObject stripeObject = event.getDataObjectDeserializer().getObject().orElse(null);
 
@@ -86,79 +88,123 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
         }
 
         switch (event.getType()) {
-            case "payment_intent.succeeded", "payment_intent.created","charge.succeeded":
+            case "customer.created", "customer.source.created", "customer.updated":
+                Customer newCustomer = (Customer) stripeObject;
+                // Then define and call a method to handle the successful attachment of a PaymentMethod.
+                //handlePaymentMethodAttached(paymentMethod);
+               // log.info("Customer: " + newCustomer);
+                break;
+            case"product.created":
+                Product product = (Product) stripeObject;
+              //  log.info("Product: " + product);
+                break;
+            case "plan.created":
+                Plan plan = (Plan) stripeObject;
+              //  log.info("Plan: " + plan);
+                break;
+            case "price.created"
+                    , "price.updated"
+                    , "price.deleted":
+                Price price = (Price) stripeObject;
+                //log.info("Price: " + price);
+                break;
+
+                case "charge.succeeded":
+                Charge charge = (Charge) stripeObject;
+                log.info("Charge: " + charge.getReceiptUrl());
+                log.info("Charge: " + charge);
+                var url = charge.getReceiptUrl();
+
+//
+//                var customer = Optional.ofNullable(customerRepository.findByEmail(charge.getBillingDetails().getEmail()).orElseThrow(() ->
+//                        new RuntimeException("Customer not found")));
+//             //   log.info("Customer: " + customer);
+//                var updateTransaction = StripeTransactions.builder()
+//                        .amount((long) Math.toIntExact(charge.getAmount()))
+//                        .currency(StripeTransactions.Currency.USD)
+//                        .description(charge.getDescription())
+//                        .stripeToken(charge.getId())
+//                        .stripeEmail(charge.getBillingDetails().getEmail())
+//                        .transactionId(charge.getBalanceTransaction())
+//                        .customer(customer.get())
+//                        .receiptUrl(charge.getReceiptUrl())
+//                        .paid(charge.getPaid())
+//                        .status(charge.getStatus())
+//                        .createdAt(convertMillisToLocalDateTime(charge.getCreated()))
+//                        .build();
+//
+//                    log.info(updateTransaction.toString());
+//                    stripeTransactionRepository.saveAndFlush(updateTransaction);
+                   // stripeTransactionRepository.save(updateTransaction);
+                  //  addStripeTransaction(updateTransaction);
+                    sseController.sendEventToClients( url);
+                break;
+
+            case "payment_intent.succeeded", "payment_intent.created":
+
+                assert stripeObject instanceof PaymentIntent;
                 PaymentIntent paymentIntent = (PaymentIntent) stripeObject;
-                // Then define and call a method to handle the successful payment intent.
-                // handlePaymentIntentSucceeded(paymentIntent);
-                sseController.sendEventToClients("payment.succeeded");
-                sseController.sendEventToClients("charge.succeeded");
+          //  log.info("Payment Intent: " + paymentIntent);
+             //  sseController.sendEventToClients( paymentIntent) ;
 
-                log.info("Payment Intent: " + paymentIntent);
-                var updateTransaction = StripeTransactions.builder()
-                        .amount((long) Math.toIntExact(paymentIntent.getAmount()))
-                        .currency(StripeTransactions.Currency.USD)
-                        .description(paymentIntent.getDescription())
-                        .stripeToken(paymentIntent.getId())
-                        .stripeEmail(paymentIntent.getReceiptEmail())
-                        .transactionId(paymentIntent.getPaymentMethod())
-                        .build();
-                log.info("updateTransaction: {}", updateTransaction);
+                break;
+            case "customer.subscription.created":
+                Subscription subscription = (Subscription) stripeObject;
+                // Then define and call a method to handle the successful attachment of a PaymentMethod.
 
+              //  log.info("Subscription: " + subscription);
+                sseController.sendEventToClients("customer.subscription.created" + subscription);
                 break;
             case "payment_method.attached":
                 PaymentMethod paymentMethod = (PaymentMethod) stripeObject;
                 // Then define and call a method to handle the successful attachment of a PaymentMethod.
-                // handlePaymentMethodAttached(paymentMethod);
-              case"checkout.session.completed":
-                  assert stripeObject instanceof Session;
-                  Session session = (Session) stripeObject;
-                  sseController.sendEventToClients("checkout.session.completed");
-                  log.info("Session: " + session);
-                  var email =session.getCustomerEmail();
-                  Optional<com.northernneckgarbage.nngc.entity.Customer> customer = Optional.ofNullable(customerRepository.findByEmail(email).orElseThrow(() ->
-                          new RuntimeException("Customer not found")));
-
-                  var trans = StripeTransactions.builder()
-                          .billingDetails(session.getBillingAddressCollection())
-                          .amount(session.getAmountTotal())
-                          .transactionId(session.getId())
-                          .stripeToken(session.getClientReferenceId())
-                          .createdAt(convertMillisToLocalDateTime(session.getCreated()))
-                          .expiresAt(convertMillisToLocalDateTime(session.getExpiresAt()))
-                          .stripeEmail(email)
-                          .description(session.getInvoiceObject().getDescription())
-                          .invoice(session.getInvoice())
-                          .status(session.getPaymentStatus())
-                          .currency(StripeTransactions.Currency.valueOf(session.getCurrency()))
-                          .build();
-
-             var id = customer.get().getId();
-                  updateStripeCustomerTransaction(id,trans);
-                  break;
-
-              case "invoice.payment_succeeded":
-                  assert stripeObject instanceof Invoice;
-                  Invoice invoice = (Invoice) stripeObject;
-                  log.info("Invoice: " + invoice);
+              //  sseController.sendEventToClients( paymentMethod);
                 break;
-                case "invoice.payment_failed", "invoice.finalized","invoice.finalization_failed":
-                    Invoice invoice1 = (Invoice) stripeObject;
-                    log.info("Invoice: " + invoice1);
-                    break;
-            case "customer.source.created", "customer.updated":
-                Customer customer1 = (Customer) stripeObject;
-                // Then define and call a method to handle the successful attachment of a PaymentMethod.
-                // handlePaymentMethodAttached(paymentMethod);
-                log.info("Customer: " + customer1);
+            case "checkout.session.completed":
+                assert stripeObject instanceof Session;
+                Session session = (Session) stripeObject;
+      // log.info("Session: " + session);
+                var email1 = session.getCustomerDetails().getEmail();
+                log.info("Email: " + email1);
+//                var customer = Optional.ofNullable(customerRepository.findByEmail(email1).orElseThrow(() ->
+//                        new RuntimeException("Customer not found")));
+//                log.info("Customer: " + customer);
+//
+
+              //  sseController.sendEventToClients(session);
+
+               break;
+            case "invoice.created","invoice.upcoming":
+                assert stripeObject instanceof Invoice;
+                Invoice invoice2 = (Invoice) stripeObject;
+                log.info("Invoice: " + invoice2);
+
+
+
+               // sseController.sendEventToClients("invoice.created");
+
                 break;
-            // Then define and call a method to handle the successful attachment of a PaymentMethod.
-                // handlePaymentMethodAttached(paymentMethod);
 
+            case "invoice.payment_succeeded","invoice.paid":
+                assert stripeObject instanceof Invoice;
+                Invoice invoice = (Invoice) stripeObject;
+                //log.info("Invoice: " + invoice);
+                sseController.sendEventToClients( invoice);
+                break;
+            case "invoice.payment_failed","invoice.finalization_failed", "invoice.finalized", "invoice.updated":
+                Invoice invoice1 = (Invoice) stripeObject;
+                // log.info("Invoice: " + invoice1);
+                sseController.sendEventToClients( invoice1);
+                break;
+                case "customer.subscription.trial_will_end":
+                Subscription subscription1 = (Subscription) stripeObject;
+break;
 
-            // ... handle other event types
             default:
                 System.out.println("Unhandled event type: " + event.getType());
+           //    sseController.sendEventToClients( event.getType());
         }
+
     }
 //get stripe account from customer stripeId
 public StripeApiResponse<Customer> getStripeCustomer(Long id) throws StripeException {
@@ -541,6 +587,7 @@ log.info("Price: " + price);
         ChargeCollection charges = Charge.list(listParams);
         log.info("Charges: " + charges);
 
+        com.northernneckgarbage.nngc.entity.Customer finalUser = user;
         List<StripeTransactions> stripeTransactions = charges.getData().stream()
                 .map(charge -> {
                     BillingDetails billingDetails = new BillingDetails(charge.getBillingDetails().getEmail(),
@@ -558,8 +605,17 @@ log.info("Price: " + price);
                                     Math.toIntExact(charge.getPaymentMethodDetails().getCard().getExpYear()),
                                     charge.getPaymentMethodDetails().getCard().getLast4()));
 
-                    return new StripeTransactions(charge.getId(), Math.toIntExact(charge.getAmount()), charge.getCurrency(),
-                            charge.getDescription(), charge.getCaptured(), charge.getStatus(), billingDetails, paymentMethodDetails);
+                    return StripeTransactions.builder()
+                            .amount((long) Math.toIntExact(charge.getAmount()))
+                            .currency(StripeTransactions.Currency.USD)
+                            .description(charge.getDescription())
+                            .stripeToken(charge.getId())
+                            .stripeEmail(charge.getBillingDetails().getEmail())
+                            .transactionId(charge.getPaymentMethod())
+                            .customer(finalUser)
+                            .billingDetails(String.valueOf(billingDetails))
+                            .paymentMethodDetails(String.valueOf(paymentMethodDetails))
+                            .build();
                 }).collect(Collectors.toList());
 
         return new StripeCustomApiResponse(stripeTransactions, charges.getHasMore(), charges.getUrl(),
