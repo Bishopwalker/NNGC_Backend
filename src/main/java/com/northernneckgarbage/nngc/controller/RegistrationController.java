@@ -1,9 +1,11 @@
-package com.northernneckgarbage.nngc.registration;
+package com.northernneckgarbage.nngc.controller;
 
 
 import com.google.maps.errors.ApiException;
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
+import com.northernneckgarbage.nngc.registration.RegistrationRequest;
+import com.northernneckgarbage.nngc.registration.RegistrationService;
 import com.northernneckgarbage.nngc.registration.auth.AuthenticationRequest;
 import com.northernneckgarbage.nngc.service.CustomerService;
 import com.northernneckgarbage.nngc.token.TokenService;

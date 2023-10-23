@@ -3,10 +3,10 @@ package com.northernneckgarbage.nngc.stripe;
 import com.northernneckgarbage.nngc.controller.SseController;
 import com.northernneckgarbage.nngc.dbConfig.StripeApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeCustomApiResponse;
-import com.northernneckgarbage.nngc.dbConfig.StripeInvoiceResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.StripeTransactions;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
+import com.northernneckgarbage.nngc.repository.StripeTransactionRepository;
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.northernneckgarbage.nngc.stripe.transaction.Address;
 import com.northernneckgarbage.nngc.stripe.transaction.Card;
@@ -112,26 +112,17 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
                 case "charge.succeeded":
                 Charge charge = (Charge) stripeObject;
                 log.info("Charge: " + charge.getReceiptUrl());
-                log.info("Charge: " + charge);
+              log.info("Charge: " + charge.getBillingDetails().getEmail());
                 var url = charge.getReceiptUrl();
-
+                var email = charge.getBillingDetails().getEmail();
 //
-//                var customer = Optional.ofNullable(customerRepository.findByEmail(charge.getBillingDetails().getEmail()).orElseThrow(() ->
-//                        new RuntimeException("Customer not found")));
-//             //   log.info("Customer: " + customer);
-//                var updateTransaction = StripeTransactions.builder()
-//                        .amount((long) Math.toIntExact(charge.getAmount()))
-//                        .currency(StripeTransactions.Currency.USD)
-//                        .description(charge.getDescription())
-//                        .stripeToken(charge.getId())
-//                        .stripeEmail(charge.getBillingDetails().getEmail())
-//                        .transactionId(charge.getBalanceTransaction())
-//                        .customer(customer.get())
-//                        .receiptUrl(charge.getReceiptUrl())
-//                        .paid(charge.getPaid())
-//                        .status(charge.getStatus())
-//                        .createdAt(convertMillisToLocalDateTime(charge.getCreated()))
-//                        .build();
+                var customer = Optional.ofNullable(customerRepository.findByEmail(email).orElseThrow(() ->
+                        new RuntimeException("Customer not found")));
+              customer.ifPresent(c -> c.setReceiptURL(url));
+
+                customerRepository.saveAndFlush(customer.get());
+          log.info("Customer: " + customer);
+
 //
 //                    log.info(updateTransaction.toString());
 //                    stripeTransactionRepository.saveAndFlush(updateTransaction);
@@ -141,7 +132,6 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
                 break;
 
             case "payment_intent.succeeded", "payment_intent.created":
-
                 assert stripeObject instanceof PaymentIntent;
                 PaymentIntent paymentIntent = (PaymentIntent) stripeObject;
           //  log.info("Payment Intent: " + paymentIntent);
@@ -165,10 +155,10 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
                 Session session = (Session) stripeObject;
       // log.info("Session: " + session);
                 var email1 = session.getCustomerDetails().getEmail();
-                log.info("Email: " + email1);
-//                var customer = Optional.ofNullable(customerRepository.findByEmail(email1).orElseThrow(() ->
+//                log.info("Email: " + email1);
+//                var customerSession = Optional.ofNullable(customerRepository.findByEmail(email1).orElseThrow(() ->
 //                        new RuntimeException("Customer not found")));
-//                log.info("Customer: " + customer);
+//               log.info("Customer: " + customerSession);
 //
 
               //  sseController.sendEventToClients(session);

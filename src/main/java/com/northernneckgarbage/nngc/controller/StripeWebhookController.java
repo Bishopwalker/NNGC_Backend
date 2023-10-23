@@ -1,5 +1,6 @@
-package com.northernneckgarbage.nngc.stripe;
+package com.northernneckgarbage.nngc.controller;
 
+import com.northernneckgarbage.nngc.stripe.StripeService;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
 import com.stripe.net.Webhook;

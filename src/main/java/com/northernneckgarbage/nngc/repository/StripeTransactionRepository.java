@@ -1,4 +1,4 @@
-package com.northernneckgarbage.nngc.stripe;
+package com.northernneckgarbage.nngc.repository;
 
 import com.northernneckgarbage.nngc.entity.StripeTransactions;
 import org.springframework.data.domain.Page;

@@ -20,6 +20,7 @@ public class CustomerDTO {
     private String stripeCustomerId;
     private String geoLocation;
     private boolean enabled;
+    private String receiptURL;
 
 
 }
