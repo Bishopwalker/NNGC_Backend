@@ -64,10 +64,10 @@ public class Customer  implements UserDetails {
 
     @Column(name = "receipt_url", length = 350)
     private String receiptURL;
-
+    @Column(name = "invoice_url", length = 350)
+    private String invoiceURL;
 
     @Column(name = "latitude", length = 150)
-
     private Double latitude ;
     @Column(name = "longitude", length = 150)
     private Double longitude;
@@ -166,6 +166,9 @@ private boolean enabled = false;
         if(receiptURL == null){
             receiptURL = "No Receipt URL";
         }
+        if(invoiceURL == null){
+            invoiceURL = "No Invoice URL";
+        }
 
         return CustomerDTO.builder()
                 .id(id)
@@ -178,6 +181,7 @@ private boolean enabled = false;
                 .stripeCustomerId(stripeCustomerId)
                 .geoLocation(geoLocation)
                 .receiptURL(receiptURL)
+                .invoiceURL(invoiceURL)
                 .build();
     }
 }

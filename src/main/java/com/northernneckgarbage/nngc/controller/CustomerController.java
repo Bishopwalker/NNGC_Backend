@@ -34,7 +34,10 @@ return ResponseEntity.ok(customers.size() + "Customers added: " + customers);
 
 }
 
-
+    @GetMapping("/stripe_id/{id}")
+    public ApiResponse<Customer> getCustomerByStripeId(@PathVariable String id) {
+        return customerService.getCustomerByStripeId(id);
+    }
     @GetMapping("/customers")
    public ResponseEntity<ApiResponse<List<Customer>>> getAllCustomers(@RequestHeader("Authorization") String headers) {
        log.info(headers);

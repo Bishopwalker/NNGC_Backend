@@ -21,6 +21,7 @@ public class CustomerDTO {
     private String geoLocation;
     private boolean enabled;
     private String receiptURL;
+    private String invoiceURL;
 
 
 }

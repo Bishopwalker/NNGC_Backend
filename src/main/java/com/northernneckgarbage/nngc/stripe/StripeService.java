@@ -18,6 +18,7 @@ import com.stripe.model.checkout.Session;
 import com.stripe.param.ChargeListParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import io.github.cdimascio.dotenv.Dotenv;
+import jakarta.persistence.NoResultException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -78,7 +79,6 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
 
 
 }
-
     public void handleEvent(Event event) {
         StripeObject stripeObject = event.getDataObjectDeserializer().getObject().orElse(null);
 
@@ -119,8 +119,13 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
                 var customer = Optional.ofNullable(customerRepository.findByEmail(email).orElseThrow(() ->
                         new RuntimeException("Customer not found")));
               customer.ifPresent(c -> c.setReceiptURL(url));
-
-                customerRepository.saveAndFlush(customer.get());
+try {
+    customerRepository.saveAndFlush(customer.get());
+}catch (NoResultException e){
+    log.info("Customer already exists");
+}catch (Exception e){
+    log.error("Error: " + e.getMessage());
+}
           log.info("Customer: " + customer);
 
 //
@@ -142,7 +147,7 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
                 Subscription subscription = (Subscription) stripeObject;
                 // Then define and call a method to handle the successful attachment of a PaymentMethod.
 
-              //  log.info("Subscription: " + subscription);
+            log.info("Subscription: " + subscription);
                 sseController.sendEventToClients("customer.subscription.created" + subscription);
                 break;
             case "payment_method.attached":
@@ -153,9 +158,9 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
             case "checkout.session.completed":
                 assert stripeObject instanceof Session;
                 Session session = (Session) stripeObject;
-      // log.info("Session: " + session);
+ //    log.info("Session: " + session);
                 var email1 = session.getCustomerDetails().getEmail();
-//                log.info("Email: " + email1);
+               log.info("Email: " + email1);
 //                var customerSession = Optional.ofNullable(customerRepository.findByEmail(email1).orElseThrow(() ->
 //                        new RuntimeException("Customer not found")));
 //               log.info("Customer: " + customerSession);
@@ -167,7 +172,7 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
             case "invoice.created","invoice.upcoming":
                 assert stripeObject instanceof Invoice;
                 Invoice invoice2 = (Invoice) stripeObject;
-                log.info("Invoice: " + invoice2);
+      // log.info("Invoice: " + invoice2);
 
 
 
@@ -178,18 +183,33 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
             case "invoice.payment_succeeded","invoice.paid":
                 assert stripeObject instanceof Invoice;
                 Invoice invoice = (Invoice) stripeObject;
-                //log.info("Invoice: " + invoice);
+       log.info("Invoice: " + invoice.getCustomer());
+            var customerInvoice = Optional.ofNullable(customerRepository.findByStripeCustomerId(invoice.getCustomer()).orElseThrow(() ->
+                    new RuntimeException("Customer not found")));
+    log.info("Customer: " + customerInvoice);
+                customerInvoice.ifPresent(c -> c.setInvoiceURL(invoice.getHostedInvoiceUrl()));
+               try {
+                   customerRepository.saveAndFlush(customerInvoice.get());
+               }catch (NoResultException e){
+                   log.info("Customer already exists");
+                }catch (Exception e){
+                     log.error("Error: " + e.getMessage());
+               }
                 sseController.sendEventToClients( invoice);
+
                 break;
             case "invoice.payment_failed","invoice.finalization_failed", "invoice.finalized", "invoice.updated":
                 Invoice invoice1 = (Invoice) stripeObject;
-                // log.info("Invoice: " + invoice1);
-                sseController.sendEventToClients( invoice1);
+             //  log.info("Invoice: " + invoice1);
+               // sseController.sendEventToClients( invoice1);
                 break;
                 case "customer.subscription.trial_will_end":
                 Subscription subscription1 = (Subscription) stripeObject;
 break;
-
+                case "setup_intent.created","setup_intent.succeeded":
+                SetupIntent setupIntent = (SetupIntent) stripeObject;
+                log.info("Setup Intent: " + setupIntent);
+                break;
             default:
                 System.out.println("Unhandled event type: " + event.getType());
            //    sseController.sendEventToClients( event.getType());

@@ -76,6 +76,16 @@ public class CustomerServiceImpl implements CustomerService {
                 .customerDTO(customer.get().toCustomerDTO())
                 .build();
     }
+@Override
+public ApiResponse<Customer> getCustomerByStripeId(String id) {
+        Optional<Customer> customer = Optional.ofNullable(customerRepository.findByStripeCustomerId(id).orElseThrow(() ->
+                new RuntimeException("Customer not found")));
+
+        return  ApiResponse.<Customer>builder()
+                .customerDTO(customer.get().toCustomerDTO())
+                .message("Customer fetched successfully")
+                .build();
+    }
 
 
     @Override
