@@ -184,7 +184,7 @@ try {
                 assert stripeObject instanceof Invoice;
                 Invoice invoice = (Invoice) stripeObject;
        log.info("Invoice: " + invoice.getCustomer());
-            var customerInvoice = Optional.ofNullable(customerRepository.findByStripeCustomerId(invoice.getCustomer()).orElseThrow(() ->
+            var customerInvoice = Optional.ofNullable(customerRepository.locateByStripeID(invoice.getCustomer()).orElseThrow(() ->
                     new RuntimeException("Customer not found")));
     log.info("Customer: " + customerInvoice);
                 customerInvoice.ifPresent(c -> c.setInvoiceURL(invoice.getHostedInvoiceUrl()));

@@ -26,5 +26,6 @@ public interface CustomerService {
     ApiResponse<Customer> updateCustomer(Customer customer, Long id) throws StripeException;
 
    ApiResponse<Customer> getCustomerById(Long id);
+
    ApiResponse<Customer> getCustomerByStripeId(String id);
 }

@@ -23,7 +23,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     Optional<Customer> findByPhone(String phone);
 
 
-    Optional<Customer> findByStripeCustomerId(String stripeCustomerId);
+    @Query("SELECT c FROM Customer c WHERE c.stripeCustomerId = ?1")
+    Optional<Customer> locateByStripeID(String stripeCustomerId);
+
 
 
 }

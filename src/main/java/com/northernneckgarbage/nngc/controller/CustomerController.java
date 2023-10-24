@@ -35,8 +35,14 @@ return ResponseEntity.ok(customers.size() + "Customers added: " + customers);
 }
 
     @GetMapping("/stripe_id/{id}")
-    public ApiResponse<Customer> getCustomerByStripeId(@PathVariable String id) {
-        return customerService.getCustomerByStripeId(id);
+    public ResponseEntity<ApiResponse<Customer>> getCustomerByStripeId(@PathVariable String id) {
+
+        //customerService.getCustomerByStripeId(id);
+        return  ResponseEntity.ok(
+                ApiResponse.<Customer>builder()
+                        .message("Customer found")
+                        .customerDTO(customerService.getCustomerByStripeId(id).getCustomerDTO())
+                        .build());
     }
     @GetMapping("/customers")
    public ResponseEntity<ApiResponse<List<Customer>>> getAllCustomers(@RequestHeader("Authorization") String headers) {
