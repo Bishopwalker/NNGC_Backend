@@ -14,6 +14,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +39,8 @@ public class RegistrationController {
     private final RegistrationService service;
     private final TokenService tokenService;
 
-Dotenv dotenv = Dotenv.load();
+    @Value("${spring.profiles.active}")
+    private String env;
     @PostMapping("admin/register")
     public String processRegister(@RequestBody Customer customer) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -99,8 +101,9 @@ log.info(String.valueOf(isProduction()));
     private boolean isProduction() {
         // Implement your logic to determine if the application is running in production
         // For example, you can check an environment variable
-        return dotenv.get("ENVIRONMENT").equals("prod") ;
+        return "prod".equals(env);
     }
+
     @GetMapping("/google/login")
     public ResponseEntity<?> redirectToGoogle() {
         String redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/login/oauth2/code/google" : "http://localhost:8080/login/oauth2/code/google";

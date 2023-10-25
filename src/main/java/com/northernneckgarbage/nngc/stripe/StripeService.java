@@ -90,6 +90,7 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
         switch (event.getType()) {
             case "customer.created", "customer.source.created", "customer.updated":
                 Customer newCustomer = (Customer) stripeObject;
+              log.info("Customer: " + newCustomer);
                 // Then define and call a method to handle the successful attachment of a PaymentMethod.
                 //handlePaymentMethodAttached(paymentMethod);
                // log.info("Customer: " + newCustomer);
@@ -126,7 +127,7 @@ try {
 }catch (Exception e){
     log.error("Error: " + e.getMessage());
 }
-          log.info("Customer: " + customer);
+         // log.info("Customer: " + customer);
 
 //
 //                    log.info(updateTransaction.toString());
@@ -183,7 +184,9 @@ try {
             case "invoice.payment_succeeded","invoice.paid":
                 assert stripeObject instanceof Invoice;
                 Invoice invoice = (Invoice) stripeObject;
-       log.info("Invoice: " + invoice.getCustomer());
+                log.info("{}",invoice);
+          log.info("Invoice: " + invoice.getCustomer());
+
             var customerInvoice = Optional.ofNullable(customerRepository.locateByStripeID(invoice.getCustomer()).orElseThrow(() ->
                     new RuntimeException("Customer not found")));
     log.info("Customer: " + customerInvoice);
@@ -198,17 +201,25 @@ try {
                 sseController.sendEventToClients( invoice);
 
                 break;
-            case "invoice.payment_failed","invoice.finalization_failed", "invoice.finalized", "invoice.updated":
+                case "invoice.payment_failed","invoice.finalization_failed", "invoice.finalized", "invoice.updated":
                 Invoice invoice1 = (Invoice) stripeObject;
              //  log.info("Invoice: " + invoice1);
                // sseController.sendEventToClients( invoice1);
                 break;
                 case "customer.subscription.trial_will_end":
                 Subscription subscription1 = (Subscription) stripeObject;
-break;
+                break;
                 case "setup_intent.created","setup_intent.succeeded":
                 SetupIntent setupIntent = (SetupIntent) stripeObject;
                 log.info("Setup Intent: " + setupIntent);
+                break;
+                case "balance.available":
+                Balance balance = (Balance) stripeObject;
+                log.info("Balance: " + balance);
+                break;
+                case "payout.created","payout.reconciliation_completed","payout.paid":
+                Payout payout = (Payout) stripeObject;
+                log.info("Payout: " + payout);
                 break;
             default:
                 System.out.println("Unhandled event type: " + event.getType());
@@ -456,7 +467,7 @@ log.info("Price: " + price);
         log.info("Success URL: " + successUrl);
         SessionCreateParams params =
                 SessionCreateParams.builder()
-                        .setCustomerEmail(user.getEmail())
+                        .setCustomer(user.toCustomerDTO().toString())
                         .setMode(mode)
                         .setSuccessUrl( successUrl)
                         .setCancelUrl(YOUR_DOMAIN + "services")
@@ -471,23 +482,27 @@ log.info("Price: " + price);
                                         .build())
                         .build();
 
-        Session session = Session.create(params);
-
-        StripeTransactions transactions = StripeTransactions.builder()
-                .amount((long) Math.toIntExact(price.getUnitAmount())) // Set the transaction amount using the price object
-                .currency(StripeTransactions.Currency.USD)
-                .description(product.getDescription())
-                .stripeToken(session.getId())
-                .stripeEmail(user.getEmail())
-                .transactionId(params.getClientReferenceId())
-                .productID(productId)
-                .customer(user)
-                .build();
+        //try {
+//    StripeTransactions transactions = StripeTransactions.builder()
+//            .amount((long) Math.toIntExact(price.getUnitAmount())) // Set the transaction amount using the price object
+//            .currency(StripeTransactions.Currency.USD)
+//            .description(product.getDescription())
+//            .stripeToken(session.getId())
+//            .stripeEmail(user.getEmail())
+//            .transactionId(params.getClientReferenceId())
+//            .productID(productId)
+//            .customer(user)
+//            .build();
+//
+//    updateStripeCustomerTransaction(id, transactions);
+//}catch (Exception e){
+//    log.error("Error: " + e.getMessage());
+//}
 
         // Call the updateStripeCustomerTransaction method to update the transaction
-        updateStripeCustomerTransaction(id, transactions);
 
-        return session;
+
+        return Session.create(params);
     }
 
 
