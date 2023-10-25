@@ -76,25 +76,39 @@ public class RegistrationController {
         TokenService.TokenConfirmationStatus confirmationStatus = tokenService.confirmToken(token);
 log.info(String.valueOf(isProduction()));
         // Handle different confirmation statuses
-        String redirectUrl;
-        switch (confirmationStatus) {
-            case SUCCESS:
+        String redirectUrl = switch (confirmationStatus) {
+            case SUCCESS ->
                 // Redirect to your website or return a success message
-                redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/success" : "http://localhost:5173/success";
-                break;
-            case ALREADY_CONFIRMED:
+                    isProduction() ? "http://www.northernneckgarbage.com/success" : "http://localhost:5173/success";
+            case ALREADY_CONFIRMED ->
                 // Redirect to your website or return a message indicating the token is already confirmed
-                redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/already-confirmed" : "http://localhost:5173/already-confirmed";
-                break;
-            case EXPIRED:
+                    isProduction() ? "http://www.northernneckgarbage.com/already-confirmed" : "http://localhost:5173/already-confirmed";
+            case EXPIRED ->
                 // Redirect to an expired token page
-                redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/expired" : "http://localhost:5173/expired";
-                break;
-            default:
-                // Redirect to a generic error page
-                redirectUrl = isProduction() ? "http://www.northernneckgarbage.com " : "http://localhost:5173";
-                break;
-        }
+                    isProduction() ? "http://www.northernneckgarbage.com/expired" : "http://localhost:5173/expired";
+            // Redirect to a generic error page
+        };
+        response.sendRedirect(redirectUrl);
+    }
+
+    @GetMapping("/token_status")
+    public void tokenStatus(@RequestParam("token") String token, HttpServletResponse response) throws StripeException, IOException, InterruptedException, ApiException {
+        // Call the confirmToken method from the TokenService and get the status
+        TokenService.TokenConfirmationStatus confirmationStatus = tokenService.confirmToken(token);
+        log.info(String.valueOf(isProduction()));
+        // Handle different confirmation statuses
+        String redirectUrl = switch (confirmationStatus) {
+            case SUCCESS ->
+                // Redirect to your website or return a success message
+                    isProduction() ? "http://www.northernneckgarbage.com/success" : "http://localhost:5173/success";
+            case ALREADY_CONFIRMED ->
+                // Redirect to your website or return a message indicating the token is already confirmed
+                    isProduction() ? "http://www.northernneckgarbage.com/already-confirmed" : "http://localhost:5173/already-confirmed";
+            case EXPIRED ->
+                // Redirect to an expired token page
+                    isProduction() ? "http://www.northernneckgarbage.com/expired" : "http://localhost:5173/expired";
+            // Redirect to a generic error page
+        };
         response.sendRedirect(redirectUrl);
     }
 

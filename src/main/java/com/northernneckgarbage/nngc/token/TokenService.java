@@ -101,8 +101,22 @@ public class TokenService {
         tokenRepository.saveAll(validUserTokens);
 
     }
+//building a function just to check the token status
+public TokenConfirmationStatus tokenStatus(String token)  {
+        TokenConfirmationStatus confirmationStatus1;
 
+    // Find the token
+    var userToken = tokenRepository.findByToken(token)
+            .orElseThrow(() -> new RuntimeException("Token not found"));
 
+   //check to see if token is expired
+    if(LocalDateTime.now().isAfter(userToken.getExpiresAt())) {
+        // Token is expired
+        confirmationStatus1 = TokenConfirmationStatus.EXPIRED;
+    }
+
+return confirmationStatus1;
+}
 
 
 
