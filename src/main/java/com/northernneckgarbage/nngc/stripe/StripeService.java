@@ -467,10 +467,15 @@ log.info("Price: " + price);
         log.info("Success URL: " + successUrl);
         SessionCreateParams params =
                 SessionCreateParams.builder()
-                        .setCustomer(user.toCustomerDTO().toString())
+                        .setCustomer(user.getStripeCustomerId())
                         .setMode(mode)
                         .setSuccessUrl( successUrl)
                         .setCancelUrl(YOUR_DOMAIN + "services")
+//                        .setCustomerUpdate(  // Set customer_update parameters here
+//                                SessionCreateParams.CustomerUpdate.builder()
+//                                        .setAddress(SessionCreateParams.CustomerUpdate.Address.AUTO)  // Set address to 'auto'
+//                                        .build()
+//                        )
                         .setAutomaticTax(
                                 SessionCreateParams.AutomaticTax.builder()
                                         .setEnabled(true)
@@ -480,6 +485,7 @@ log.info("Price: " + price);
                                         .setQuantity(1L)
                                         .setPrice(price.getId())
                                         .build())
+
                         .build();
 
         //try {
