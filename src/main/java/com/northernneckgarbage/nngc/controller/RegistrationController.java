@@ -92,25 +92,31 @@ log.info(String.valueOf(isProduction()));
     }
 
     @GetMapping("/token_status")
-    public void tokenStatus(@RequestParam("token") String token, HttpServletResponse response) throws StripeException, IOException, InterruptedException, ApiException {
+    public ResponseEntity<String> tokenStatus(@RequestParam("token") String token) {
         // Call the confirmToken method from the TokenService and get the status
-        TokenService.TokenConfirmationStatus confirmationStatus = tokenService.confirmToken(token);
+        TokenService.TokenConfirmationStatus confirmationStatus = tokenService.tokenStatus(token);
         log.info(String.valueOf(isProduction()));
-        // Handle different confirmation statuses
-        String redirectUrl = switch (confirmationStatus) {
-            case SUCCESS ->
-                // Redirect to your website or return a success message
-                    isProduction() ? "http://www.northernneckgarbage.com/success" : "http://localhost:5173/success";
-            case ALREADY_CONFIRMED ->
-                // Redirect to your website or return a message indicating the token is already confirmed
-                    isProduction() ? "http://www.northernneckgarbage.com/already-confirmed" : "http://localhost:5173/already-confirmed";
-            case EXPIRED ->
-                // Redirect to an expired token page
-                    isProduction() ? "http://www.northernneckgarbage.com/expired" : "http://localhost:5173/expired";
-            // Redirect to a generic error page
+
+        if (confirmationStatus == null) {
+            log.error("Token confirmation status is null for token: " + token);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error determining token status");
+        }
+
+        // Determine the response body based on the confirmation status
+        String responseBody = switch (confirmationStatus) {
+            case EXPIRED -> "expired";
+            case SUCCESS, ALREADY_CONFIRMED -> "good";
         };
-        response.sendRedirect(redirectUrl);
+
+        // Debug logging to trace the response body
+        log.info("Response Body: " + responseBody);
+
+        // Return the response entity with the determined body
+        return ResponseEntity.ok(responseBody);
     }
+
+
+
 
     private boolean isProduction() {
         // Implement your logic to determine if the application is running in production

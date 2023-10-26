@@ -103,7 +103,7 @@ public class TokenService {
     }
 //building a function just to check the token status
 public TokenConfirmationStatus tokenStatus(String token)  {
-        TokenConfirmationStatus confirmationStatus1;
+        TokenConfirmationStatus confirmationStatus1 = null;
 
     // Find the token
     var userToken = tokenRepository.findByToken(token)
@@ -113,6 +113,9 @@ public TokenConfirmationStatus tokenStatus(String token)  {
     if(LocalDateTime.now().isAfter(userToken.getExpiresAt())) {
         // Token is expired
         confirmationStatus1 = TokenConfirmationStatus.EXPIRED;
+    }else{
+        // Token is not expired
+        confirmationStatus1 = TokenConfirmationStatus.SUCCESS;
     }
 
 return confirmationStatus1;
