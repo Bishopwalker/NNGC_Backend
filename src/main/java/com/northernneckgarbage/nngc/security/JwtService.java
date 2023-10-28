@@ -58,12 +58,13 @@ import java.util.function.Function;
                 .builder()
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 3))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
         log.debug("Generated Token: " + token); // Debug log (be cautious about security)
         return token;
     }
+
     public String generateToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails ) {
