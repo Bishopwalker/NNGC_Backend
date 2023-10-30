@@ -3,6 +3,7 @@ package com.northernneckgarbage.nngc.token;
 import com.google.maps.errors.ApiException;
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
+import com.northernneckgarbage.nngc.entity.dto.CustomerDTO;
 import com.northernneckgarbage.nngc.google.GeocodingService;
 import com.northernneckgarbage.nngc.registration.auth.AuthenticationRequest;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-
+import java.util.List;
 
 
 @Service
@@ -88,9 +89,20 @@ public class TokenService {
                 .build();
         tokenRepository.save(token);
     }
+    ///tokens service to retrieve token by customer id that is not expired
+    public ApiResponse<Customer> findByCustomerId(Long id) {
+var token = tokenRepository.findAllValidTokenByUserNative(id);
+log.info(token.toString());
+
+         return ApiResponse.<Customer>builder()
+                 .token(token.get(0).getToken())
+                 .build();
+    }
+
+
 
     public void revokeAllUserTokens(Customer user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser((int) user.getId());
+        var validUserTokens = tokenRepository.findAllValidTokenByUser( user.getId());
         if (validUserTokens.isEmpty())
             return;
         validUserTokens.forEach(token -> {
@@ -120,6 +132,7 @@ public TokenConfirmationStatus tokenStatus(String token)  {
 
 return confirmationStatus1;
 }
+
 
 
 

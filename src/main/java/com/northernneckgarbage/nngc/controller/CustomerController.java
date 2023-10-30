@@ -70,6 +70,7 @@ return ResponseEntity.ok(customers.size() + "Customers added: " + customers);
         }
         return ResponseEntity.badRequest().body(StripeRegistrationResponse.<Optional<Customer>>builder().message("You are not authorized to view this page").build());
     }
+
     @GetMapping("/customers/{id}")
     public ResponseEntity<ApiResponse<Customer>> getCustomerById(@RequestHeader("Authorization")String headers, @PathVariable Long id) {
         log.info(headers);
@@ -95,7 +96,7 @@ public void updateStripeForAllUsers() throws StripeException {
     public ResponseEntity<ApiResponse<Customer>> updateCustomer(@RequestHeader("Authorization") String headers, @RequestBody Customer customer, @PathVariable Long id) throws StripeException {
 
         var user = tokenRepository.findByToken(headers).get().getCustomer();
-        log.info(user.toString());
+log.info(user.toString());
         if(user==null){
             return ResponseEntity.badRequest().body(ApiResponse.<Customer>builder().message("You are not authorized to view this page").build());
         }

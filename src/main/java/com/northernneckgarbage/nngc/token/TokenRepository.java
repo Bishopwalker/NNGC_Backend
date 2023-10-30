@@ -13,12 +13,13 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
       on t.customer.id = u.id\s
       where u.id = :id and (t.expired = false or t.revoked = false)\s
       """)
-    List<Token> findAllValidTokenByUser(Integer id);
+    List<Token> findAllValidTokenByUser(Long id);
+
+    @Query(value = "SELECT * FROM token WHERE customer_id = :id " +
+            "AND (expired = false OR revoked = false)", nativeQuery = true)
+    List<Token> findAllValidTokenByUserNative(Long id);
 
     Optional<Token> findByToken(String token);
 
-    @Query(value = """
-            select t from Token t where t.customer.id = :id\s
-            """)
-    Optional<Token> findByCustomerId(Integer id);
+
 }

@@ -8,6 +8,7 @@ import com.northernneckgarbage.nngc.registration.RegistrationRequest;
 import com.northernneckgarbage.nngc.registration.RegistrationService;
 import com.northernneckgarbage.nngc.registration.auth.AuthenticationRequest;
 import com.northernneckgarbage.nngc.service.CustomerService;
+import com.northernneckgarbage.nngc.token.Token;
 import com.northernneckgarbage.nngc.token.TokenService;
 import com.stripe.exception.StripeException;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -27,6 +28,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Controller
@@ -89,6 +92,20 @@ log.info(String.valueOf(isProduction()));
             // Redirect to a generic error page
         };
         response.sendRedirect(redirectUrl);
+    }
+
+    //endpoint to retrieve a token by customer ID
+    @GetMapping("/token")
+    public ResponseEntity<ApiResponse<Customer>> getToken(@RequestParam("id") Long id) {
+        log.info("id: " + id);
+        // Call the getToken method from the TokenService and get the token
+
+      // value =tokenService.findByCustomerId(id);
+       var token = tokenService.findByCustomerId(id);
+        // Return the response entity with the token
+        return ResponseEntity.ok(ApiResponse.<Customer>builder()
+              .token(token.getToken())
+                .build());
     }
 
     @GetMapping("/token_status")
