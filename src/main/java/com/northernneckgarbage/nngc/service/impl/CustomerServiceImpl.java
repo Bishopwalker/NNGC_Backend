@@ -126,6 +126,7 @@ public class CustomerServiceImpl implements CustomerService {
         var user = customerRepository.findById(id).orElseThrow(() ->
                 new RuntimeException("Customer not found"));
 
+log.info(customer.toString());
 
         var updateCustomer = Customer.builder()
                 .id(id)
@@ -157,7 +158,7 @@ if(user.getStripeCustomerId() != null){
 }
         return ApiResponse.<Customer>builder()
                 .customerDTO(updateCustomer.toCustomerDTO())
-                .message(String.format("Customer updated successfully these are the new fields: ",customer ))
+                .message(String.format("Customer updated successfully these are the new fields: %s ",customer ))
                 .build();
     }
 
