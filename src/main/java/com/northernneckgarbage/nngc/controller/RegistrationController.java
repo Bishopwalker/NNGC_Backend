@@ -95,8 +95,8 @@ log.info(String.valueOf(isProduction()));
     }
 
     //endpoint to retrieve a token by customer ID
-    @GetMapping("/token")
-    public ResponseEntity<ApiResponse<Customer>> getToken(@RequestParam("id") Long id) {
+    @GetMapping("/token/{id}")
+    public ResponseEntity<ApiResponse<Customer>> getToken(@PathVariable("id") Long id) {
         log.info("id: " + id);
         // Call the getToken method from the TokenService and get the token
 

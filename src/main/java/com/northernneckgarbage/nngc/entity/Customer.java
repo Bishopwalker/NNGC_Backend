@@ -182,7 +182,7 @@ private boolean enabled = false;
                 .geoLocation(geoLocation)
                 .receiptURL(receiptURL)
                 .invoiceURL(invoiceURL)
-                .tokens(tokens)  // Add this line
+
                 .build();
     }
 }

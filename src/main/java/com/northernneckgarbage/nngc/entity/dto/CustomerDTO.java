@@ -25,7 +25,7 @@ public class CustomerDTO {
     private boolean enabled;
     private String receiptURL;
     private String invoiceURL;
-    private List<Token> tokens;  // Add this line
+
 
 
 
