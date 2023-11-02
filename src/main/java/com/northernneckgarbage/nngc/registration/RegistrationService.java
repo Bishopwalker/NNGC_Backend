@@ -15,8 +15,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Collections;
 
-    @Service
+@Service
     @RequiredArgsConstructor
     @Slf4j
     public class RegistrationService {
@@ -42,7 +43,7 @@ import java.io.IOException;
             emailSender.sendWithSendGrid((email),String.format("Validation email for",email), buildEmail(user.getFirstName(), link));
             return ApiResponse.builder()
                     .customerDTO(user.toCustomerDTO())
-                    .token(jwtToken)
+                    .token(Collections.singletonList(jwtToken))
                     .message("Token resent to: " + user.getEmail())
                     .build();
         }
@@ -76,7 +77,7 @@ import java.io.IOException;
             //emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));;
             emailSender.sendWithSendGrid((request.getEmail()),String.format("Validation email for",request.getEmail()), buildEmail(request.getFirstName(), link));
             return ApiResponse.builder()
-                    .token(jwtToken)
+                    .token(Collections.singletonList(jwtToken))
                     .build();
         }
 

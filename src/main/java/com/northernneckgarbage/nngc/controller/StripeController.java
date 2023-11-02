@@ -11,7 +11,7 @@ import com.northernneckgarbage.nngc.dbConfig.StripeCustomApiResponse;
 import com.northernneckgarbage.nngc.stripe.StripeInvoiceService;
 import com.northernneckgarbage.nngc.stripe.StripeProductService;
 import com.northernneckgarbage.nngc.stripe.StripeService;
-import com.northernneckgarbage.nngc.token.TokenRepository;
+import com.northernneckgarbage.nngc.repository.TokenRepository;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import lombok.RequiredArgsConstructor;

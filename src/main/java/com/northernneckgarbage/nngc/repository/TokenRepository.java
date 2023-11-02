@@ -1,5 +1,6 @@
-package com.northernneckgarbage.nngc.token;
+package com.northernneckgarbage.nngc.repository;
 
+import com.northernneckgarbage.nngc.token.Token;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

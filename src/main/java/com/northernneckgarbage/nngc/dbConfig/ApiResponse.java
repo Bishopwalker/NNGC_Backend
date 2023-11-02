@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ApiResponse<T> {
-    private String token;
+    private List<String> token;
     private CustomerDTO customerDTO;
     private String message;
     private List<Customer> customers;

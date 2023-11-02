@@ -7,6 +7,7 @@ import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.registration.RegistrationRequest;
 import com.northernneckgarbage.nngc.registration.RegistrationService;
 import com.northernneckgarbage.nngc.registration.auth.AuthenticationRequest;
+import com.northernneckgarbage.nngc.repository.TokenRepository;
 import com.northernneckgarbage.nngc.service.CustomerService;
 import com.northernneckgarbage.nngc.token.Token;
 import com.northernneckgarbage.nngc.token.TokenService;
@@ -36,6 +37,7 @@ import java.util.Optional;
 @RequestMapping("auth/nngc/")
 @RequiredArgsConstructor
 public class RegistrationController {
+    private final TokenRepository tokenRepository;
 
     private final CustomerService customerService;
 
@@ -52,6 +54,11 @@ public class RegistrationController {
         log.info("New customer object created"+customer);
         customerService.addCustomer(customer);
         return "register_success";
+    }
+
+    @GetMapping("admin/tokens/{id}")
+    public ResponseEntity<List<Token>> getAllTokensForUserById(@PathVariable long id) {
+        return ResponseEntity.ok(tokenRepository.findAllValidTokenByUser(70L));
     }
 
     @PostMapping("registration")

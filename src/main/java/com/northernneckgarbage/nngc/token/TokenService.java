@@ -3,10 +3,10 @@ package com.northernneckgarbage.nngc.token;
 import com.google.maps.errors.ApiException;
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
-import com.northernneckgarbage.nngc.entity.dto.CustomerDTO;
 import com.northernneckgarbage.nngc.google.GeocodingService;
 import com.northernneckgarbage.nngc.registration.auth.AuthenticationRequest;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
+import com.northernneckgarbage.nngc.repository.TokenRepository;
 import com.northernneckgarbage.nngc.security.JwtService;
 import com.northernneckgarbage.nngc.stripe.StripeService;
 import com.stripe.exception.StripeException;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Collections;
 
 
 @Service
@@ -56,7 +56,7 @@ public class TokenService {
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
         return ApiResponse.builder()
-                .token(jwtToken)
+                .token(Collections.singletonList(jwtToken))
                 .message("User authenticated successfully")
                 .customerDTO(user.toCustomerDTO())
 //                .customer(user)
@@ -95,14 +95,14 @@ var token = tokenRepository.findAllValidTokenByUserNative(id);
 log.info(token.toString());
 
          return ApiResponse.<Customer>builder()
-                 .token(token.get(0).getToken())
+                 .token(Collections.singletonList(token.get(0).getToken()))
                  .build();
     }
 
 
 
     public void revokeAllUserTokens(Customer user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser( user.getId());
+        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
         if (validUserTokens.isEmpty())
             return;
         validUserTokens.forEach(token -> {
@@ -163,7 +163,7 @@ return confirmationStatus1;
 
             // Build the ApiResponse (you might want to do something with this)
             ApiResponse.builder()
-                    .token(token)
+                    .token(Collections.singletonList(token))
                     .customerDTO(person.toCustomerDTO())
                     .message("User confirmed and enabled. Stripe customer created")
                     .status("success adding geocode")
@@ -185,7 +185,7 @@ return confirmationStatus1;
 
             // Build the ApiResponse (you might want to do something with this)
             ApiResponse.builder()
-                    .token(token)
+                    .token(Collections.singletonList(token))
                     .customerDTO(person.toCustomerDTO())
                     .build();
 

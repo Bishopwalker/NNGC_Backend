@@ -4,7 +4,7 @@ import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.service.CustomerService;
-import com.northernneckgarbage.nngc.token.TokenRepository;
+import com.northernneckgarbage.nngc.repository.TokenRepository;
 import com.stripe.exception.StripeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
