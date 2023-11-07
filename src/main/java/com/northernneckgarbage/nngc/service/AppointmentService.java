@@ -38,6 +38,10 @@ public class AppointmentService {
         String appointmentType = payload.get("appointmentType").toString();
        var customer = customerRepository.findById(customerId).orElseThrow(() -> new UsernameNotFoundException("Customer not found"));
 log.info(customer.toString());
+        var scheduledAppointments = findReservedAppointmentsByDateAndTime(appointmentDate, appointmentTime, appointmentTime.plusHours(2));
+        if(!scheduledAppointments.isEmpty()) {
+            throw new RuntimeException("Appointment already scheduled");
+        }
         Appointment   appointment = Appointment.builder()
                 .customer(customer)
                 .appointmentDate(appointmentDate)

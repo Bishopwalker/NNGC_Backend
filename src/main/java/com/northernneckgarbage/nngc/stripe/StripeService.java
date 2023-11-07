@@ -476,10 +476,10 @@ log.info("Price: " + price);
 //                                        .setAddress(SessionCreateParams.CustomerUpdate.Address.AUTO)  // Set address to 'auto'
 //                                        .build()
 //                        )
-                        .setAutomaticTax(
-                                SessionCreateParams.AutomaticTax.builder()
-                                        .setEnabled(true)
-                                        .build())
+//                        .setAutomaticTax(
+//                                SessionCreateParams.AutomaticTax.builder()
+//                                        .setEnabled(true)
+//                                        .build())
                         .addLineItem(
                                 SessionCreateParams.LineItem.builder()
                                         .setQuantity(1L)

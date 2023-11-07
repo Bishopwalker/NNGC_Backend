@@ -163,12 +163,6 @@ private boolean enabled = false;
         if (longitude != null) {
             addressBuilder.longitude(longitude);
         }
-        if(receiptURL == null){
-            receiptURL = "No Receipt URL";
-        }
-        if(invoiceURL == null){
-            invoiceURL = "No Invoice URL";
-        }
 
         return CustomerDTO.builder()
                 .id(id)
