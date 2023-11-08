@@ -16,7 +16,7 @@ public class StripeProductResponse<T> {
     private String message;
     private String id;
     private String name;
-    private String price;
+    private double price;
     private String description;
     private List<String> imageUrl;
     private T response;

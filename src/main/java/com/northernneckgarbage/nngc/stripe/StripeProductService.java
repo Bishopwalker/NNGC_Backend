@@ -40,7 +40,7 @@ public class StripeProductService {
                 .id(product.getId())
                 .name(product.getName())
                 .description(product.getDescription())
-                .price(price.getUnitAmount().toString())
+                .price(price.getUnitAmount())
                 .imageUrl(product.getImages())
                 .message("Product Retrieved")
                 .build();
@@ -54,7 +54,7 @@ public class StripeProductService {
                 .id(product.getId())
                 .name(product.getName())
                 .description(product.getDescription())
-                .price(price.getUnitAmount().toString())
+                .price(price.getUnitAmount())
                 .imageUrl(product.getImages())
                 .message("Product Retrieved")
                 .build();
@@ -68,7 +68,7 @@ public class StripeProductService {
                 .id(product.getId())
                 .name(product.getName())
                 .description(product.getDescription())
-                .price(price.getUnitAmount().toString())
+                .price(price.getUnitAmount())
                 .imageUrl(product.getImages())
                 .message("Product Retrieved")
                 .build();
@@ -83,7 +83,7 @@ public class StripeProductService {
                 .id(product.getId())
                 .name(product.getName())
                 .description(product.getDescription())
-                .price(price.getUnitAmount().toString())
+                .price(price.getUnitAmount())
                 .imageUrl(product.getImages())
                 .message("Product Retrieved One Time Trash PickUp")
                 .build();
@@ -102,7 +102,7 @@ public class StripeProductService {
                     .id(product.getId())
                     .name(product.getName())
                     .description(product.getDescription())
-                    .price(price.getUnitAmount().toString())
+                    .price(price.getUnitAmount())
                     .imageUrl(product.getImages())
                     .message("Product Retrieved")
                     .build();

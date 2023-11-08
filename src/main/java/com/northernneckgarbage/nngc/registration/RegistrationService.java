@@ -38,7 +38,7 @@ import java.util.Collections;
             var jwtToken = jwtService.generateToken(user);
             //save old token
             tokenService.saveUserToken(user, jwtToken);
-            String link = " http://locahost:8080/auth/nngc/confirm?token=" + jwtToken;
+            String link = " http://localhost:8080/auth/nngc/confirm?token=" + jwtToken;
             //emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));;
             emailSender.sendWithSendGrid((email),String.format("Validation email for",email), buildEmail(user.getFirstName(), link));
             return ApiResponse.builder()
