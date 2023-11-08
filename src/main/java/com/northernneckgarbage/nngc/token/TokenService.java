@@ -43,7 +43,12 @@ public class TokenService {
     public ApiResponse authenticate(AuthenticationRequest request){
         var user = customerRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
+if(!user.isEnabled()){
+    return ApiResponse.builder()
+            .message("User is not enabled")
+            .status("disabled")
+            .build();
+}
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -59,7 +64,7 @@ public class TokenService {
                 .token(Collections.singletonList(jwtToken))
                 .message("User authenticated successfully")
                 .customerDTO(user.toCustomerDTO())
-//                .customer(user)
+                .status("enabled")
                 .build();
     }
 

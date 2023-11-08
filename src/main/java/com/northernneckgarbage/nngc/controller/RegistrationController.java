@@ -57,8 +57,15 @@ public class RegistrationController {
     }
 
     @GetMapping("admin/tokens/{id}")
-    public ResponseEntity<List<Token>> getAllTokensForUserById(@PathVariable long id) {
-        return ResponseEntity.ok(tokenRepository.findAllValidTokenByUser(70L));
+    public ResponseEntity<List<Token>> getAllTokensForUserById(@RequestHeader("Authorization") String headers, @PathVariable long id) {
+        var user=tokenRepository.findByToken(headers).get().getCustomer().getAppUserRoles();
+        if(user==null){
+            return ResponseEntity.badRequest().body(null);
+        }
+        if(user.toString().equals("ADMIN")){
+            return ResponseEntity.ok(tokenRepository.findAllValidTokenByUser(id));
+        }
+        return ResponseEntity.badRequest().body(null);
     }
 
     @PostMapping("registration")
