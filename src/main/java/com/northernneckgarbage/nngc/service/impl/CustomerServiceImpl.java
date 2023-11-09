@@ -119,14 +119,30 @@ public class CustomerServiceImpl implements CustomerService {
                 .build();
     }
 
+    @Override
+    public ApiResponse<Customer> updateCustomer(Customer customer, String email)   {
+        var user = customerRepository.findByEmail(email).orElseThrow(() ->
+                new RuntimeException("Customer not found"));
 
+        var updateCustomer = Customer.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .password(customer.getPassword() == null ?  user.getPassword() : passwordEncoder.encode(customer.getPassword()))
+                .enabled(false)
+                .build();
+        log.info(updateCustomer.toString());
+        customerRepository.save(updateCustomer);
+        return ApiResponse.<Customer>builder()
+                .message("Password updated successfully")
+                .build();
+    }
 
     @Override
     public ApiResponse<Customer> updateCustomer(Customer customer, Long id) throws StripeException {
         var user = customerRepository.findById(id).orElseThrow(() ->
                 new RuntimeException("Customer not found"));
 
-log.info(customer.toString());
+        log.info(customer.toString());
 
         var updateCustomer = Customer.builder()
                 .id(id)
@@ -145,17 +161,17 @@ log.info(customer.toString());
                 .enabled(true)
                 .build();
         log.info(updateCustomer.toString());
-customerRepository.save(updateCustomer);
+        customerRepository.save(updateCustomer);
 
 //If the user is a stripe customer update the stripe customer
-if(user.getStripeCustomerId() != null){
-    log.info(updateCustomer.toString());
-    stripeService.updateStripeCustomer(id);
-    return ApiResponse.<Customer>builder()
-            .customerDTO(updateCustomer.toCustomerDTO())
-            .message(String.format("Stripe Customer updated successfully these are the new fields: %s ",customer ))
-            .build();
-}
+        if(user.getStripeCustomerId() != null){
+            log.info(updateCustomer.toString());
+            stripeService.updateStripeCustomer(id);
+            return ApiResponse.<Customer>builder()
+                    .customerDTO(updateCustomer.toCustomerDTO())
+                    .message(String.format("Stripe Customer updated successfully these are the new fields: %s ",customer ))
+                    .build();
+        }
         return ApiResponse.<Customer>builder()
                 .customerDTO(updateCustomer.toCustomerDTO())
                 .message(String.format("Customer updated successfully these are the new fields: %s ",customer ))

@@ -105,7 +105,17 @@ log.info(user.toString());
          }
         return ResponseEntity.badRequest().body(ApiResponse.<Customer>builder().message("You are not authorized to view this page").build());
     }
+@PutMapping("/customers/email/{email}")
+public ResponseEntity<ApiResponse<Customer>> updateCustomer( @RequestBody Customer customer, @PathVariable String email) throws StripeException {
+    var user = customerService.findByEmail(email).getCustomerDTO();
 
+    if (user.getEmail().equals(email)){
+        return ResponseEntity.ok(customerService.updateCustomer(customer, email));
+    }
+    return ResponseEntity.badRequest().body(ApiResponse.<Customer>builder().message("You are not authorized to view this page").build());
+
+
+}
     @DeleteMapping("/customers/{id}")
     public ResponseEntity<ApiResponse> deleteCustomer(@RequestHeader("Authorization") String headers, @PathVariable Long id) {
         var user = tokenRepository.findByToken(headers).get().getCustomer();
