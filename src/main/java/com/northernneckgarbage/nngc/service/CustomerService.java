@@ -6,6 +6,7 @@ import com.northernneckgarbage.nngc.entity.Customer;
 import com.stripe.exception.StripeException;
 import org.springframework.data.domain.Page;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +25,7 @@ public interface CustomerService {
     ApiResponse deleteCustomer(Long id);
 
     ApiResponse<Customer> updateCustomer(Customer customer, Long id) throws StripeException;
-    ApiResponse<Customer> updateCustomer(Customer customer, String email) throws StripeException;
+    ApiResponse<Customer> updateCustomer(Customer customer, String email) throws StripeException, IOException;
 
     ApiResponse<Customer> getCustomerById(Long id);
 

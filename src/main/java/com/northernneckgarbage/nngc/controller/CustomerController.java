@@ -13,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -106,7 +107,7 @@ log.info(user.toString());
         return ResponseEntity.badRequest().body(ApiResponse.<Customer>builder().message("You are not authorized to view this page").build());
     }
 @PutMapping("/customers/email/{email}")
-public ResponseEntity<ApiResponse<Customer>> updateCustomer( @RequestBody Customer customer, @PathVariable String email) throws StripeException {
+public ResponseEntity<ApiResponse<Customer>> updateCustomer( @RequestBody Customer customer, @PathVariable String email) throws StripeException, IOException {
     var user = customerService.findByEmail(email).getCustomerDTO();
 
     if (user.getEmail().equals(email)){

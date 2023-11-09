@@ -5,6 +5,7 @@ import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.google.GeocodingService;
+import com.northernneckgarbage.nngc.registration.RegistrationService;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.northernneckgarbage.nngc.service.CustomerService;
 import com.northernneckgarbage.nngc.stripe.StripeService;
@@ -31,6 +32,7 @@ public class CustomerServiceImpl implements CustomerService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final StripeService stripeService;
     private final GeocodingService geocodingService;
+    private final RegistrationService registrationService;
 
 
     @Override
@@ -120,7 +122,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public ApiResponse<Customer> updateCustomer(Customer customer, String email)   {
+    public ApiResponse<Customer> updateCustomer(Customer customer, String email) throws IOException {
         var user = customerRepository.findByEmail(email).orElseThrow(() ->
                 new RuntimeException("Customer not found"));
 
@@ -132,6 +134,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .build();
         log.info(updateCustomer.toString());
         customerRepository.save(updateCustomer);
+        registrationService.resendToken(email);
         return ApiResponse.<Customer>builder()
                 .message("Password updated successfully")
                 .build();
