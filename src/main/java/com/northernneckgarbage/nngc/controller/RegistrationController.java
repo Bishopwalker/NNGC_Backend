@@ -12,7 +12,6 @@ import com.northernneckgarbage.nngc.service.CustomerService;
 import com.northernneckgarbage.nngc.token.Token;
 import com.northernneckgarbage.nngc.token.TokenService;
 import com.stripe.exception.StripeException;
-import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +29,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Controller

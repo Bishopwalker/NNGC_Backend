@@ -1,9 +1,9 @@
 package com.northernneckgarbage.nngc.security;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -26,7 +26,9 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
-    Dotenv dotenv = Dotenv.load();
+
+    @Value("${spring.profiles.active}")
+    private String env;
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
@@ -84,7 +86,7 @@ public class SecurityConfiguration {
     private boolean isProduction() {
         // Implement your logic to determine if the application is running in production
         // For example, you can check an environment variable
-        return dotenv.get("ENVIRONMENT").equals("prod") ;
+        return "prod".equals(env);
     }
 
 }
