@@ -11,6 +11,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -61,19 +63,26 @@ public class SecurityConfiguration {
                 .cors().configurationSource(corsConfigurationSource())
                 .and()
                 .csrf().disable()
-                .authorizeRequests(auth -> {
+                .authorizeHttpRequests(auth -> {
                     auth.anyRequest().permitAll();
                 })
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .formLogin()
-                .failureHandler(customAuthenticationFailureHandler)
-                .and()
+
                 .oauth2Login()
                 .successHandler(new SimpleUrlAuthenticationSuccessHandler() {
                     @Override
                     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                                         Authentication authentication) throws IOException {
-                        response.sendRedirect(isProduction()?"http://www.northernneckgarbage.com":"http://localhost:5173");
+                        if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
+                            OAuth2User user = oauthToken.getPrincipal();
+                            String email = user.getAttribute("email");
+                            // Log the user's email
+                            System.out.println("Authenticated user's email: " + email);
+                        }
+
+                        // Redirect based on the environment
+                        String redirectUrl = isProduction() ? "http://www.northernneckgarbage.com" : "http://localhost:5173";
+                        response.sendRedirect(redirectUrl);
                     }
                 })
                 .and()
