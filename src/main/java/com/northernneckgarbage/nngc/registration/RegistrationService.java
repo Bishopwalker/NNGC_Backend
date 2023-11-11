@@ -53,8 +53,8 @@ import java.util.Collections;
 
             if(!EmailValidator.test(request.getEmail()))
                 throw new IllegalStateException("Email not valid");
-            if(request.getPassword().length() < 2)
-                throw new IllegalStateException("Password must be at least 3 characters long");
+            if(request.getPassword().length() < 4)
+                throw new IllegalStateException("Password must be at least 5 characters long");
             var user = Customer.builder()
                     .firstName(request.getFirstName())
                     .lastName(request.getLastName())

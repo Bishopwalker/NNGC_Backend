@@ -173,7 +173,18 @@ log.info(String.valueOf(isProduction()));
         return "Hello, " + name + "!" + " Your email is " + email;
     }
 
+    @GetMapping("/google/login/error")
+    public ResponseEntity<?> googleLoginError(@RequestParam(value = "error", required = false) String error) {
+        if (error != null) {
+            log.error("Google login error occurred: " + error);
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Google login failed. Please try again or contact support if the problem persists.");
+        }
 
+        // If there's no error, handle accordingly (redirect or another action)
+        return ResponseEntity.ok("No error detected. Redirecting...");
+    }
 
 
 }
