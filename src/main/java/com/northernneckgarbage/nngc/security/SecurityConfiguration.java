@@ -133,6 +133,7 @@ if(user==null) {
     customer.setFirstName((String) attributes.get("given_name"));
     customer.setLastName((String) attributes.get("family_name"));
     customer.setPassword(password);
+    customer.setEnabled(true);
     customer.setAppUserRoles(AppUserRoles.valueOf("USER"));
     customerRepository.save(customer);
     return customer;

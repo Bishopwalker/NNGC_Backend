@@ -7,6 +7,7 @@ import com.northernneckgarbage.nngc.google.GeocodingService;
 import com.northernneckgarbage.nngc.registration.auth.AuthenticationRequest;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.northernneckgarbage.nngc.repository.TokenRepository;
+import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.northernneckgarbage.nngc.security.JwtService;
 import com.northernneckgarbage.nngc.stripe.StripeService;
 import com.stripe.exception.StripeException;
@@ -40,15 +41,19 @@ public class TokenService {
         EXPIRED
 
     }
-    public ApiResponse authenticate(AuthenticationRequest request){
+    public ApiResponse authenticate(AuthenticationRequest request) throws StripeException, IOException, InterruptedException, ApiException {
         var user = customerRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-if(!user.isEnabled()){
+
+
+        if(!user.isEnabled()){
     return ApiResponse.builder()
             .message("User is not enabled")
             .status("disabled")
             .build();
 }
+
+
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -57,6 +62,17 @@ if(!user.isEnabled()){
                 )
         );
 
+        if(user.getAppUserRoles() == AppUserRoles.USER){
+            stripeService.createStripeCustomer(user.getId());
+
+
+
+
+        }
+        if(user.getZipCode() != null){
+            //if it's null get the information
+            geocodingService.getGeocodeByID(user.getId());
+        }
         var jwtToken = jwtService.generateToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);

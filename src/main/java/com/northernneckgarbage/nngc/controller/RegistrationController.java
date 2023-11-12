@@ -15,6 +15,7 @@ import com.stripe.exception.StripeException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -80,7 +81,7 @@ public class RegistrationController {
     @PostMapping("/authenticate")
     public ResponseEntity<ApiResponse> authenticate(
             @RequestBody AuthenticationRequest request
-    ) {
+    ) throws StripeException, IOException, InterruptedException, ApiException {
         return ResponseEntity.ok(tokenService.authenticate(request));
     }
 
@@ -154,16 +155,14 @@ log.info(String.valueOf(isProduction()));
     }
 
     @GetMapping("/google/login")
-    public ResponseEntity<?> redirectToGoogle() {
-        String redirectUrl = isProduction() ? "http://www.northernneckgarbage.com/login/oauth2/code/google" : "http://localhost:8080/login/oauth2/code/google";
-        URI uri = UriComponentsBuilder.fromUriString(redirectUrl).build().toUri();
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setLocation(uri);
-        return new ResponseEntity<>(httpHeaders, HttpStatus.SEE_OTHER);
+    public String redirectToGoogle() {
+        // Redirect to the URL that initiates OAuth2 login with Google
+        return "redirect:/oauth2/authorization/google";
     }
 
+
     @GetMapping("/loginSuccess")
-    public String getLoginInfo(OAuth2AuthenticationToken authentication) {
+    public String getLoginInfo(@NotNull OAuth2AuthenticationToken authentication) {
         OAuth2User oAuth2User = authentication.getPrincipal();
         String name = oAuth2User.getAttribute("name");
         log.info("name: " + name);

@@ -310,54 +310,75 @@ user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
 }
 //creat a function to update a stripe customer from the DB to the stripe account
 //Using Stripe's API Customer Object not the DB Customer Object
-    public StripeApiResponse<Customer> updateStripeCustomer(Long id) throws StripeException{
-        var user = customerRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        var stripeId = user.getStripeCustomerId();
-        var stripeCustomer = Customer.retrieve(stripeId);
-        stripeCustomer.update(Map.of(
-                "email", user.getEmail(),
-                "name", user.getFirstName() + " " + user.getLastName(),
-                "description", "Customer for " + user.getEmail(),
-                "phone", user.getPhone(),
-                "address", Map.of(
-                        "line1", user.getHouseNumber() + " " + user.getStreetName(),
-                        "city",user.getCity(),
-                        "state", user.getState(),
-                        "postal_code", user.getZipCode(),
-                        "country", "USA"
-                )
+public StripeApiResponse<Customer> updateStripeCustomer(Long id) throws StripeException {
+    var user = customerRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    var stripeId = user.getStripeCustomerId();
+    var stripeCustomer = Customer.retrieve(stripeId);
+
+    var updateParams = new HashMap<String, Object>();
+
+    updateParams.put("email", user.getEmail());
+    updateParams.put("name", user.getFirstName() != null && user.getLastName() != null
+            ? user.getFirstName() + " " + user.getLastName()
+            : null);
+    updateParams.put("description", "Customer for " + (user.getEmail() != null ? user.getEmail() : ""));
+    updateParams.put("phone", user.getPhone() != null ? user.getPhone() : null);
+
+    if (user.getHouseNumber() != null && user.getStreetName() != null && user.getCity() != null &&
+            user.getState() != null && user.getZipCode() != null) {
+        updateParams.put("address", Map.of(
+                "line1", user.getHouseNumber() + " " + user.getStreetName(),
+                "city", user.getCity(),
+                "state", user.getState(),
+                "postal_code", user.getZipCode(),
+                "country", "USA"
         ));
-        return StripeApiResponse.<Customer>builder()
-                .customerDTO(user.toCustomerDTO())
-                .message("Stripe Customer updated")
-                .build();
     }
+
+    stripeCustomer.update(updateParams);
+
+    return StripeApiResponse.<Customer>builder()
+            .customerDTO(user.toCustomerDTO())
+            .message("Stripe Customer updated")
+            .build();
+}
+
 
 //Create a function to add a stripe customer from the DB to the stripe account
     //Using Stripe's API Customer Object not the DB Customer Object
-    public StripeApiResponse<Customer> createStripeCustomer(Long id) throws StripeException {
-        var user = customerRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        var stripeCustomer = Customer.create(Map.of(
-                "email", user.getEmail(),
-                "name", user.getFirstName() + " " + user.getLastName(),
-                "description", "Customer for " + user.getEmail(),
-                "phone", user.getPhone(),
-                "address", Map.of(
-                        "line1", user.getHouseNumber() + " " + user.getStreetName(),
-                        "city",user.getCity(),
-                        "state", user.getState(),
-                        "postal_code", user.getZipCode(),
-                        "country", "USA"
-                )
+public StripeApiResponse<Customer> createStripeCustomer(Long id) throws StripeException {
+    var user = customerRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    var customerParams = new HashMap<String, Object>();
+
+    customerParams.put("email", user.getEmail());
+    customerParams.put("name", user.getFirstName() != null && user.getLastName() != null
+            ? user.getFirstName() + " " + user.getLastName()
+            : null);
+    customerParams.put("description", "Customer for " + (user.getEmail() != null ? user.getEmail() : ""));
+    customerParams.put("phone", user.getPhone() != null ? user.getPhone() : null);
+
+    if (user.getHouseNumber() != null && user.getStreetName() != null && user.getCity() != null &&
+            user.getState() != null && user.getZipCode() != null) {
+        customerParams.put("address", Map.of(
+                "line1", user.getHouseNumber() + " " + user.getStreetName(),
+                "city", user.getCity(),
+                "state", user.getState(),
+                "postal_code", user.getZipCode(),
+                "country", "USA"
         ));
-        user.setStripeCustomerId(stripeCustomer.getId());
-        user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
-        customerRepository.save(user);
-        return StripeApiResponse.<Customer>builder()
-                .customerDTO(user.toCustomerDTO())
-                .message("Stripe Customer created")
-                .build();
     }
+
+    var stripeCustomer = Customer.create(customerParams);
+    user.setStripeCustomerId(stripeCustomer.getId());
+    user.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
+    customerRepository.save(user);
+
+    return StripeApiResponse.<Customer>builder()
+            .customerDTO(user.toCustomerDTO())
+            .message("Stripe Customer created")
+            .build();
+}
+
     public void createStripeCustomersForAllUsers() {
         // Get all users
         List<com.northernneckgarbage.nngc.entity.Customer> users = customerRepository.findAll();
