@@ -135,6 +135,7 @@ if(user==null) {
     customer.setPassword(password);
     customer.setEnabled(true);
     customer.setAppUserRoles(AppUserRoles.valueOf("USER"));
+    customer.setChangePassword(false);
     customerRepository.save(customer);
     return customer;
 }

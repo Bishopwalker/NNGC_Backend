@@ -81,7 +81,7 @@ private String stripeCustomerId;
     @Column(name = "enabled", nullable = false)
 private boolean enabled = false;
 
-
+private boolean changePassword = false;
 
 
     @Enumerated(EnumType.STRING)
@@ -176,7 +176,7 @@ private boolean enabled = false;
                 .geoLocation(geoLocation)
                 .receiptURL(receiptURL)
                 .invoiceURL(invoiceURL)
-
+                .changePassword(changePassword)
                 .build();
     }
 }

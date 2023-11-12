@@ -26,7 +26,7 @@ public class CustomerDTO {
     private String receiptURL;
     private String invoiceURL;
 
-
+    private boolean changePassword;
 
 
 }
