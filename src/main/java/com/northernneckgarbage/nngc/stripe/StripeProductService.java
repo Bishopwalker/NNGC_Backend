@@ -26,7 +26,7 @@ public class StripeProductService {
         Stripe.setAppInfo(
                 "NNGC-Server",
                 "0.0.2",
-                "http://localhost:8080"
+                "https://localhost:8080"
         );
     }
 

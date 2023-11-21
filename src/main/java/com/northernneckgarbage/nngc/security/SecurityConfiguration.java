@@ -62,7 +62,7 @@ public class SecurityConfiguration {
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                 String origin = request.getHeader("Origin");
                 if (origin != null) {
-                    if (origin.endsWith(":5173") || origin.endsWith(":8080") || origin.equals("http://www.northernneckgarbage.com")) {
+                    if (origin.endsWith(":5173") || origin.endsWith(":8080") || origin.equals("https://www.northernneckgarbage.com")) {
                         configuration.addAllowedOrigin(origin);
                     }
                 }
@@ -105,7 +105,7 @@ public class SecurityConfiguration {
                         }
 
                         // Redirect based on the environment
-                        String redirectUrl = isProduction() ? "http://www.northernneckgarbage.com" : "http://localhost:5173";
+                        String redirectUrl = isProduction() ? "http://www.northernneckgarbage.com" : "https://localhost:5173";
                         response.sendRedirect(redirectUrl);
                     }
                 })
