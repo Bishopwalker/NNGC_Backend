@@ -1,11 +1,8 @@
 package com.northernneckgarbage.nngc.security;
 
 import com.northernneckgarbage.nngc.entity.Customer;
-import com.northernneckgarbage.nngc.registration.auth.AuthenticationRequest;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
-import com.northernneckgarbage.nngc.service.CustomerService;
-import com.northernneckgarbage.nngc.token.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +16,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -37,7 +33,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
@@ -51,24 +46,24 @@ public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
  private final CustomerRepository customerRepository;
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         final CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(false); // Set to false as credentials are not required
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource() {
-            @Override
-            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                String origin = request.getHeader("Origin");
-                if (origin != null) {
-                    if (origin.endsWith(":5173") || origin.endsWith(":8080") || origin.equals("https://www.northernneckgarbage.com")) {
-                        configuration.addAllowedOrigin(origin);
-                    }
-                }
-                return configuration;
-            }
-        };
+        // Add your specific origins
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:5173", // Development origin
+                "http://127.0.0.1:5173", // Alternative local origin
+                "https://www.northernneckgarbage.com", // Production origin
+                "http://3.85.8.238:8080", // EC2 instance (if accessed directly)
+                "https://3.85.8.238:8080" // If your EC2 instance is configured for HTTPS
+        ));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }

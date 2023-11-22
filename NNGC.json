@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://localhost:8080/auth/nngc/**"
+      "url": "https://3.85.8.238:8080/auth/nngc/**"
     }
   ],
   "paths": {
