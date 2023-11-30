@@ -72,7 +72,7 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
     Stripe.setAppInfo(
             "NNGC-Server",
             "0.0.2",
-            "https://3.85.8.238:8080"
+            "https://api.northernneckgarbage.com"
     );
     this.customerRepository = customerRepository;
     this.stripeTransactionRepository = stripeTransactionRepository;
@@ -412,7 +412,7 @@ public StripeApiResponse<Customer> createStripeCustomer(Long id) throws StripeEx
                 .build() ;
     }
 
-    String YOUR_DOMAIN = "https://localhost:5173/";//
+    String YOUR_DOMAIN = "http://www.northernneckgarbage.com/";//
 
     public Session createSessionForTrashOnceWID(long id) throws StripeException {
 

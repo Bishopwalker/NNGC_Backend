@@ -95,13 +95,13 @@ log.info(String.valueOf(isProduction()));
         String redirectUrl = switch (confirmationStatus) {
             case SUCCESS ->
                 // Redirect to your website or return a success message
-                    isProduction() ? "http://www.northernneckgarbage.com/success" : "https://localhost:5173/success";
+                    isProduction() ? "https://www.northernneckgarbage.com/success" : "http://localhost:5173/success";
             case ALREADY_CONFIRMED ->
                 // Redirect to your website or return a message indicating the token is already confirmed
-                    isProduction() ? "http://www.northernneckgarbage.com/already-confirmed" : "https://localhost:5173/already-confirmed";
+                    isProduction() ? "https://www.northernneckgarbage.com/already-confirmed" : "http://localhost:5173/already-confirmed";
             case EXPIRED ->
                 // Redirect to an expired token page
-                    isProduction() ? "http://www.northernneckgarbage.com/expired" : "https://localhost:5173/expired";
+                    isProduction() ? "https://www.northernneckgarbage.com/expired" : "http://localhost:5173/expired";
             // Redirect to a generic error page
         };
         response.sendRedirect(redirectUrl);
