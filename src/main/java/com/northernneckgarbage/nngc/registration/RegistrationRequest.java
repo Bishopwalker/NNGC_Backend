@@ -20,5 +20,6 @@ public class RegistrationRequest {
     private final String streetName;
     private final String city;
     private final String state;
+    private final String service;
     private final String zipCode;
 }

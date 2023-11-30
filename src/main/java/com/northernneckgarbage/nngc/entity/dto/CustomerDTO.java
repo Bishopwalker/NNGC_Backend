@@ -28,5 +28,6 @@ public class CustomerDTO {
 
     private boolean changePassword;
 
+    private String service;
 
 }

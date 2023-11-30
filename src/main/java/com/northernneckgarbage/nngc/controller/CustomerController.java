@@ -2,6 +2,7 @@ package com.northernneckgarbage.nngc.controller;
 
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
+import com.northernneckgarbage.nngc.email.EmailService;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.service.CustomerService;
 import com.northernneckgarbage.nngc.repository.TokenRepository;
@@ -45,6 +46,8 @@ return ResponseEntity.ok(customers.size() + "Customers added: " + customers);
                         .customerDTO(customerService.getCustomerByStripeId(id).getCustomerDTO())
                         .build());
     }
+
+
     @GetMapping("/customers")
    public ResponseEntity<ApiResponse<List<Customer>>> getAllCustomers(@RequestHeader("Authorization") String headers) {
        log.info(headers);

@@ -72,6 +72,8 @@ public class Customer  implements UserDetails {
     @Column(name = "longitude", length = 150)
     private Double longitude;
 
+    @Column(name = "service",length = 150)
+    private String service;
 
   @Column(name = "stripe_customer_id", length = 50)
 private String stripeCustomerId;
@@ -86,6 +88,7 @@ private boolean changePassword = false;
 
     @Enumerated(EnumType.STRING)
     private AppUserRoles appUserRoles;
+
     @OneToMany(mappedBy = "token", cascade = CascadeType.ALL)
     private List<Token> tokens;
 
@@ -177,6 +180,7 @@ private boolean changePassword = false;
                 .receiptURL(receiptURL)
                 .invoiceURL(invoiceURL)
                 .changePassword(changePassword)
+                .service(service)
                 .build();
     }
 }

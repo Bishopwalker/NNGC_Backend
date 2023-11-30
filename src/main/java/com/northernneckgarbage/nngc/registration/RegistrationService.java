@@ -38,7 +38,7 @@ import java.util.Collections;
             var jwtToken = jwtService.generateToken(user);
             //save old token
             tokenService.saveUserToken(user, jwtToken);
-            String link = " https://3.85.8.238:8080/auth/nngc/confirm?token=" + jwtToken;
+            String link = " https://api.northernneckgarbage.com/auth/nngc/confirm?token=" + jwtToken;
             //emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));;
             emailSender.sendWithSendGrid((email),String.format("Validation email for",email), buildEmail(user.getFirstName(), link));
             return ApiResponse.builder()
@@ -50,7 +50,7 @@ import java.util.Collections;
 
 
         public ApiResponse register(RegistrationRequest request) throws IOException {
-
+log.info(request.toString());
             if(!EmailValidator.test(request.getEmail()))
                 throw new IllegalStateException("Email not valid");
             if(request.getPassword().length() < 4)
@@ -66,6 +66,7 @@ import java.util.Collections;
                     .city(request.getCity())
                     .state(request.getState())
                     .zipCode(request.getZipCode())
+                    .service(request.getService())
                     .appUserRoles(AppUserRoles.USER)
                     .build();
 
@@ -73,7 +74,7 @@ import java.util.Collections;
 
             var jwtToken = jwtService.generateToken(user);
             tokenService.saveUserToken(savedUser, jwtToken);
-            String link = "https://3.85.8.238:8080/auth/nngc/confirm?token=" + jwtToken;
+            String link = "https://api.northernneckgarbage.com/auth/nngc/confirm?token=" + jwtToken;
             //emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));;
             emailSender.sendWithSendGrid((request.getEmail()),String.format("Validation email for",request.getEmail()), buildEmail(request.getFirstName(), link));
             return ApiResponse.builder()

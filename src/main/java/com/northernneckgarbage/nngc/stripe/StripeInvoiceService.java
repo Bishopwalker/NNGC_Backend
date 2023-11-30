@@ -32,7 +32,7 @@ public class StripeInvoiceService {
         Stripe.setAppInfo(
                 "NNGC-Server",
                 "0.0.2",
-                "https://3.85.8.238:8080"
+                "https://api.northernneckgarbage.com"
         );
     }
 
@@ -157,7 +157,7 @@ var payment = PaymentDTO.builder()
 // TODO: 10/7/2023 need to build a front end to signify billing completed
         SessionCreateParams params = SessionCreateParams.builder()
                 .setCustomer(stripeCustomerId)
-                .setReturnUrl("https://localhost:5173/")
+                .setReturnUrl("http://www.northernneckgarbage.com/")
                 .build();
 
         Session session = Session.create(params);
