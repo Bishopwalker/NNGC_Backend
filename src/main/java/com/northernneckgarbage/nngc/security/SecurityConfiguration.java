@@ -57,7 +57,7 @@ public class SecurityConfiguration {
         // Add your specific origins
         configuration.setAllowedOrigins(List.of(
               "http://localhost:5173", // Development origin
-//                "https://127.0.0.1:5173", // Alternative local origin
+              "http://127.0.0.1:5173", // Alternative local origin
                 "https://www.northernneckgarbage.com", // Production origin
                 "https://api.northernneckgarbage.com" // API subdomain
 //                "https://api.northernneckgarbage.com", // EC2 instance (if accessed directly),
