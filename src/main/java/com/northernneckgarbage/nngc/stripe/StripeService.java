@@ -509,27 +509,49 @@ log.info("Price: " + price);
 
                         .build();
 
-        //try {
-//    StripeTransactions transactions = StripeTransactions.builder()
-//            .amount((long) Math.toIntExact(price.getUnitAmount())) // Set the transaction amount using the price object
-//            .currency(StripeTransactions.Currency.USD)
-//            .description(product.getDescription())
-//            .stripeToken(session.getId())
-//            .stripeEmail(user.getEmail())
-//            .transactionId(params.getClientReferenceId())
-//            .productID(productId)
-//            .customer(user)
-//            .build();
-//
-//    updateStripeCustomerTransaction(id, transactions);
-//}catch (Exception e){
-//    log.error("Error: " + e.getMessage());
-//}
-
-        // Call the updateStripeCustomerTransaction method to update the transaction
-
-
         return Session.create(params);
+    }
+
+    public Session checkoutProduct(Optional<Long> id, String productId) throws StripeException {
+        SessionCreateParams.Builder sessionBuilder = SessionCreateParams.builder();
+        Product product = Product.retrieve(productId);
+        Price price = Price.retrieve(product.getDefaultPrice());
+        SessionCreateParams.Mode mode = (price.getRecurring() != null && price.getRecurring().getIntervalCount() > 0)
+                ? SessionCreateParams.Mode.SUBSCRIPTION
+                : SessionCreateParams.Mode.PAYMENT;
+
+        String successUrl = YOUR_DOMAIN + ((mode == SessionCreateParams.Mode.SUBSCRIPTION) ? "dashboard" : "appointment");
+
+        sessionBuilder
+                .setMode(mode)
+                .setSuccessUrl(successUrl)
+                .setCancelUrl(YOUR_DOMAIN + "services")
+                .addLineItem(
+                        SessionCreateParams.LineItem.builder()
+                                .setQuantity(1L)
+                                .setPrice(price.getId())
+                                .build()
+                );
+
+        if (id.isPresent()) {
+            // Existing customer
+            var user = customerRepository.findById(id.get()).orElseThrow(() ->
+                    new RuntimeException("Customer not found"));
+            sessionBuilder.setCustomer(user.getStripeCustomerId());
+        } else {
+            // New customer
+            sessionBuilder
+                    .setCustomerUpdate(SessionCreateParams.CustomerUpdate.builder()
+                            .setAddress(SessionCreateParams.CustomerUpdate.Address.AUTO)
+                            .build()
+                    )
+                    .setAutomaticTax(SessionCreateParams.AutomaticTax.builder()
+                            .setEnabled(true)
+                            .build()
+                    );
+        }
+
+        return Session.create(sessionBuilder.build());
     }
 
 

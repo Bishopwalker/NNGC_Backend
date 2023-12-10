@@ -154,36 +154,36 @@ log.info(String.valueOf(isProduction()));
         return "prod".equals(env);
     }
 
-    @GetMapping("/google/login")
-    public String redirectToGoogle() {
-        // Redirect to the URL that initiates OAuth2 login with Google
-        return "redirect:/oauth2/authorization/google";
-    }
-
-
-    @GetMapping("/loginSuccess")
-    public String getLoginInfo(@NotNull OAuth2AuthenticationToken authentication) {
-        OAuth2User oAuth2User = authentication.getPrincipal();
-        String name = oAuth2User.getAttribute("name");
-        log.info("name: " + name);
-        String email = oAuth2User.getAttribute("email");
-        log.info("email: " + email);
-        // add more attributes as needed
-        return "Hello, " + name + "!" + " Your email is " + email;
-    }
-
-    @GetMapping("/google/login/error")
-    public ResponseEntity<?> googleLoginError(@RequestParam(value = "error", required = false) String error) {
-        if (error != null) {
-            log.error("Google login error occurred: " + error);
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Google login failed. Please try again or contact support if the problem persists.");
-        }
-
-        // If there's no error, handle accordingly (redirect or another action)
-        return ResponseEntity.ok("No error detected. Redirecting...");
-    }
-
+//    @GetMapping("/google/login")
+//    public String redirectToGoogle() {
+//        // Redirect to the URL that initiates OAuth2 login with Google
+//        return "redirect:/oauth2/authorization/google";
+//    }
+//
+//
+//    @GetMapping("/loginSuccess")
+//    public String getLoginInfo(@NotNull OAuth2AuthenticationToken authentication) {
+//        OAuth2User oAuth2User = authentication.getPrincipal();
+//        String name = oAuth2User.getAttribute("name");
+//        log.info("name: " + name);
+//        String email = oAuth2User.getAttribute("email");
+//        log.info("email: " + email);
+//        // add more attributes as needed
+//        return "Hello, " + name + "!" + " Your email is " + email;
+//    }
+//
+//    @GetMapping("/google/login/error")
+//    public ResponseEntity<?> googleLoginError(@RequestParam(value = "error", required = false) String error) {
+//        if (error != null) {
+//            log.error("Google login error occurred: " + error);
+//            return ResponseEntity
+//                    .status(HttpStatus.UNAUTHORIZED)
+//                    .body("Google login failed. Please try again or contact support if the problem persists.");
+//        }
+//
+//        // If there's no error, handle accordingly (redirect or another action)
+//        return ResponseEntity.ok("No error detected. Redirecting...");
+//    }
+//
 
 }
