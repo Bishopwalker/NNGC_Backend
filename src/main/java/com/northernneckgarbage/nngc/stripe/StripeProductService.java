@@ -22,14 +22,14 @@ public class StripeProductService {
 
     public StripeProductService(){
         log.info("StripeProductService");
-        Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY");
+        Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY_TEST");
         Stripe.setAppInfo(
                 "NNGC-Server",
                 "0.0.2",
                 "https://api.northernneckgarbage.com"
         );
     }
-
+    //todo revert stripe secret key test back to production
 
     //function to retrive stripe product by id
     public StripeProductResponse<Product> retrieveProduct(String id) throws StripeException {

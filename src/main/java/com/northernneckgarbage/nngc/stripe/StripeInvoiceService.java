@@ -28,7 +28,7 @@ public class StripeInvoiceService {
 
     public StripeInvoiceService(CustomerRepository customerRepository){
         this.customerRepository = customerRepository;
-        Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY");
+        Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY_TEST");
         Stripe.setAppInfo(
                 "NNGC-Server",
                 "0.0.2",

@@ -125,7 +125,15 @@ log.warn("expired: " + expired);
                 .message(session.getUrl())
                 .build();
     }
-
+    @GetMapping("/create-checkout-session")
+    public  StripeApiResponse<ResponseEntity<StripeTransactions>> checkoutProduct(@RequestParam String productID) throws StripeException {
+        // Logic to create a Stripe session
+        log.info( productID);
+        Session session = stripeService.checkoutProduct( productID);
+        return StripeApiResponse.<ResponseEntity<StripeTransactions>>builder()
+                .message(session.getUrl())
+                .build();
+    }
     //Create Stripe Customer by customer id
     @GetMapping("/create-customer/{id}")
     public ResponseEntity<StripeApiResponse<com.stripe.model.Customer>> createStripeCustomer(@PathVariable Long id) throws StripeException {
