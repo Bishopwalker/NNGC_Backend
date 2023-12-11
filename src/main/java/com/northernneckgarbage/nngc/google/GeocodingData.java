@@ -2,10 +2,7 @@ package com.northernneckgarbage.nngc.google;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -20,6 +17,11 @@ class AddressComponent {
   class Location {
     private double lat;
     private double lng;
+
+    public Location(double lat, double lng) {
+        this.lat = lat;
+        this.lng = lng;
+    }
 
 }
  @Data
@@ -41,6 +43,9 @@ class AddressComponent {
     private String locationType;
     private Viewport viewport;
 
+   public Location getLocation() {
+     return location.getLat() == 0 && location.getLng() == 0 ? null : location;
+    }
 }
 
 @Data

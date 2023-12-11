@@ -2,6 +2,7 @@ package com.northernneckgarbage.nngc.controller;
 
 import com.google.maps.errors.ApiException;
 import com.northernneckgarbage.nngc.dbConfig.RouteResponse;
+import com.northernneckgarbage.nngc.google.AddressVerificationService;
 import com.northernneckgarbage.nngc.google.GeocodingData;
 import com.northernneckgarbage.nngc.google.GeocodingService;
 import com.northernneckgarbage.nngc.google.RoutingService;
@@ -20,6 +21,9 @@ public class GeocodingController {
 
     private final GeocodingService geocodingService;
 private final RoutingService routingService;
+
+ private final AddressVerificationService addressVerificationService;
+
     @GetMapping("/geocoding")
     public GeocodingData getGeocoding(@RequestParam String address) throws InterruptedException, ApiException, IOException {
         return geocodingService.getGeocoding(address);
@@ -29,6 +33,11 @@ private final RoutingService routingService;
         log.info("Geocoding id: "+id);
 
         return ResponseEntity.ok(geocodingService.getGeocodeByID(id));
+    }
+    @GetMapping("/google/verify-address")
+    public ResponseEntity<AddressVerificationService.AddressStatus> verifyAddress(@RequestParam String address) throws InterruptedException, ApiException, IOException {
+        log.info("Verifying address: "+address);
+        return ResponseEntity.ok(addressVerificationService.verifyAddress(address));
     }
 
     @GetMapping("/google/create-route-4-driver/{pageNumber}")
