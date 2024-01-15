@@ -5,9 +5,7 @@ import com.google.maps.errors.ApiException;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.google.GeocodingService;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
-import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.northernneckgarbage.nngc.stripe.StripeService;
-import com.stripe.exception.StripeException;
 import io.jsonwebtoken.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,68 +26,71 @@ import java.util.Locale;
 //private final StripeService stripeService;
 //
 //    @EventListener
-//    public void seed(ContextRefreshedEvent event) throws IOException, InterruptedException, ApiException, java.io.IOException, StripeException {
-//
+//    public void seed(ContextRefreshedEvent event) throws IOException, InterruptedException, ApiException, java.io.IOException {
+//        Faker faker = new Faker(new Locale("en-US"));
 //        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-
-        //  String county = "Northumberland County";
+//        for (int i = 0; i < 50; i++) {
+//            String firstName = faker.name().firstName();
+//            String lastName = faker.name().lastName();
+//            String email = faker.internet().emailAddress();
+//            String phone = String.valueOf(faker.number().numberBetween(1000000000, 9999999999L));
+//            String password = passwordEncoder.encode("password1");
+//            String houseNumber = faker.address().buildingNumber();
+//            String streetName = faker.address().streetName();
+//            String city = faker.address().city();
+//            String state = "VA";  // Virginia
+//            String zipCode = faker.address().zipCodeByState("VA");
+//            String county = "Northumberland County";
 //
 //            Customer customer = Customer.builder()
-//
-//                    .firstName("NNGC")
-//                    .lastName("ADMIN")
-//                    .appUserRoles(AppUserRoles.ADMIN)
-//                    .email("bishop@northernneckgarbage.com")
-//                    .enabled(true)
-//                    .phone("8042200029")
-//                    .password(passwordEncoder.encode("lottsburg1"))
-//                    .houseNumber("164")
-//                    .streetName("Cellar Haven Lane")
-//                    .city("Lottsburgh")
-//                    .state("VA")
-//                    .zipCode("22511")
-//                    .county("Northumberland County")
+//                    .firstName(firstName)
+//                    .lastName(lastName)
+//                    .email(email)
+//                    .phone(phone)
+//                    .password(password)
+//                    .houseNumber(houseNumber)
+//                    .streetName(streetName)
+//                    .city(city)
+//                    .state(state)
+//                    .zipCode(zipCode)
+//                    .county(county)
+//                    .latitude(Double.valueOf(faker.address().latitude()))
+//                    .longitude(Double.valueOf(faker.address().longitude()))
 //                    .build();
+//
+//            customerRepository.save(customer);
+//
+//        }
+//        String phone = String.valueOf(faker.number().numberBetween(1000000000, 9999999999L));
+//        String password = passwordEncoder.encode("password1");
+//        String houseNumber = faker.address().buildingNumber();
+//        String streetName = faker.address().streetName();
+//        String city = faker.address().city();
+//        String state = "VA";  // Virginia
+//        String zipCode = faker.address().zipCodeByState("VA");
+//        String county = "Northumberland County";
+//     try {
+//         Customer customer = Customer.builder()
+//                 .firstName("John")
+//                 .lastName("Doe")
+//                 .email("a@a.com")
+//                 .phone(phone)
+//                 .password(password)
+//                 .houseNumber(houseNumber)
+//                 .streetName(streetName)
+//                 .city(city)
+//                 .state(state)
+//                 .zipCode(zipCode)
+//                 .county(county)
+//                 .build();
 //customerRepository.save(customer);
-//            Customer customer1 = Customer.builder()
-//                    .id(2L)
-//                    .firstName("Bart")
-//                    .lastName("Morrison")
-//                    .email("Barton@northernneckchristian.org")
-//                    .phone("8044023353")
-//                    .password(passwordEncoder.encode("8044023353"))
-//                    .houseNumber("506")
-//                    .streetName("Fountain Gate Rd")
-//                    .city("Heathsville")
-//                    .state("VA")
-//                    .zipCode("22473")
-//                    .county(county)
-//                    .build();
-//        customerRepository.save(customer1);
 //
-//            Customer customer2 = Customer.builder()
-//                    .id(3L)
-//                    .firstName("Dee")
-//                    .lastName("King")
-//                    .email("mormor2day@yahoo.com")
-//                    .phone("5408098548")
-//                    .password(passwordEncoder.encode("5408098548"))
-//                    .houseNumber("799")
-//                    .streetName("Remo Rd")
-//                    .city("Heathsville")
-//                    .state("VA")
-//                    .zipCode("22473")
-//                    .county(county)
-//                    .build();
-//            customerRepository.save(customer2);
-
-
-
-
-
-
-      //  stripeService.createStripeCustomersForAllUsers( );
-// geocodingService.updateAllUsersGeocodes();
-// }
+//
+//     }catch (Exception e) {
+//         log.info("Customer already exists");
+//     }
+//
+//        stripeService.createStripeCustomersForAllUsers( );
+//        geocodingService.updateAllUsersGeocodes();
+//    }
 //}

@@ -50,7 +50,7 @@ import java.util.Collections;
 
 
         public ApiResponse register(RegistrationRequest request) throws IOException {
-
+log.info(request.toString());
             if(!EmailValidator.test(request.getEmail()))
                 throw new IllegalStateException("Email not valid");
             if(request.getPassword().length() < 4)
@@ -66,6 +66,7 @@ import java.util.Collections;
                     .city(request.getCity())
                     .state(request.getState())
                     .zipCode(request.getZipCode())
+                    .service(request.getService())
                     .appUserRoles(AppUserRoles.USER)
                     .build();
 

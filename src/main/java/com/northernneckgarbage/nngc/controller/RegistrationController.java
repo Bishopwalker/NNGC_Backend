@@ -71,6 +71,7 @@ public class RegistrationController {
     public ResponseEntity<ApiResponse> register(
             @RequestBody RegistrationRequest request
     ) throws IOException {
+        log.info(request.getService());
         return ResponseEntity.ok(service.register(request));
     }
 
