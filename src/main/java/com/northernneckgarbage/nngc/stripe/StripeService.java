@@ -74,7 +74,7 @@ private final StripeTransactionRepository stripeTransactionRepository;
 public StripeService(CustomerRepository customerRepository, StripeTransactionRepository stripeTransactionRepository, SseController sseController) {
     this.sseController = sseController;
 
-    Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY_TEST");
+    Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY");
 //todo revert stripe secret key test to production prior to build
     Stripe.setAppInfo(
             "NNGC-Server",

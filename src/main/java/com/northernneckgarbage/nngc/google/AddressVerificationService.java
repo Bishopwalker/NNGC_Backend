@@ -19,7 +19,7 @@ public class AddressVerificationService {
     private final GeocodingService geocodingService;
 
     private static final List<String> INSIDE_COUNTIES = Arrays.asList("Northumberland County");
-    private static final List<String> SURROUNDING_COUNTIES = Arrays.asList("Warsaw County", "Tappahannock County", "Richmond County", "Lancaster County");
+    private static final List<String> SURROUNDING_COUNTIES = Arrays.asList("Warsaw County", "Essex County", "Richmond County", "Lancaster County","Westmoreland County");
 
     public AddressStatus verifyAddress(String address) throws InterruptedException, ApiException, IOException {
         GeocodingData geocodingData = geocodingService.getGeocoding(address);

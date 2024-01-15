@@ -22,7 +22,7 @@ public class StripeProductService {
 
     public StripeProductService(){
         log.info("StripeProductService");
-        Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY_TEST");
+        Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY");
         Stripe.setAppInfo(
                 "NNGC-Server",
                 "0.0.2",
