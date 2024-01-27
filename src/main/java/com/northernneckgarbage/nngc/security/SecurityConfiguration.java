@@ -55,15 +55,13 @@ public class SecurityConfiguration {
         configuration.setAllowCredentials(false); // Set to false as credentials are not required
 
         // Add your specific origins
+        // Update allowed origins to include the correct ones
         configuration.setAllowedOrigins(List.of(
-              "http://localhost:5173", // Development origin
-//                "https://127.0.0.1:5173", // Alternative local origin
-                "https://www.northernneckgarbage.com", // Production origin
+                "*",
+                "http://localhost:5173", // Development origin
+                "https://northernneckgarbage.com", // Production origin
                 "https://api.northernneckgarbage.com" // API subdomain
-//                "https://api.northernneckgarbage.com", // EC2 instance (if accessed directly),
-//                "http://3.85.8.238:8080"
         ));
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
@@ -101,7 +99,7 @@ public class SecurityConfiguration {
                         }
 
                         // Redirect based on the environment
-                        String redirectUrl = isProduction() ? "http://www.northernneckgarbage.com" : "http://localhost:5173";
+                        String redirectUrl = isProduction() ? "https://northernneckgarbage.com" : "http://localhost:5173";
                         response.sendRedirect(redirectUrl);
                     }
                 })

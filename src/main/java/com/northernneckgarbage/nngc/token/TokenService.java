@@ -113,7 +113,7 @@ public class TokenService {
     ///tokens service to retrieve token by customer id that is not expired
     public ApiResponse<Customer> findByCustomerId(Long id) {
 var token = tokenRepository.findAllValidTokenByUserNative(id);
-log.info(token.toString());
+//log.info(token.toString());
 
          return ApiResponse.<Customer>builder()
                  .token(Collections.singletonList(token.get(0).getToken()))

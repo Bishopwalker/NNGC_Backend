@@ -16,6 +16,7 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.*;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.ChargeListParams;
+import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.persistence.NoResultException;
@@ -46,6 +47,8 @@ private final CustomerRepository customerRepository;
 private final StripeTransactionRepository stripeTransactionRepository;
     private final SseController sseController;
 
+    private final StripeTerminalService stripeTerminalService;
+
     public static LocalDateTime convertMillisToLocalDateTime(long millis) {
         // Convert milliseconds to Duration
         Duration duration = Duration.ofMillis(millis);
@@ -64,8 +67,9 @@ private final StripeTransactionRepository stripeTransactionRepository;
         // Combine currentDate and extractedTime to create LocalDateTime
         return LocalDateTime.of(currentDate, extractedTime);
     }
-public StripeService(CustomerRepository customerRepository, StripeTransactionRepository stripeTransactionRepository, SseController sseController) {
+public StripeService(CustomerRepository customerRepository, StripeTransactionRepository stripeTransactionRepository, SseController sseController, StripeTerminalService stripeTerminalService) {
     this.sseController = sseController;
+    this.stripeTerminalService = stripeTerminalService;
 
     Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY");
 
@@ -463,6 +467,17 @@ public StripeApiResponse<Customer> createStripeCustomer(Long id) throws StripeEx
 
         return session;
     }
+    public PaymentIntent createPaymentIntentForTerminal(long amount, String currency, String description) throws StripeException {
+        PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+                .setCurrency(currency)
+                .addPaymentMethodType("card_present")
+                .setCaptureMethod(PaymentIntentCreateParams.CaptureMethod.MANUAL)
+                .setAmount(amount) // Amount in cents
+                .setDescription(description)
+                .build();
+
+        return PaymentIntent.create(params);
+    }
     public Session checkoutProduct(long id, String productId) throws StripeException {
 
         var user = customerRepository.findById(id).orElseThrow(() ->
@@ -486,6 +501,8 @@ log.info("Price: " + price);
                 ? YOUR_DOMAIN + "dashboard"
                 : YOUR_DOMAIN + "appointment";
         log.info("Success URL: " + successUrl);
+
+
         SessionCreateParams params =
                 SessionCreateParams.builder()
                         .setCustomer(user.getStripeCustomerId())

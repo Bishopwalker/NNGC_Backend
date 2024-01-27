@@ -5,6 +5,7 @@ import com.google.maps.errors.ApiException;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.google.GeocodingService;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
+import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.northernneckgarbage.nngc.stripe.StripeService;
 import io.jsonwebtoken.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -61,20 +62,20 @@ private final StripeService stripeService;
 //            customerRepository.save(customer);
 //
 //        }
-        String phone = String.valueOf(faker.number().numberBetween(1000000000, 9999999999L));
-        String password = passwordEncoder.encode("password1");
-        String houseNumber = faker.address().buildingNumber();
-        String streetName = faker.address().streetName();
-        String city = faker.address().city();
+        String phone = String.valueOf("8045801932");
+        String password = passwordEncoder.encode("8043374860");
+        String houseNumber = "13454";
+        String streetName = "History Land Hwy";
+        String city = "Warsaw";
         String state = "VA";  // Virginia
-        String zipCode = faker.address().zipCodeByState("VA");
-        String county = "Northumberland County";
-        String service = "weekly_trash_recycling";
+        String zipCode = "22572";
+        String county = "Richmond County";
+        String service = "weekly_trash";
      try {
          Customer customer = Customer.builder()
-                 .firstName("John")
-                 .lastName("Doe")
-                 .email("a@a.com")
+                 .firstName("Charles")
+                 .lastName("Bowles")
+                 .email("istheway2@gmail.com")
                  .phone(phone)
                  .password(password)
                  .houseNumber(houseNumber)
@@ -84,7 +85,8 @@ private final StripeService stripeService;
                  .zipCode(zipCode)
                  .county(county)
                  .service(service)
-                 .build();
+                 .enabled(true)
+               .build();
 customerRepository.save(customer);
 
 
