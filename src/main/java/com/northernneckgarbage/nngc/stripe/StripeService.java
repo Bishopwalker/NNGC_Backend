@@ -16,16 +16,14 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.*;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.ChargeListParams;
+import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.persistence.NoResultException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -45,13 +43,11 @@ public class StripeService {
 
 Dotenv dotenv = Dotenv.load();
 
-
-@Autowired
-private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
 private final CustomerRepository customerRepository;
 private final StripeTransactionRepository stripeTransactionRepository;
     private final SseController sseController;
+
+    private final StripeTerminalService stripeTerminalService;
 
     public static LocalDateTime convertMillisToLocalDateTime(long millis) {
         // Convert milliseconds to Duration
@@ -71,11 +67,12 @@ private final StripeTransactionRepository stripeTransactionRepository;
         // Combine currentDate and extractedTime to create LocalDateTime
         return LocalDateTime.of(currentDate, extractedTime);
     }
-public StripeService(CustomerRepository customerRepository, StripeTransactionRepository stripeTransactionRepository, SseController sseController) {
+public StripeService(CustomerRepository customerRepository, StripeTransactionRepository stripeTransactionRepository, SseController sseController, StripeTerminalService stripeTerminalService) {
     this.sseController = sseController;
+    this.stripeTerminalService = stripeTerminalService;
 
     Stripe.apiKey = dotenv.get("STRIPE_SECRET_KEY");
-//todo revert stripe secret key test to production prior to build
+
     Stripe.setAppInfo(
             "NNGC-Server",
             "0.0.2",
@@ -86,7 +83,7 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
 
 
 }
-    public void handleEvent(Event event) throws StripeException {
+    public void handleEvent(Event event) {
         StripeObject stripeObject = event.getDataObjectDeserializer().getObject().orElse(null);
 
         if (stripeObject == null) {
@@ -194,37 +191,17 @@ try {
                 log.info("{}",invoice);
           log.info("Invoice: " + invoice.getCustomer());
 
-            var customerInvoice = customerRepository.locateByStripeID(invoice.getCustomer());
+            var customerInvoice = Optional.ofNullable(customerRepository.locateByStripeID(invoice.getCustomer()).orElseThrow(() ->
+                    new RuntimeException("Customer not found")));
     log.info("Customer: " + customerInvoice);
-                if (customerInvoice.isEmpty()) {
-                    com.northernneckgarbage.nngc.entity.Customer customer1 = new com.northernneckgarbage.nngc.entity.Customer();
-                    customer1.setEmail(invoice.getCustomerEmail());
-                   customer1.setStripeCustomerId(invoice.getCustomer());
-                    customer1.setFirstName(invoice.getCustomerName().split(" ")[0]);
-                    customer1.setLastName(invoice.getCustomerName().split(" ")[1]);
-                    customer1.setInvoiceURL(invoice.getHostedInvoiceUrl());
-                    customer1.setAppUserRoles(AppUserRoles.STRIPE_CUSTOMER);
-                    customer1.setPhone(invoice.getCustomerPhone());
-                    customer1.setPassword(passwordEncoder.encode(invoice.getCustomerPhone()==null ? invoice.getCustomerName().split(" ")[1] : invoice.getCustomerPhone()));
-                    customer1.setHouseNumber(invoice.getCustomerAddress().getLine1().split(" ")[0]);
-                    customer1.setStreetName(invoice.getCustomerAddress().getLine1().split(" ")[1]);
-                    customer1.setCity(invoice.getCustomerAddress().getCity());
-                    customer1.setState(invoice.getCustomerAddress().getState());
-                    customer1.setZipCode(invoice.getCustomerAddress().getPostalCode());
-                    customerRepository.saveAndFlush(customer1);
-                } else {
-                    log.info("Customer is not empty");
-                    customerInvoice.ifPresent(c -> c.setInvoiceURL(invoice.getHostedInvoiceUrl()));
-                    customerRepository.saveAndFlush(customerInvoice.get());
-                }
-              //  customerInvoice.ifPresent(c -> c.setInvoiceURL(invoice.getHostedInvoiceUrl()));
-//               try {
-//                //   customerRepository.saveAndFlush(customerInvoice.get());
-//               }catch (NoResultException e){
-//                   log.info("Customer already exists");
-//                }catch (Exception e){
-//                     log.error("Error: " + e.getMessage());
-//               }
+                customerInvoice.ifPresent(c -> c.setInvoiceURL(invoice.getHostedInvoiceUrl()));
+               try {
+                   customerRepository.saveAndFlush(customerInvoice.get());
+               }catch (NoResultException e){
+                   log.info("Customer already exists");
+                }catch (Exception e){
+                     log.error("Error: " + e.getMessage());
+               }
                 sseController.sendEventToClients( invoice);
 
                 break;
@@ -490,46 +467,17 @@ public StripeApiResponse<Customer> createStripeCustomer(Long id) throws StripeEx
 
         return session;
     }
-    //checkout session similiar but without the customer information
-    public Session checkoutProduct(String productID) throws StripeException {
+    public PaymentIntent createPaymentIntentForTerminal(long amount, String currency, String description) throws StripeException {
+        PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+                .setCurrency(currency)
+                .addPaymentMethodType("card_present")
+                .setCaptureMethod(PaymentIntentCreateParams.CaptureMethod.MANUAL)
+                .setAmount(amount) // Amount in cents
+                .setDescription(description)
+                .build();
 
-        // Retrieve the price object from Stripe
-        Product product = Product.retrieve(productID);
-        log.info("Product: " +productID);
-        log.info("Product: " +product);
-        Price price = Price.retrieve(product.getDefaultPrice());
-        log.info("Price: " + price);
-        SessionCreateParams.Mode mode =
-                (price.getRecurring() != null && price.getRecurring().getIntervalCount() > 0)
-                        ? SessionCreateParams.Mode.SUBSCRIPTION
-                        : SessionCreateParams.Mode.PAYMENT;
-        String successUrl = (mode == SessionCreateParams.Mode.SUBSCRIPTION)
-                ? YOUR_DOMAIN + "dashboard"
-                : YOUR_DOMAIN + "appointment";
-        log.info("Success URL: " + successUrl);
-        SessionCreateParams params =
-                SessionCreateParams.builder()
-                        .setMode(mode)
-                        .setSuccessUrl( successUrl)
-                        .setCancelUrl(YOUR_DOMAIN + "services")
-                        .setAutomaticTax(
-                                SessionCreateParams.AutomaticTax.builder()
-                                        .setEnabled(true)
-                                        .build())
-                        .setPhoneNumberCollection(SessionCreateParams.PhoneNumberCollection.builder()
-                                .setEnabled(true)
-                                .build())
-                        .addLineItem(
-                                SessionCreateParams.LineItem.builder()
-                                        .setQuantity(1L)
-                                        .setPrice(price.getId())
-                                        .build())
-
-                        .build();
-
-        return Session.create(params);
+        return PaymentIntent.create(params);
     }
-
     public Session checkoutProduct(long id, String productId) throws StripeException {
 
         var user = customerRepository.findById(id).orElseThrow(() ->
@@ -553,6 +501,8 @@ log.info("Price: " + price);
                 ? YOUR_DOMAIN + "dashboard"
                 : YOUR_DOMAIN + "appointment";
         log.info("Success URL: " + successUrl);
+
+
         SessionCreateParams params =
                 SessionCreateParams.builder()
                         .setCustomer(user.getStripeCustomerId())
@@ -576,10 +526,28 @@ log.info("Price: " + price);
 
                         .build();
 
+        //try {
+//    StripeTransactions transactions = StripeTransactions.builder()
+//            .amount((long) Math.toIntExact(price.getUnitAmount())) // Set the transaction amount using the price object
+//            .currency(StripeTransactions.Currency.USD)
+//            .description(product.getDescription())
+//            .stripeToken(session.getId())
+//            .stripeEmail(user.getEmail())
+//            .transactionId(params.getClientReferenceId())
+//            .productID(productId)
+//            .customer(user)
+//            .build();
+//
+//    updateStripeCustomerTransaction(id, transactions);
+//}catch (Exception e){
+//    log.error("Error: " + e.getMessage());
+//}
+
+        // Call the updateStripeCustomerTransaction method to update the transaction
+
+
         return Session.create(params);
     }
-
-
 
 
     public Session createSessionForTrashSubscriptionWID(long id) throws StripeException{
