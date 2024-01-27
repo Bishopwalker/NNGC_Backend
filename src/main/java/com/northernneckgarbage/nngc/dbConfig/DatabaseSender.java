@@ -16,19 +16,19 @@ import org.springframework.stereotype.Component;
 
 import java.util.Locale;
 
-//@Slf4j
-//@Component
-//@RequiredArgsConstructor
-//public class DatabaseSender {
-//
-//     private final CustomerRepository customerRepository;
-//private final GeocodingService geocodingService;
-//private final StripeService stripeService;
-//
-//    @EventListener
-//    public void seed(ContextRefreshedEvent event) throws IOException, InterruptedException, ApiException, java.io.IOException {
-//        Faker faker = new Faker(new Locale("en-US"));
-//        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class DatabaseSender {
+
+     private final CustomerRepository customerRepository;
+private final GeocodingService geocodingService;
+private final StripeService stripeService;
+
+    @EventListener
+    public void seed(ContextRefreshedEvent event) throws IOException, InterruptedException, ApiException, java.io.IOException {
+        Faker faker = new Faker(new Locale("en-US"));
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 //        for (int i = 0; i < 50; i++) {
 //            String firstName = faker.name().firstName();
 //            String lastName = faker.name().lastName();
@@ -61,36 +61,40 @@ import java.util.Locale;
 //            customerRepository.save(customer);
 //
 //        }
-//        String phone = String.valueOf(faker.number().numberBetween(1000000000, 9999999999L));
-//        String password = passwordEncoder.encode("password1");
-//        String houseNumber = faker.address().buildingNumber();
-//        String streetName = faker.address().streetName();
-//        String city = faker.address().city();
-//        String state = "VA";  // Virginia
-//        String zipCode = faker.address().zipCodeByState("VA");
-//        String county = "Northumberland County";
-//     try {
-//         Customer customer = Customer.builder()
-//                 .firstName("John")
-//                 .lastName("Doe")
-//                 .email("a@a.com")
-//                 .phone(phone)
-//                 .password(password)
-//                 .houseNumber(houseNumber)
-//                 .streetName(streetName)
-//                 .city(city)
-//                 .state(state)
-//                 .zipCode(zipCode)
-//                 .county(county)
-//                 .build();
-//customerRepository.save(customer);
-//
-//
-//     }catch (Exception e) {
-//         log.info("Customer already exists");
-//     }
-//
-//        stripeService.createStripeCustomersForAllUsers( );
-//        geocodingService.updateAllUsersGeocodes();
-//    }
-//}
+        String phone = String.valueOf("8043374860");
+        String password = passwordEncoder.encode("8043374860");
+        String houseNumber = "13454";
+        String streetName = "History Land Hwy";
+        String city = "Warsaw";
+        String state = "VA";  // Virginia
+        String zipCode = "22572";
+        String county = "Richmond County";
+        String service = "weekly_trash";
+        try {
+            Customer customer = Customer.builder()
+                    .firstName("Charles")
+                    .lastName("Bowles")
+                    .email("istheway2@gmail.com")
+                    .phone(phone)
+                    .password(password)
+                    .houseNumber(houseNumber)
+                    .streetName(streetName)
+                    .city(city)
+                    .state(state)
+                    .zipCode(zipCode)
+                    .county(county)
+                    .service(service)
+                    .enabled(true)
+                    .build();
+            customerRepository.save(customer);
+
+
+        }catch (Exception e) {
+            log.info("Customer already exists");
+        }
+
+        stripeService.createStripeCustomersForAllUsers( );
+        //geocodingService.updateAllUsersGeocodes();
+    }
+    }
+
