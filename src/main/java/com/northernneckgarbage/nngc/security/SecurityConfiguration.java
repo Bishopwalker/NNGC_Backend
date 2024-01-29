@@ -58,8 +58,9 @@ public class SecurityConfiguration {
         configuration.setAllowedOrigins(List.of(
               "http://localhost:5173", // Development origin
               "http://127.0.0.1:5173", // Alternative local origin
+                "https://api.northernneckgarbage.com", // API subdomain
                 "https://www.northernneckgarbage.com", // Production origin
-                "https://api.northernneckgarbage.com" // API subdomain
+                "https://northernneckgarbage.com"
 //                "https://api.northernneckgarbage.com", // EC2 instance (if accessed directly),
 //                "http://3.85.8.238:8080"
         ));
@@ -79,33 +80,7 @@ public class SecurityConfiguration {
                     auth.anyRequest().permitAll();
                 })
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-//
-//                .oauth2Login()
-//                .successHandler(new SimpleUrlAuthenticationSuccessHandler() {
-//                    @Override
-//                    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-//                                                        Authentication authentication) throws IOException {
-//                        if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
-//                            OAuth2User user = oauthToken.getPrincipal();
-//                            String email = user.getAttribute("email");
-//                            String name = user.getAttribute("name");
-//                          log.info(user.toString());
-//                            // Log the user's email
-//                            System.out.println("Authenticated user's email: " + email);
-//                        Customer customer = verifyOrCreateUser(email, user.getAttributes());
-//                            // Create an Authentication object
-//                            Authentication auth = createAuthenticationForUser(customer);
-//
-//                            // Set the authentication object on the SecurityContext
-//                            SecurityContextHolder.getContext().setAuthentication(auth);
-//                        }
-//
-//                        // Redirect based on the environment
-//                        String redirectUrl = isProduction() ? "https://www.northernneckgarbage.com" : "http://localhost:5173";
-//                        response.sendRedirect(redirectUrl);
-//                    }
-//                })
-//                .and()
+
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider);
 
@@ -161,3 +136,30 @@ if(user==null) {
 
 
 }
+//
+//                .oauth2Login()
+//                .successHandler(new SimpleUrlAuthenticationSuccessHandler() {
+//                    @Override
+//                    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+//                                                        Authentication authentication) throws IOException {
+//                        if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
+//                            OAuth2User user = oauthToken.getPrincipal();
+//                            String email = user.getAttribute("email");
+//                            String name = user.getAttribute("name");
+//                          log.info(user.toString());
+//                            // Log the user's email
+//                            System.out.println("Authenticated user's email: " + email);
+//                        Customer customer = verifyOrCreateUser(email, user.getAttributes());
+//                            // Create an Authentication object
+//                            Authentication auth = createAuthenticationForUser(customer);
+//
+//                            // Set the authentication object on the SecurityContext
+//                            SecurityContextHolder.getContext().setAuthentication(auth);
+//                        }
+//
+//                        // Redirect based on the environment
+//                        String redirectUrl = isProduction() ? "https://www.northernneckgarbage.com" : "http://localhost:5173";
+//                        response.sendRedirect(redirectUrl);
+//                    }
+//                })
+//                .and()

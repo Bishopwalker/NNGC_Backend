@@ -2,6 +2,7 @@ package com.northernneckgarbage.nngc.security;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -46,9 +47,14 @@ import java.util.function.Function;
         }
 
     public String extractUsername(String token) {
-log.info("Extracting username from token: " + token); // Debug log
-    return extractClaim(token, Claims::getSubject);
-  }
+        log.info("Extracting username from token: " + token);
+        // Added null or empty token check to prevent IllegalArgumentException
+        if (token == null || !token.contains(".")) {
+            log.error("Token is invalid, does not contain required period characters.");
+            throw new IllegalArgumentException("JWT strings must contain exactly 2 period characters.");
+        }
+        return extractClaim(token, Claims::getSubject);
+    }
 
 
 
@@ -100,12 +106,17 @@ log.info("Extracting username from token: " + token); // Debug log
     }
 
     //create a function to see if token isValid
-   public Boolean isTokenValid(String token, UserDetails userDetails) {
-       log.debug("Validating token for user: " + userDetails.getUsername()); // Debug log
-       final String username = extractUsername(token);
-       log.debug("Extracted username from token: " + username); // Debug log
-       return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
-   }
+    public Boolean isTokenValid(String token, UserDetails userDetails) {
+        log.debug("Validating token for user: " + userDetails.getUsername());
+        try {
+            final String username = extractUsername(token);
+            log.debug("Extracted username from token: " + username);
+            return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        } catch (JwtException ex) {
+            log.error("Token validation error", ex);
+            return false; // Token is invalid
+        }
+    }
   private boolean isTokenExpired(String token) {
     return extractExpiration(token).before(new Date());
   }
