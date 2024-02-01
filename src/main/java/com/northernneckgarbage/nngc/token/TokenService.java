@@ -42,7 +42,7 @@ public class TokenService {
 
     }
     public ApiResponse authenticate(AuthenticationRequest request) throws StripeException, IOException, InterruptedException, ApiException {
-        var user = customerRepository.findByEmail(request.getEmail())
+        var user = customerRepository.findByEmail(request.getEmail().toLowerCase())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
 
@@ -57,7 +57,7 @@ public class TokenService {
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
+                        request.getEmail().toLowerCase(),
                         request.getPassword()
                 )
         );

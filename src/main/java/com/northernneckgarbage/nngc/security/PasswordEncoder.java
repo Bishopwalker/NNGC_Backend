@@ -2,6 +2,7 @@ package com.northernneckgarbage.nngc.security;
 
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -15,13 +16,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 
 @Configuration
+@Slf4j
 @RequiredArgsConstructor
 public class PasswordEncoder {
 
     private final CustomerRepository customerRepository;
     @Bean
     public BCryptPasswordEncoder bcryptPasswordEncoder() {
-       return new BCryptPasswordEncoder();
+
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

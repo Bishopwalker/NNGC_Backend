@@ -111,6 +111,7 @@ log.info(user.toString());
     }
 @PutMapping("/customers/email/{email}")
 public ResponseEntity<ApiResponse<Customer>> updateCustomer( @RequestBody Customer customer, @PathVariable String email) throws StripeException, IOException {
+   log.info(email);
     var user = customerService.findByEmail(email).getCustomerDTO();
 
     if (user.getEmail().equals(email)){

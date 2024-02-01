@@ -58,7 +58,7 @@ log.info(request.toString());
             var user = Customer.builder()
                     .firstName(request.getFirstName())
                     .lastName(request.getLastName())
-                    .email(request.getEmail())
+                    .email(request.getEmail().toLowerCase())
                     .password(bCryptPasswordEncoder.encode(request.getPassword()))
                     .phone(request.getPhone())
                     .houseNumber(request.getHouseNumber())

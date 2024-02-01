@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -120,25 +121,31 @@ public class CustomerServiceImpl implements CustomerService {
                 .message("Customer deleted successfully")
                 .build();
     }
+// Optional<Customer> customer = Optional.ofNullable(customerRepository.findByEmail(email).orElseThrow(() ->
+//                new RuntimeException("Customer not found")));
+@Override
+public ApiResponse<Customer> updateCustomer(Customer customer, String email) throws IOException {
+    var user = customerRepository.findByEmail(email).orElseThrow(() ->
+            new RuntimeException("Customer not found"));
 
-    @Override
-    public ApiResponse<Customer> updateCustomer(Customer customer, String email) throws IOException {
-        var user = customerRepository.findByEmail(email).orElseThrow(() ->
-                new RuntimeException("Customer not found"));
+    var newPassword = customer.getPassword(); // New password provided by the user
 
-        var updateCustomer = Customer.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .password(customer.getPassword() == null ?  user.getPassword() : passwordEncoder.encode(customer.getPassword()))
-                .enabled(false)
-                .build();
-        log.info(updateCustomer.toString());
-        customerRepository.save(updateCustomer);
-        registrationService.resendToken(email);
-        return ApiResponse.<Customer>builder()
-                .message("Password updated successfully")
-                .build();
+    if (newPassword == null) {
+        throw new RuntimeException("Must enter a new password to update the password");
     }
+
+    // Update only the password field
+    user.setPassword(passwordEncoder.encode(newPassword)); // Encode the new password
+    user.setEnabled(false); // If you want to change the 'enabled' status
+
+    customerRepository.save(user); // Save the updated user
+    registrationService.resendToken(email); // Resend token if necessary
+
+    return ApiResponse.<Customer>builder()
+            .message("Password updated successfully")
+            .build();
+}
+
 
     @Override
     public ApiResponse<Customer> updateCustomer(Customer customer, Long id) throws StripeException {
@@ -152,7 +159,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .firstName(customer.getFirstName() == null ? user.getFirstName() : customer.getFirstName())
                 .lastName(customer.getLastName() == null ? user.getLastName() : customer.getLastName())
                 .email(customer.getEmail() == null ? user.getEmail() : customer.getEmail())
-                .password(customer.getPassword() == null ?  user.getPassword() : passwordEncoder.encode(customer.getPassword()))
+                .password(customer.getPassword() != null ? passwordEncoder.encode(customer.getPassword()) : user.getPassword())
                 .phone(customer.getPhone() == null ? user.getPhone() : customer.getPhone())
                 .houseNumber(customer.getHouseNumber() == null ? user.getHouseNumber() : customer.getHouseNumber())
                 .streetName(customer.getStreetName() == null ? user.getStreetName() : customer.getStreetName())
@@ -163,6 +170,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .stripeCustomerId(user.getStripeCustomerId())
                 .enabled(true)
                 .build();
+
         log.info(updateCustomer.toString());
         customerRepository.save(updateCustomer);
 
