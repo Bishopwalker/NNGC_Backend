@@ -21,9 +21,9 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class DatabaseSender {
 
-     private final CustomerRepository customerRepository;
-private final GeocodingService geocodingService;
-private final StripeService stripeService;
+    private final CustomerRepository customerRepository;
+    private final GeocodingService geocodingService;
+    private final StripeService stripeService;
 
     @EventListener
     public void seed(ContextRefreshedEvent event) throws IOException, InterruptedException, ApiException, java.io.IOException {
@@ -61,7 +61,7 @@ private final StripeService stripeService;
 //            customerRepository.save(customer);
 //
 //        }
-        String phone = String.valueOf("8043374860");
+        String phone =  "8043374860";
         String password = passwordEncoder.encode("8043374860");
         String houseNumber = "13454";
         String streetName = "History Land Hwy";
@@ -97,4 +97,4 @@ private final StripeService stripeService;
         //geocodingService.updateAllUsersGeocodes();
     }
     }
-
+}

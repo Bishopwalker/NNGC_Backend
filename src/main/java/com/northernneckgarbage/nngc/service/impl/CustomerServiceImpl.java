@@ -127,7 +127,9 @@ public class CustomerServiceImpl implements CustomerService {
 public ApiResponse<Customer> updateCustomer(Customer customer, String email) throws IOException {
     var user = customerRepository.findByEmail(email).orElseThrow(() ->
             new RuntimeException("Customer not found"));
-
+if(!customer.getPhone().equals(user.getPhone())){
+    throw new RuntimeException("Phone Numbers don't match");
+}
     var newPassword = customer.getPassword(); // New password provided by the user
 
     if (newPassword == null) {
@@ -136,7 +138,7 @@ public ApiResponse<Customer> updateCustomer(Customer customer, String email) thr
 
     // Update only the password field
     user.setPassword(passwordEncoder.encode(newPassword)); // Encode the new password
-    user.setEnabled(false); // If you want to change the 'enabled' status
+  //  user.setEnabled(false); // If you want to change the 'enabled' status
 
     customerRepository.save(user); // Save the updated user
     registrationService.resendToken(email); // Resend token if necessary
