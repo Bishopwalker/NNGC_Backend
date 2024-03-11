@@ -15,7 +15,7 @@ public class CustomerRouteInfoDTO {
     private String address;
     private Double latitude;
     private Double longitude;
-
+    private String county;
 
 
 }

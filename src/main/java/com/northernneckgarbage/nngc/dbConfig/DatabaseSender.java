@@ -27,7 +27,7 @@ public class DatabaseSender {
 
     @EventListener
     public void seed(ContextRefreshedEvent event) throws IOException, InterruptedException, ApiException, java.io.IOException {
-        Faker faker = new Faker(new Locale("en-US"));
+        //Faker faker = new Faker(new Locale("en-US"));
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 //        for (int i = 0; i < 50; i++) {
 //            String firstName = faker.name().firstName();
@@ -61,20 +61,20 @@ public class DatabaseSender {
 //            customerRepository.save(customer);
 //
 //        }
-//        String phone = String.valueOf("8043374860");
-//        String password = passwordEncoder.encode("8043374860");
-//        String houseNumber = "13454";
-//        String streetName = "History Land Hwy";
-//        String city = "Warsaw";
+//        String phone =  "804-580-8954";
+//        String password = passwordEncoder.encode("8045808954");
+//        String houseNumber = "451";
+//        String streetName = "Witch Duck Lane";
+//        String city = "Heathsville";
 //        String state = "VA";  // Virginia
-//        String zipCode = "22572";
-//        String county = "Richmond County";
+//        String zipCode = "22473";
+//        String county = "Northumberland County";
 //        String service = "weekly_trash";
 //        try {
 //            Customer customer = Customer.builder()
-//                    .firstName("Charles")
-//                    .lastName("Bowles")
-//                    .email("istheway2@gmail.com")
+//                    .firstName("Alfred")
+//                    .lastName("Cappelli")
+//                    .email("alcap43@gmail.com")
 //                    .phone(phone)
 //                    .password(password)
 //                    .houseNumber(houseNumber)
@@ -93,8 +93,8 @@ public class DatabaseSender {
 //            log.info("Customer already exists");
 //        }
 //
-//        stripeService.createStripeCustomersForAllUsers( );
-//        //geocodingService.updateAllUsersGeocodes();
-//    }
+//       // stripeService.createStripeCustomersForAllUsers( );
+//        geocodingService.updateAllUsersGeocodes();
+  }
     }
-}
+

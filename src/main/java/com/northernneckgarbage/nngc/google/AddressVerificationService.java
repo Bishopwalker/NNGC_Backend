@@ -18,8 +18,8 @@ import java.util.List;
 public class AddressVerificationService {
     private final GeocodingService geocodingService;
 
-    private static final List<String> INSIDE_COUNTIES = Arrays.asList("Northumberland County");
-    private static final List<String> SURROUNDING_COUNTIES = Arrays.asList("Warsaw County", "Essex County", "Richmond County", "Lancaster County","Westmoreland County");
+    private static final List<String> INSIDE_COUNTIES = Arrays.asList("Northumberland County","Richmond", "Westmoreland County");
+    private static final List<String> SURROUNDING_COUNTIES = Arrays.asList( "Essex County", "Lancaster County");
 
     public AddressStatus verifyAddress(String address) throws InterruptedException, ApiException, IOException {
         GeocodingData geocodingData = geocodingService.getGeocoding(address);

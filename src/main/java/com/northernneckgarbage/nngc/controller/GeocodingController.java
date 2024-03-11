@@ -41,9 +41,9 @@ private final RoutingService routingService;
     }
 
     @GetMapping("/google/create-route-4-driver/{pageNumber}")
-            public ResponseEntity<RouteResponse> createRoute4Driver(@PathVariable int pageNumber) throws InterruptedException, ApiException, IOException{
+            public ResponseEntity<RouteResponse> createRoute4Driver(@PathVariable int pageNumber,@RequestParam String county) throws InterruptedException, ApiException, IOException{
             log.info("Creating route for driver");
-            return ResponseEntity.ok(routingService.createRoute4OneDriver(pageNumber));
+            return ResponseEntity.ok(routingService.createRoute4OneDriver(pageNumber, county));
 
     }
 

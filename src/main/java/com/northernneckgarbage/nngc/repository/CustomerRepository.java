@@ -2,7 +2,9 @@ package com.northernneckgarbage.nngc.repository;
 
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.registration.RegistrationRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -26,6 +28,8 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     @Query("SELECT c FROM Customer c WHERE c.stripeCustomerId = ?1")
     Optional<Customer> locateByStripeID(String stripeCustomerId);
 
+    Page<Customer> findEnabledCustomersByCounty(Pageable pageable, String county);
 
+    long countByCounty(String county);
 
 }

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -27,16 +28,18 @@ public class RoutingService {
 
 public static int totalUsers;
 public static int totalEnabledUsers;
-    public RouteResponse createRoute4OneDriver(int pageNumber) throws IOException, InterruptedException, ApiException {
+    private static final List<String> COUNTIES = Arrays.asList("Northumberland County","Richmond County", "Westmoreland County", "Essex County", "Lancaster County");
+
+    public RouteResponse createRoute4OneDriver(int pageNumber, String county) throws IOException, InterruptedException, ApiException {
         GeoApiContext context = geocodingService.getContext();
 //     search for enabled users in the database and create a list of those users first
-       var enabledUsers = customerRepository.findEnabledCustomers(PageRequest.of(pageNumber - 1, 25));
+       var enabledUsers = customerRepository.findEnabledCustomersByCounty(PageRequest.of(pageNumber - 1, 25),county);
         // Step 2: Fetch all customer addresses from the customer repository
       //  var users = customerRepository.findAll(PageRequest.of(pageNumber - 1, 25));
 
-        totalUsers = (int) customerRepository.count();  // Update totalUsers with the total count of users
+        totalUsers = (int) customerRepository.countByCounty(county);  // Update totalUsers with the total count of users
         log.info("totalUsers: "+totalUsers );
-        totalEnabledUsers = enabledUsers.size();  // Update totalEnabledUsers with the total count of enabled users
+        totalEnabledUsers = (int) enabledUsers.getTotalElements();  // Update totalEnabledUsers with the total count of enabled users
         // Step 3: Create a list of LatLng objects from the customer addresses
 log.info("enabledUsersCount: "+totalEnabledUsers );
         // Step 3: Create a list of CustomerRouteDetailsDTO objects from the customer addresses
@@ -61,7 +64,19 @@ log.info("enabledUsersCount: "+totalEnabledUsers );
 // Steps 4-5: Set the first address as the origin, the last address as the destination, and the remaining addresses as waypoints
         LatLng origin = latLngs.get(0);
         LatLng destination = latLngs.get(latLngs.size() - 1);
-        LatLng[] waypoints = latLngs.subList(1, latLngs.size() - 1).toArray(new LatLng[0]);
+        LatLng[] waypoints = new LatLng[0];
+        if(latLngs.size() >1){
+            origin = latLngs.get(0);
+            destination = latLngs.get(latLngs.size() - 1);
+            waypoints = latLngs.subList(1, latLngs.size() - 1).toArray(new LatLng[0]);
+        } else if (latLngs.size() == 1){
+            origin = latLngs.get(0);
+            destination = latLngs.get(0);
+            waypoints = new LatLng[0];
+        }else{
+            throw new RuntimeException("No customers found in the county");
+        }
+       // = latLngs.subList(1, latLngs.size() - 1).toArray(new LatLng[0]);
         log.info(latLngs.toString());
 
 
