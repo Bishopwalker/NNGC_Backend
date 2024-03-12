@@ -5,12 +5,14 @@ import com.google.maps.GeoApiContext;
 import com.google.maps.errors.ApiException;
 import com.google.maps.model.*;
 import com.northernneckgarbage.nngc.dbConfig.RouteResponse;
+import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.entity.dto.CustomerRouteDetailsDTO;
 import com.northernneckgarbage.nngc.entity.dto.CustomerRouteInfoDTO;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -28,30 +31,43 @@ public class RoutingService {
 
 public static int totalUsers;
 public static int totalEnabledUsers;
-    private static final List<String> COUNTIES = Arrays.asList("Northumberland County","Richmond County", "Westmoreland County", "Essex County", "Lancaster County");
 
-    public RouteResponse createRoute4OneDriver(int pageNumber, String county) throws IOException, InterruptedException, ApiException {
+    public RouteResponse createRoute4OneDriver(int pageNumber, Optional<String> county) throws IOException, InterruptedException, ApiException {
         GeoApiContext context = geocodingService.getContext();
 //     search for enabled users in the database and create a list of those users first
-       var enabledUsers = customerRepository.findEnabledCustomersByCounty(PageRequest.of(pageNumber - 1, 25),county);
+       Page<Customer> enabledUsers = null;
         // Step 2: Fetch all customer addresses from the customer repository
       //  var users = customerRepository.findAll(PageRequest.of(pageNumber - 1, 25));
-
-        totalUsers = (int) customerRepository.countByCounty(county);  // Update totalUsers with the total count of users
-        log.info("totalUsers: "+totalUsers );
-        totalEnabledUsers = (int) enabledUsers.getTotalElements();  // Update totalEnabledUsers with the total count of enabled users
-        // Step 3: Create a list of LatLng objects from the customer addresses
-log.info("enabledUsersCount: "+totalEnabledUsers );
-        // Step 3: Create a list of CustomerRouteDetailsDTO objects from the customer addresses
-        List<CustomerRouteDetailsDTO> customerRouteDetails = enabledUsers.stream().map(user -> {
-                    CustomerRouteInfoDTO customerInfo = user.toCustomerRouteInfoDTO();
-                    LatLng location = new LatLng(customerInfo.getLatitude(), customerInfo.getLongitude());
-                    return CustomerRouteDetailsDTO.builder()
-                            .customerInfo(customerInfo)
-                            .location(location)
-                            .build();
-                })
-                .toList();
+        Page<Customer>allUsers=null;
+if(county.isPresent()){
+    enabledUsers = customerRepository.findEnabledCustomersByCounty(PageRequest.of(pageNumber - 1, 25), county.get());
+    totalUsers = (int) customerRepository.countByCounty(county.get());  // Update totalUsers with the total count of users
+    log.info("totalUsers: " + totalUsers);
+    totalEnabledUsers = (int) enabledUsers.getTotalElements();  // Update totalEnabledUsers with the total count of enabled users
+    // Step 3: Create a list of LatLng objects from the customer addresses
+    log.info("enabledUsersCount: " + totalEnabledUsers);
+}else{
+    allUsers = customerRepository.findAll(PageRequest.of(pageNumber - 1, 25));
+    totalUsers = (int) customerRepository.count();
+    totalEnabledUsers = (int) customerRepository.count();
+}
+    // Step 3: Create a list of CustomerRouteDetailsDTO objects from the customer addresses
+    List<CustomerRouteDetailsDTO> customerRouteDetails = allUsers == null? enabledUsers.stream().map(user -> {
+                CustomerRouteInfoDTO customerInfo = user.toCustomerRouteInfoDTO();
+                LatLng location = new LatLng(customerInfo.getLatitude(), customerInfo.getLongitude());
+                return CustomerRouteDetailsDTO.builder()
+                        .customerInfo(customerInfo)
+                        .location(location)
+                        .build();
+            })
+            .toList() : allUsers.stream().map(user -> {
+                CustomerRouteInfoDTO customerInfo = user.toCustomerRouteInfoDTO();
+                LatLng location = new LatLng(customerInfo.getLatitude(), customerInfo.getLongitude());
+                return CustomerRouteDetailsDTO.builder()
+                        .customerInfo(customerInfo)
+                        .location(location)
+                        .build();
+            }).toList();
 
 // Now extract LatLng objects from the CustomerRouteDetailsDTO list for further processing
         List<LatLng> latLngs = customerRouteDetails.stream()
@@ -62,9 +78,9 @@ log.info("enabledUsersCount: "+totalEnabledUsers );
 
 
 // Steps 4-5: Set the first address as the origin, the last address as the destination, and the remaining addresses as waypoints
-        LatLng origin = latLngs.get(0);
-        LatLng destination = latLngs.get(latLngs.size() - 1);
-        LatLng[] waypoints = new LatLng[0];
+        LatLng origin;
+        LatLng destination;
+        LatLng[] waypoints;
         if(latLngs.size() >1){
             origin = latLngs.get(0);
             destination = latLngs.get(latLngs.size() - 1);
