@@ -61,20 +61,20 @@ public class DatabaseSender {
 //            customerRepository.save(customer);
 //
 //        }
-//        String phone =  "804-580-8954";
-//        String password = passwordEncoder.encode("8045808954");
-//        String houseNumber = "451";
-//        String streetName = "Witch Duck Lane";
-//        String city = "Heathsville";
+//        String phone =  "804-313-7016";
+//        String password = passwordEncoder.encode("8043137016");
+//        String houseNumber = "3550";
+//        String streetName = "Nomini Grove Rd";
+//        String city = "Warsaw";
 //        String state = "VA";  // Virginia
-//        String zipCode = "22473";
-//        String county = "Northumberland County";
+//        String zipCode = "22572";
+//        String county = "Richmond County";
 //        String service = "weekly_trash";
 //        try {
 //            Customer customer = Customer.builder()
-//                    .firstName("Alfred")
-//                    .lastName("Cappelli")
-//                    .email("alcap43@gmail.com")
+//                    .firstName("Keysheria")
+//                    .lastName("Wood")
+//                    .email("jus4sheria@yahoo.com")
 //                    .phone(phone)
 //                    .password(password)
 //                    .houseNumber(houseNumber)
@@ -93,7 +93,7 @@ public class DatabaseSender {
 //            log.info("Customer already exists");
 //        }
 //
-//       // stripeService.createStripeCustomersForAllUsers( );
+//      stripeService.createStripeCustomersForAllUsers( );
 //        geocodingService.updateAllUsersGeocodes();
   }
     }
