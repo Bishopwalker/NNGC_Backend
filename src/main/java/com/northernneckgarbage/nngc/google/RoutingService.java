@@ -30,22 +30,50 @@ public class RoutingService {
     public static int totalUsers;
     public static int totalEnabledUsers;
 
-    public RouteResponse createRoute4OneDriver(int pageNumber, Optional<String> county) {
-        GeoApiContext context = geocodingService.getContext();
-        CustomerRouteInfoDTO nngcAdminInfo = fetchNNGCAdminInfo();
-        LatLng nngcAdminLocation = new LatLng(nngcAdminInfo.getLatitude(), nngcAdminInfo.getLongitude());
-        Page<Customer> customers = fetchCustomers(pageNumber, county);
-        List<CustomerRouteDetailsDTO> customerRouteDetails = createCustomerRouteDetails(customers);
-        customerRouteDetails.sort(Comparator.comparing(dto -> distanceBetween(nngcAdminLocation, dto.getLocation())));
-        List<LatLng> latLngs = customerRouteDetails.stream()
-                .map(CustomerRouteDetailsDTO::getLocation)
-                .collect(Collectors.toList());
-        LatLng[] waypoints = latLngs.toArray(new LatLng[0]);
-        checkCustomersExist(latLngs);
-        DirectionsRoute route = createDirectionsRoute(context, nngcAdminLocation, waypoints);
-        return getRouteResponse(route, customerRouteDetails);
-    }
-
+//    public RouteResponse createRoute4OneDriver(int pageNumber, Optional<String> county) {
+//        GeoApiContext context = geocodingService.getContext();
+//        // Fetch the NNGC_ADMIN
+//        CustomerRouteInfoDTO nngcAdminInfo = fetchNNGCAdminInfo();
+//        // Create a LatLng object for the NNGC_ADMIN's location
+//        LatLng nngcAdminLocation = new LatLng(nngcAdminInfo.getLatitude(), nngcAdminInfo.getLongitude());
+//        // Fetch the customers in the county
+//        Page<Customer> customers = fetchCustomers(pageNumber, county);
+//        // Create a list of CustomerRouteDetailsDTO objects
+//        List<CustomerRouteDetailsDTO> customerRouteDetails = createCustomerRouteDetails(customers);
+//        // Sort the customers based on their distance from the NNGC_ADMIN
+//        customerRouteDetails.sort(Comparator.comparing(dto -> distanceBetween(nngcAdminLocation, dto.getLocation())));
+//        List<LatLng> latLngs = customerRouteDetails.stream()
+//                .map(CustomerRouteDetailsDTO::getLocation)
+//                .collect(Collectors.toList());
+//        // Convert the list of LatLng objects to an array of LatLng objects
+//        LatLng[] waypoints = latLngs.toArray(new LatLng[0]);
+//        // Check if customers exist in the county
+//        checkCustomersExist(latLngs);
+//        // Create a DirectionsRoute object
+//        DirectionsRoute route = createDirectionsRoute(context, nngcAdminLocation, waypoints);
+//        // Return a RouteResponse object
+//        return getRouteResponse(route, customerRouteDetails);
+//    }
+public RouteResponse createRoute4OneDriver(int pageNumber, Optional<String> county) {
+    GeoApiContext context = geocodingService.getContext();
+    // Fetch the NNGC_ADMIN
+    CustomerRouteInfoDTO nngcAdminInfo = fetchNNGCAdminInfo();
+    // Create a LatLng object for the NNGC_ADMIN's location
+    LatLng nngcAdminLocation = new LatLng(nngcAdminInfo.getLatitude(), nngcAdminInfo.getLongitude());
+    // Fetch the customers in the county
+    Page<Customer> customers = fetchCustomers(pageNumber, county);
+    // Create a list of CustomerRouteDetailsDTO objects
+    List<CustomerRouteDetailsDTO> customerRouteDetails = createCustomerRouteDetails(customers);
+    // Sort the customers based on their distance from the NNGC_ADMIN
+    customerRouteDetails.sort(Comparator.comparing(dto -> distanceBetween(nngcAdminLocation, dto.getLocation())));
+    // Check if customers exist in the county
+  List<LatLng> latLngs = customerRouteDetails.stream()
+    .map(CustomerRouteDetailsDTO::getLocation)
+    .collect(Collectors.toList());
+checkCustomersExist(latLngs);
+    // Return a RouteResponse object
+    return getRouteResponse(context, customerRouteDetails);
+}
     private CustomerRouteInfoDTO fetchNNGCAdminInfo() {
         return customerRepository.findById(273L)
                 .orElseThrow(() -> new RuntimeException("NNGC_ADMIN not found"))
@@ -53,8 +81,11 @@ public class RoutingService {
     }
 
     private Page<Customer> fetchCustomers(int pageNumber, Optional<String> county) {
-        return county.map(c -> customerRepository.findEnabledCustomersByCounty(PageRequest.of(pageNumber - 1, 25), c))
+  var result = county.map(c -> customerRepository.findEnabledCustomersByCounty(PageRequest.of(pageNumber - 1, 25), c))
                 .orElseGet(() -> customerRepository.findAll(PageRequest.of(pageNumber - 1, 25)));
+  totalUsers = (int) customerRepository.count();
+       totalEnabledUsers = (int) result.getTotalElements();
+        return result;
     }
 
     private List<CustomerRouteDetailsDTO> createCustomerRouteDetails(Page<Customer> customers) {
@@ -92,39 +123,97 @@ public class RoutingService {
         }
     }
 
-    @NotNull
-    private static RouteResponse getRouteResponse(DirectionsRoute route, List<CustomerRouteDetailsDTO> customerRouteDetails) {
-        if (route != null) {
-            int totalDistance = 0;
-            int totalDuration = 0;
-            int totalStops = route.legs.length - 1;
-            List<InstructionWithCustomerId> instructions = new ArrayList<>();
+//    @NotNull
+//    private static RouteResponse getRouteResponse(DirectionsRoute route, List<CustomerRouteDetailsDTO> customerRouteDetails) {
+//        if (route != null) {
+//            int totalDistance = 0;
+//            int totalDuration = 0;
+//            int totalStops = route.legs.length - 1;
+//            List<InstructionWithCustomerId> instructions = new ArrayList<>();
+//
+//            //make sure I start with the first customer
+//             int currentCustomerIndex = 0;
+//            for (DirectionsLeg leg : route.legs) {
+//                for (DirectionsStep step : leg.steps) {
+//                    InstructionWithCustomerId instructionWithCustomerId = new InstructionWithCustomerId();
+//                    instructionWithCustomerId.setInstruction(step.htmlInstructions);
+//
+//                   if(currentCustomerIndex < customerRouteDetails.size()) {
+//                        instructionWithCustomerId.setCustomerInfo(customerRouteDetails.get(currentCustomerIndex).getCustomerInfo());
+//
+//                    }
+//
+//                    instructions.add(instructionWithCustomerId);
+//                    totalDistance += (int) leg.distance.inMeters;
+//                    totalDuration += (int) leg.duration.inSeconds;
+//                }
+//                currentCustomerIndex++;
+//            }
+//            log.info(instructions.toString());
+//            return RouteResponse.builder()
+//                    .polyline(route.overviewPolyline.getEncodedPath())
+//                    .routeDistance(String.valueOf(totalDistance/1609.344 ))
+//                    .totalDuration(String.valueOf(totalDuration/60))
+//                    .totalStops(totalStops)
+//                    .instructions(instructions)
+//                    .customerRouteDetails(customerRouteDetails)
+//                    .totalUsers(totalUsers)
+//                    .totalEnabledUsers(totalEnabledUsers)
+//                    .build();
+//        }
+//
+//        // Return an empty RouteResponse object or null, as per your use case, if route is null
+//        return RouteResponse.builder().build();
+//    }
 
-            for (DirectionsLeg leg : route.legs) {
-                for (DirectionsStep step : leg.steps) {
-                    InstructionWithCustomerId instructionWithCustomerId = new InstructionWithCustomerId();
-                    instructionWithCustomerId.setInstruction(step.htmlInstructions);
-                    instructionWithCustomerId.setCustomerInfo(customerRouteDetails.get(0).getCustomerInfo());
+ private RouteResponse getRouteResponse(GeoApiContext context, List<CustomerRouteDetailsDTO> customerRouteDetails) {
+    int totalDistance = 0;
+    int totalDuration = 0;
+    List<InstructionWithCustomerId> instructions = new ArrayList<>();
+    LatLng previousLocation = new LatLng(fetchNNGCAdminInfo().getLatitude(), fetchNNGCAdminInfo().getLongitude());
+    StringBuilder totalPolyline = new StringBuilder();
 
-                    instructions.add(instructionWithCustomerId);
-                    totalDistance += (int) leg.distance.inMeters;
-                    totalDuration += (int) leg.duration.inSeconds;
-                }
-            }
-            log.info(instructions.toString());
-            return RouteResponse.builder()
-                    .polyline(route.overviewPolyline.getEncodedPath())
-                    .routeDistance(String.valueOf(totalDistance/1609.344 ))
-                    .totalDuration(String.valueOf(totalDuration/60))
-                    .totalStops(totalStops)
-                    .instructions(instructions)
-                    .customerRouteDetails(customerRouteDetails)
-                    .build();
+    for (CustomerRouteDetailsDTO customer : customerRouteDetails) {
+        DirectionsRoute route;
+        try {
+            route = DirectionsApi.newRequest(context)
+                    .origin(previousLocation)
+                    .destination(customer.getLocation())
+                    .mode(TravelMode.DRIVING)
+                    .departureTimeNow()
+                    .await().routes[0];
+        } catch (ApiException | InterruptedException | IOException e) {
+            log.info("Error creating route for driver" + e.getMessage());
+            continue;
         }
 
-        // Return an empty RouteResponse object or null, as per your use case, if route is null
-        return RouteResponse.builder().build();
+        for (DirectionsLeg leg : route.legs) {
+            for (DirectionsStep step : leg.steps) {
+                InstructionWithCustomerId instructionWithCustomerId = new InstructionWithCustomerId();
+                instructionWithCustomerId.setInstruction(step.htmlInstructions);
+                instructionWithCustomerId.setCustomerInfo(customer.getCustomerInfo());
+
+                instructions.add(instructionWithCustomerId);
+                totalDistance += (int) leg.distance.inMeters;
+                totalDuration += (int) leg.duration.inSeconds;
+            }
+        }
+
+        totalPolyline.append(route.overviewPolyline.getEncodedPath());
+        previousLocation = customer.getLocation();
     }
+
+    return RouteResponse.builder()
+            .polyline(totalPolyline.toString())
+            .instructions(instructions)
+            .routeDistance(String.valueOf(totalDistance / 1609.344))
+            .totalDuration(String.valueOf(totalDuration / 60))
+            .totalStops(customerRouteDetails.size() - 1)
+            .customerRouteDetails(customerRouteDetails)
+            .totalUsers(totalUsers)
+            .totalEnabledUsers(totalEnabledUsers)
+            .build();
+}
 
     private double distanceBetween(LatLng point1, LatLng point2) {
         double lat1 = point1.lat;

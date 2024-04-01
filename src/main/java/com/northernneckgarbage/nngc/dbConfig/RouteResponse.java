@@ -23,7 +23,8 @@ import java.util.List;
 		public String routeType;
 		public List<RouteList> routeList;
 		public String destinationArrivalTime;
-		public int totalCustomers;
+		public int totalUsers;
+		public int totalEnabledUsers;
 	}
 
 
