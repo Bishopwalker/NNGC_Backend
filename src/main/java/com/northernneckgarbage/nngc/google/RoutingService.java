@@ -3,6 +3,7 @@ package com.northernneckgarbage.nngc.google;
 import com.google.maps.DirectionsApi;
 import com.google.maps.GeoApiContext;
 import com.google.maps.errors.ApiException;
+import com.google.maps.internal.PolylineEncoding;
 import com.google.maps.model.*;
 import com.northernneckgarbage.nngc.dbConfig.RouteResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
@@ -171,7 +172,7 @@ checkCustomersExist(latLngs);
     int totalDuration = 0;
     List<InstructionWithCustomerId> instructions = new ArrayList<>();
     LatLng previousLocation = new LatLng(fetchNNGCAdminInfo().getLatitude(), fetchNNGCAdminInfo().getLongitude());
-    StringBuilder totalPolyline = new StringBuilder();
+    List<LatLng> allPoints = new ArrayList<>();
 
     for (CustomerRouteDetailsDTO customer : customerRouteDetails) {
         DirectionsRoute route;
@@ -196,15 +197,20 @@ checkCustomersExist(latLngs);
                 instructions.add(instructionWithCustomerId);
                 totalDistance += (int) leg.distance.inMeters;
                 totalDuration += (int) leg.duration.inSeconds;
+
+                // Add all points in the step to the allPoints list
+                allPoints.addAll(PolylineEncoding.decode(step.polyline.getEncodedPath()));
             }
         }
 
-        totalPolyline.append(route.overviewPolyline.getEncodedPath());
         previousLocation = customer.getLocation();
     }
 
+    // Encode the allPoints list into a polyline
+    String totalPolyline = PolylineEncoding.encode(allPoints);
+
     return RouteResponse.builder()
-            .polyline(totalPolyline.toString())
+            .polyline(totalPolyline)
             .instructions(instructions)
             .routeDistance(String.valueOf(totalDistance / 1609.344))
             .totalDuration(String.valueOf(totalDuration / 60))
