@@ -84,8 +84,13 @@ checkCustomersExist(latLngs);
     private Page<Customer> fetchCustomers(int pageNumber, Optional<String> county) {
   var result = county.map(c -> customerRepository.findEnabledCustomersByCounty(PageRequest.of(pageNumber - 1, 25), c))
                 .orElseGet(() -> customerRepository.findAll(PageRequest.of(pageNumber - 1, 25)));
+
   totalUsers = (int) customerRepository.count();
+  log.info("Total users: " + totalUsers);
        totalEnabledUsers = (int) result.getTotalElements();
+        log.info("Total enabled users: " + totalEnabledUsers);
+
+       result.forEach(c -> log.info(c.toString()));
         return result;
     }
 
@@ -124,48 +129,7 @@ checkCustomersExist(latLngs);
         }
     }
 
-//    @NotNull
-//    private static RouteResponse getRouteResponse(DirectionsRoute route, List<CustomerRouteDetailsDTO> customerRouteDetails) {
-//        if (route != null) {
-//            int totalDistance = 0;
-//            int totalDuration = 0;
-//            int totalStops = route.legs.length - 1;
-//            List<InstructionWithCustomerId> instructions = new ArrayList<>();
-//
-//            //make sure I start with the first customer
-//             int currentCustomerIndex = 0;
-//            for (DirectionsLeg leg : route.legs) {
-//                for (DirectionsStep step : leg.steps) {
-//                    InstructionWithCustomerId instructionWithCustomerId = new InstructionWithCustomerId();
-//                    instructionWithCustomerId.setInstruction(step.htmlInstructions);
-//
-//                   if(currentCustomerIndex < customerRouteDetails.size()) {
-//                        instructionWithCustomerId.setCustomerInfo(customerRouteDetails.get(currentCustomerIndex).getCustomerInfo());
-//
-//                    }
-//
-//                    instructions.add(instructionWithCustomerId);
-//                    totalDistance += (int) leg.distance.inMeters;
-//                    totalDuration += (int) leg.duration.inSeconds;
-//                }
-//                currentCustomerIndex++;
-//            }
-//            log.info(instructions.toString());
-//            return RouteResponse.builder()
-//                    .polyline(route.overviewPolyline.getEncodedPath())
-//                    .routeDistance(String.valueOf(totalDistance/1609.344 ))
-//                    .totalDuration(String.valueOf(totalDuration/60))
-//                    .totalStops(totalStops)
-//                    .instructions(instructions)
-//                    .customerRouteDetails(customerRouteDetails)
-//                    .totalUsers(totalUsers)
-//                    .totalEnabledUsers(totalEnabledUsers)
-//                    .build();
-//        }
-//
-//        // Return an empty RouteResponse object or null, as per your use case, if route is null
-//        return RouteResponse.builder().build();
-//    }
+
 
  private RouteResponse getRouteResponse(GeoApiContext context, List<CustomerRouteDetailsDTO> customerRouteDetails) {
     int totalDistance = 0;

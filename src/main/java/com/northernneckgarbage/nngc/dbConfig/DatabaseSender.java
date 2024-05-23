@@ -60,21 +60,21 @@ public class DatabaseSender {
 //
 //            customerRepository.save(customer);
 //
-//        }
-//        String phone =  "804-313-7016";
-//        String password = passwordEncoder.encode("8043137016");
-//        String houseNumber = "3550";
-//        String streetName = "Nomini Grove Rd";
-//        String city = "Warsaw";
+//        }Charles Hale 596 Jessie Dupont Memorial Highway lorakfoley@gmail.com 804-238-4551
+//        String phone =  "610-844-5321";
+//        String password = passwordEncoder.encode("8048445321");
+//        String houseNumber = "273";
+//        String streetName = "Ring Farm Road";
+//        String city = "White Stone";
 //        String state = "VA";  // Virginia
-//        String zipCode = "22572";
-//        String county = "Richmond County";
-//        String service = "weekly_trash";
+//        String zipCode = "22578";
+//        String county = "Essex County";
+//        String service = "weekly_trash_recycling";
 //        try {
 //            Customer customer = Customer.builder()
-//                    .firstName("Keysheria")
-//                    .lastName("Wood")
-//                    .email("jus4sheria@yahoo.com")
+//                    .firstName("Donna")
+//                    .lastName("Allmon")
+//                    .email("dmallmon@yahoo.com")
 //                    .phone(phone)
 //                    .password(password)
 //                    .houseNumber(houseNumber)

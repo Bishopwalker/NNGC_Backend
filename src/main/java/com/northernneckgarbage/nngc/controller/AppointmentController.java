@@ -28,7 +28,6 @@ public class AppointmentController {
         log.info(payload.toString());
         return appointmentService.createAppointment(payload);
     }
-
     @GetMapping("/reserved-appointments/{date}/{startTime}/{endTime}")
     public List<AppointmentResponse> getReservedAppointmentsByDateAndTime(@PathVariable String date, @PathVariable String startTime, @PathVariable String endTime) {
         LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("dd-MM-yyyy"));
