@@ -23,7 +23,7 @@ jobs:
         run: mvn clean install
 
       - name: Archive build artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: my-app
           path: target/NNGC-0.0.1-SNAPSHOT.jar
