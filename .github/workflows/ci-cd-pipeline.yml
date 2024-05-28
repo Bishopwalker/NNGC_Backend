@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on:  ubuntu-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -41,6 +41,10 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: my-app
+          path: target/
+
+      - name: List files in target directory for debugging
+        run: ls -al target
 
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
@@ -50,6 +54,11 @@ jobs:
       - name: Copy files to EC2
         run: |
           scp -o StrictHostKeyChecking=no target/NNGC-0.0.1-SNAPSHOT.jar ec2-user@${{ secrets.EC2_HOST }}:~/
+
+      - name: Restart EC2 service
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} 'sudo systemctl restart my-app'
+
 
       - name: Restart EC2 service
         run: |
