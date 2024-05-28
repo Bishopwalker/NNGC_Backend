@@ -58,8 +58,3 @@ jobs:
       - name: Restart EC2 service
         run: |
           ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} 'sudo systemctl restart my-app'
-
-
-      - name: Restart EC2 service
-        run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} 'sudo systemctl restart my-app'
