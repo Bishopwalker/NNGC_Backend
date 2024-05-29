@@ -1,17 +1,14 @@
 package com.northernneckgarbage.nngc;
 
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.security.Key;
 
 @SpringBootApplication
 public class NngcApplication {
     public static void main(String[] args) {
-        SpringApplication.run(NngcApplication.class, args);
-        Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+     SpringApplication.run(NngcApplication.class, args);
 
 
 
