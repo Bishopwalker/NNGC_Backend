@@ -19,11 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class StripeWebhookController {
     Dotenv dotenv = Dotenv.load();
 
+  private final StripeService stripeService;
 
-    private final StripeService stripeService;
 
 
-    private String endpointSecret =  dotenv.get("STRIPE_WEBHOOK_SECRET");
+    private final String endpointSecret=dotenv.get("STRIPE_WEBHOOK_SECRET");
 
     @PostMapping("/webhook")
     public ResponseEntity<String> handleWebhook(

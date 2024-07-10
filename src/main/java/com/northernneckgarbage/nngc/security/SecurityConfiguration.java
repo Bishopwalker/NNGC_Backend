@@ -59,7 +59,7 @@ public class SecurityConfiguration {
               "http://localhost:5173", // Development origin
               "http://127.0.0.1:5173", // Alternative local origin
                 "https://api.northernneckgarbage.com", // API subdomain
-                "https://www.northernneckgarbage.com", // Production origin
+                "https://www.northernneckgarbage.com/", // Production origin
                 "https://northernneckgarbage.com"
 //                "https://api.northernneckgarbage.com", // EC2 instance (if accessed directly),
 //                "http://3.85.8.238:8080"

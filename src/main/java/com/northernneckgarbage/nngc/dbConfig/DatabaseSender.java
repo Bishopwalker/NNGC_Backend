@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Locale;
 
+import static java.lang.Math.floor;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -61,40 +63,44 @@ public class DatabaseSender {
 //            customerRepository.save(customer);
 //
 //        }Charles Hale 596 Jessie Dupont Memorial Highway lorakfoley@gmail.com 804-238-4551
-//        String phone =  "610-844-5321";
-//        String password = passwordEncoder.encode("8048445321");
-//        String houseNumber = "273";
-//        String streetName = "Ring Farm Road";
-//        String city = "White Stone";
-//        String state = "VA";  // Virginia
-//        String zipCode = "22578";
-//        String county = "Essex County";
-//        String service = "weekly_trash_recycling";
-//        try {
-//            Customer customer = Customer.builder()
-//                    .firstName("Donna")
-//                    .lastName("Allmon")
-//                    .email("dmallmon@yahoo.com")
-//                    .phone(phone)
-//                    .password(password)
-//                    .houseNumber(houseNumber)
-//                    .streetName(streetName)
-//                    .city(city)
-//                    .state(state)
-//                    .zipCode(zipCode)
-//                    .county(county)
-//                    .service(service)
-//                    .enabled(true)
-//                    .build();
-//            customerRepository.save(customer);
-//
-//
-//        }catch (Exception e) {
-//            log.info("Customer already exists");
-//        }
-//
-//      stripeService.createStripeCustomersForAllUsers( );
-//        geocodingService.updateAllUsersGeocodes();
+        String phone =  "662-753-9077";
+        String password = passwordEncoder.encode("6627539077");
+        String houseNumber = "161";
+        String streetName = "Hummingbird Hallow";
+        String city = "Healthsville";
+        String state = "VA";  // Virginia
+        String zipCode = "22472";
+        String county = "Northumberland County";
+        String service = "weekly_trash";
+        try {
+            Customer customer = Customer.builder()
+                    .firstName("Jodi")
+                    .lastName("Jensen")
+                    .email("Jejjrj@gmail.com")
+                    .phone(phone)
+                    .password(password)
+                    .houseNumber(houseNumber)
+                    .streetName(streetName)
+                    .city(city)
+                    .state(state)
+                    .zipCode(zipCode)
+                    .county(county)
+                    .service(service)
+                    .enabled(true)
+                    .build();
+            customerRepository.save(customer);
+
+
+        }catch (Exception e) {
+            log.info("Customer already exists");
+        }
+//int[] orderNumArray = {22,45,55,444,543,643,2436,4567,8876,8888};
+
+
+
+      stripeService.createStripeCustomersForAllUsers( );
+        geocodingService.updateAllUsersGeocodes();
   }
+
     }
 

@@ -86,7 +86,7 @@ public StripeService(CustomerRepository customerRepository, StripeTransactionRep
 
 
 }
-    public void handleEvent(Event event) throws StripeException {
+    public void handleEvent(Event event) {
         StripeObject stripeObject = event.getDataObjectDeserializer().getObject().orElse(null);
 
         if (stripeObject == null) {
