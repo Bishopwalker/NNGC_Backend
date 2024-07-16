@@ -1,5 +1,6 @@
 package com.nngc.email;
 
+import com.nngc.dto.EmailRequest;
 import com.sendgrid.*;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.slf4j.Logger;
@@ -55,6 +56,31 @@ LOGGER.info("Sending email to " + to);
 
         Request request = new Request();
         LOGGER.info("Sending direct message to Sales from: " + userEmail);
+        try {
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            Response response = sendGrid.api(request);
+            LOGGER.info("Email sent with status code: " + response.getStatusCode());
+        } catch (IOException ex) {
+            LOGGER.error("Error in sending email: " + ex.getMessage());
+            throw ex;
+        }
+    }
+
+    public void sendDirectMessageToSales(EmailRequest er) throws IOException {
+        String recipientEmail = "bishop@northernneckgarbage.com";
+        String subject = "New Message from " + er.getUserName();
+        String formattedMessage = buildEmailContent(er.getUserEmail(), er.getUserPhone(), er.getUserName(), er.getMessage());
+        Content content = new Content("text/plain", formattedMessage);
+
+        Email from = new Email("noreply@northernneckgarbage.com");
+        Email to = new Email(recipientEmail);
+        Mail mail = new Mail(from, subject, to, content);
+        SendGrid sendGrid = new SendGrid(dotenv.get("SENDGRID_API_KEY"));
+
+        Request request = new Request();
+        LOGGER.info("Sending direct message to Sales from: " + er.getUserEmail());
         try {
             request.setMethod(Method.POST);
             request.setEndpoint("mail/send");
