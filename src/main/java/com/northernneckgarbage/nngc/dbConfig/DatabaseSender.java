@@ -5,6 +5,7 @@ import com.google.maps.errors.ApiException;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.google.GeocodingService;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
+import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.northernneckgarbage.nngc.stripe.StripeService;
 import io.jsonwebtoken.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +16,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Locale;
-
-import static java.lang.Math.floor;
 
 @Slf4j
 @Component
@@ -63,20 +62,20 @@ public class DatabaseSender {
 //            customerRepository.save(customer);
 //
 //        }Charles Hale 596 Jessie Dupont Memorial Highway lorakfoley@gmail.com 804-238-4551
-        String phone =  "662-753-9077";
-        String password = passwordEncoder.encode("6627539077");
-        String houseNumber = "161";
-        String streetName = "Hummingbird Hallow";
-        String city = "Healthsville";
+        String phone =  "757-373-9708";
+        String password = passwordEncoder.encode("7573739708");
+        String houseNumber = "377";
+        String streetName = "King Carter Drive";
+        String city = "Irvington";
         String state = "VA";  // Virginia
-        String zipCode = "22472";
-        String county = "Northumberland County";
-        String service = "weekly_trash";
+        String zipCode = "22480";
+        String county = "Lancaster  County";
+        String service = "weekly_trash_recycling";
         try {
             Customer customer = Customer.builder()
-                    .firstName("Jodi")
-                    .lastName("Jensen")
-                    .email("Jejjrj@gmail.com")
+                    .firstName("Margaret")
+                    .lastName("Murray")
+                    .email("MargaretHMurray@gmail.com")
                     .phone(phone)
                     .password(password)
                     .houseNumber(houseNumber)
@@ -94,13 +93,9 @@ public class DatabaseSender {
         }catch (Exception e) {
             log.info("Customer already exists");
         }
-//int[] orderNumArray = {22,45,55,444,543,643,2436,4567,8876,8888};
-
-
 
       stripeService.createStripeCustomersForAllUsers( );
         geocodingService.updateAllUsersGeocodes();
   }
-
     }
 
