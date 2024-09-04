@@ -5,6 +5,7 @@ import com.google.maps.errors.ApiException;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.google.GeocodingService;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
+import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.northernneckgarbage.nngc.stripe.StripeService;
 import io.jsonwebtoken.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -61,40 +62,40 @@ public class DatabaseSender {
 //            customerRepository.save(customer);
 //
 //        }Charles Hale 596 Jessie Dupont Memorial Highway lorakfoley@gmail.com 804-238-4551
-//        String phone =  "610-844-5321";
-//        String password = passwordEncoder.encode("8048445321");
-//        String houseNumber = "273";
-//        String streetName = "Ring Farm Road";
-//        String city = "White Stone";
-//        String state = "VA";  // Virginia
-//        String zipCode = "22578";
-//        String county = "Essex County";
-//        String service = "weekly_trash_recycling";
-//        try {
-//            Customer customer = Customer.builder()
-//                    .firstName("Donna")
-//                    .lastName("Allmon")
-//                    .email("dmallmon@yahoo.com")
-//                    .phone(phone)
-//                    .password(password)
-//                    .houseNumber(houseNumber)
-//                    .streetName(streetName)
-//                    .city(city)
-//                    .state(state)
-//                    .zipCode(zipCode)
-//                    .county(county)
-//                    .service(service)
-//                    .enabled(true)
-//                    .build();
-//            customerRepository.save(customer);
-//
-//
-//        }catch (Exception e) {
-//            log.info("Customer already exists");
-//        }
-//
-//      stripeService.createStripeCustomersForAllUsers( );
-//        geocodingService.updateAllUsersGeocodes();
+        String phone =  "757-373-9708";
+        String password = passwordEncoder.encode("7573739708");
+        String houseNumber = "377";
+        String streetName = "King Carter Drive";
+        String city = "Irvington";
+        String state = "VA";  // Virginia
+        String zipCode = "22480";
+        String county = "Lancaster  County";
+        String service = "weekly_trash_recycling";
+        try {
+            Customer customer = Customer.builder()
+                    .firstName("Margaret")
+                    .lastName("Murray")
+                    .email("MargaretHMurray@gmail.com")
+                    .phone(phone)
+                    .password(password)
+                    .houseNumber(houseNumber)
+                    .streetName(streetName)
+                    .city(city)
+                    .state(state)
+                    .zipCode(zipCode)
+                    .county(county)
+                    .service(service)
+                    .enabled(true)
+                    .build();
+            customerRepository.save(customer);
+
+
+        }catch (Exception e) {
+            log.info("Customer already exists");
+        }
+
+      stripeService.createStripeCustomersForAllUsers( );
+        geocodingService.updateAllUsersGeocodes();
   }
     }
 

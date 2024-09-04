@@ -76,17 +76,17 @@ public class CustomerServiceImpl implements CustomerService {
                 new RuntimeException("Customer not found")));
         return StripeRegistrationResponse.<Optional<Customer>>builder()
                 .message("Customer fetched successfully")
-                .customerDTO(customer.get().toCustomerDTO())
+                .customerDTO(customer.isPresent()? customer.get().toCustomerDTO():null)
                 .build();
     }
     @Override
     public ApiResponse<Customer> getCustomerByStripeId(String id) {
         Optional<Customer> customer = Optional.ofNullable(customerRepository.locateByStripeID(id).orElseThrow(() ->
                 new RuntimeException("Customer not found")));
-        log.info("ID {} ", id);
+
         log.info("Customer {} ", customer);
         return ApiResponse.<Customer>builder()
-                .customerDTO(customer.get().toCustomerDTO())
+                .customerDTO(customer.isPresent()?customer.get().toCustomerDTO():null)
                 .message("Customer fetched successfully")
                 .build();
     }

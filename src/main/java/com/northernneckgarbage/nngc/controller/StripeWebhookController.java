@@ -4,6 +4,7 @@ import com.northernneckgarbage.nngc.stripe.StripeService;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
 import com.stripe.net.Webhook;
+import io.github.cdimascio.dotenv.Dotenv;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -16,12 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class StripeWebhookController {
+    Dotenv dotenv = Dotenv.load();
+
+  private final StripeService stripeService;
 
 
-    private final StripeService stripeService;
 
-    @Value("${stripe.webhook.secret}")
-    private String endpointSecret;
+    private final String endpointSecret=dotenv.get("STRIPE_WEBHOOK_SECRET");
 
     @PostMapping("/webhook")
     public ResponseEntity<String> handleWebhook(

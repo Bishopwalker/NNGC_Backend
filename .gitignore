@@ -35,3 +35,5 @@ build/
 ### Maven ###
 src/main/resources/.env
 .json
+
+.env
