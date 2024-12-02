@@ -153,7 +153,7 @@
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>7.0.1.Final</version> <!-- Use the latest version -->
+            <version>8.0.1.Final</version> <!-- Use the latest version -->
         </dependency>
         <dependency>
             <groupId>com.github.javafaker</groupId>
