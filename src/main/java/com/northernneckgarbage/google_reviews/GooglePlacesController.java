@@ -1,4 +1,4 @@
-package com.northernneckgarbage.repository.gooogle_reviews;
+package com.northernneckgarbage.google_reviews;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

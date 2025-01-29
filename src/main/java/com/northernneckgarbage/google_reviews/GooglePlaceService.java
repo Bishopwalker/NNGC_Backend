@@ -1,4 +1,4 @@
-package com.northernneckgarbage.repository.gooogle_reviews;
+package com.northernneckgarbage.google_reviews;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.RequiredArgsConstructor;
