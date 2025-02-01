@@ -1,11 +1,8 @@
 package com.northernneckgarbage.nngc.entity.dto;
 
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
-import com.northernneckgarbage.nngc.token.Token;
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 @Builder

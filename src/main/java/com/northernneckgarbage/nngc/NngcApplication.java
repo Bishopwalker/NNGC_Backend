@@ -1,17 +1,23 @@
 package com.northernneckgarbage.nngc;
 
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
-
-
-
+import javax.sql.DataSource;
 
 @SpringBootApplication
 public class NngcApplication {
     public static void main(String[] args) {
-        SpringApplication.run(NngcApplication.class, args);
+        ConfigurableApplicationContext context = SpringApplication.run(NngcApplication.class, args);
+
+        // Add shutdown hook to clean up connections
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            DataSource dataSource = context.getBean(DataSource.class);
+            if (dataSource instanceof HikariDataSource hikariDataSource) {
+                hikariDataSource.close();
+            }
+        }));
     }
 }

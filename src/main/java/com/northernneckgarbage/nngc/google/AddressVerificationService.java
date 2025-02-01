@@ -1,15 +1,10 @@
 package com.northernneckgarbage.nngc.google;
 
 import com.google.maps.errors.ApiException;
-import com.northernneckgarbage.nngc.google.GeocodingData;
-import com.northernneckgarbage.nngc.google.GeocodingService;
-import com.northernneckgarbage.nngc.google_routing.GoogleDistanceMatrixAPI;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;

@@ -1,7 +1,6 @@
 package com.northernneckgarbage.nngc.controller;
 
 import com.northernneckgarbage.nngc.service.SseService;
-import com.stripe.exception.SignatureVerificationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

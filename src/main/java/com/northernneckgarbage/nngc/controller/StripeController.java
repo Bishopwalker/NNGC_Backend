@@ -1,17 +1,13 @@
 package com.northernneckgarbage.nngc.controller;
 
 
-import com.northernneckgarbage.nngc.dbConfig.StripeApiResponse;
-import com.northernneckgarbage.nngc.dbConfig.StripeInvoiceResponse;
-import com.northernneckgarbage.nngc.dbConfig.StripeProductResponse;
-import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
+import com.northernneckgarbage.nngc.dbConfig.*;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.entity.StripeTransactions;
-import com.northernneckgarbage.nngc.dbConfig.StripeCustomApiResponse;
+import com.northernneckgarbage.nngc.repository.TokenRepository;
 import com.northernneckgarbage.nngc.stripe.StripeInvoiceService;
 import com.northernneckgarbage.nngc.stripe.StripeProductService;
 import com.northernneckgarbage.nngc.stripe.StripeService;
-import com.northernneckgarbage.nngc.repository.TokenRepository;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import lombok.RequiredArgsConstructor;
@@ -80,7 +76,7 @@ private final StripeInvoiceService stripeInvoiceService;
     //Get Residential_TOnce
     @GetMapping("/product/res-trash-once")
     public ResponseEntity<StripeProductResponse> getResTrashOnce() throws StripeException {
-        return ResponseEntity.ok(stripeProductService.residential_TOnce());
+        return ResponseEntity.<StripeProductResponse>ok(stripeProductService.residential_TOnce());
     }
 
     //Get all transactions

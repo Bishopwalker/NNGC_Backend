@@ -21,8 +21,7 @@ public class StripeApiResponse<T> {
     private StripeTransactions stripeTransactions;
     private T data;
     private Charge charge;
-   // private  ChargeCollection charges;
-  private Account account;
+   private Account account;
 private CustomerDTO customerDTO;
 private List<StripeTransactions> stripeTransactionsList;
 private String stripeCustomer;

@@ -1,8 +1,7 @@
 package com.northernneckgarbage.nngc.google_routing;
 
-import java.util.List;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class PathInfo {
     private static int[][] two_dim_cost_matrix;

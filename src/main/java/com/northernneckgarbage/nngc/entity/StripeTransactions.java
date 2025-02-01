@@ -1,14 +1,10 @@
 package com.northernneckgarbage.nngc.entity;
 
-import com.northernneckgarbage.nngc.stripe.transaction.BillingDetails;
-import com.northernneckgarbage.nngc.stripe.transaction.PaymentMethodDetails;
 import com.stripe.model.Charge;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 
 @Entity

@@ -2,10 +2,9 @@ package com.northernneckgarbage.nngc.controller;
 
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.dbConfig.StripeRegistrationResponse;
-import com.northernneckgarbage.nngc.email.EmailService;
 import com.northernneckgarbage.nngc.entity.Customer;
-import com.northernneckgarbage.nngc.service.CustomerService;
 import com.northernneckgarbage.nngc.repository.TokenRepository;
+import com.northernneckgarbage.nngc.service.CustomerService;
 import com.stripe.exception.StripeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

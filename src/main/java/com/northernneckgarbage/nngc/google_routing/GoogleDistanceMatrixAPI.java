@@ -1,17 +1,15 @@
 package com.northernneckgarbage.nngc.google_routing;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import java.lang.Integer;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 
 @Slf4j
 @Service
