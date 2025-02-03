@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-
 @Data
 class AddressComponent {
     private String longName;
@@ -37,17 +36,7 @@ class AddressComponent {
     private Location southwest;
 
 }
- @Data
- class Geometry {
-    private Bounds bounds;
-    private Location location;
-    private String locationType;
-    private Viewport viewport;
 
-   public Location getLocation() {
-     return location.getLat() == 0 && location.getLng() == 0 ? null : location;
-    }
-}
 
 @Data
 @NoArgsConstructor

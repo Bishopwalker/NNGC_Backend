@@ -6,10 +6,8 @@ import com.northernneckgarbage.nngc.entity.dto.CustomerRouteInfoDTO;
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.northernneckgarbage.nngc.token.Token;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,12 +15,16 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 
 @Entity
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Table(name = "customer")
-@NoArgsConstructor
+
 @AllArgsConstructor
 @Builder
 public class Customer  implements UserDetails {
@@ -35,7 +37,7 @@ public class Customer  implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "customer_seq")
 
-    private long id;
+    private Long id;
     @Column(name = "first_name",  length = 50)
     private String firstName;
     @Column(name = "last_name",  length = 50)
@@ -79,6 +81,7 @@ public class Customer  implements UserDetails {
 private String stripeCustomerId;
 
     @OneToMany(mappedBy = "transactionId", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<StripeTransactions> stripeTransactions;
     @Column(name = "enabled", nullable = false)
 private boolean enabled = false;
@@ -90,6 +93,7 @@ private boolean changePassword = false;
     private AppUserRoles appUserRoles;
 
     @OneToMany(mappedBy = "token", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Token> tokens;
 
 
@@ -182,5 +186,21 @@ private boolean changePassword = false;
                 .changePassword(changePassword)
                 .service(service)
                 .build();
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Customer customer = (Customer) o;
+        return getId() != null && Objects.equals(getId(), customer.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

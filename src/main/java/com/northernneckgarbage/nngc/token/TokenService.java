@@ -4,12 +4,12 @@ import com.google.maps.errors.ApiException;
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.google.GeocodingService;
-import com.northernneckgarbage.nngc.registration.auth.AuthenticationRequest;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.northernneckgarbage.nngc.repository.TokenRepository;
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.northernneckgarbage.nngc.security.JwtService;
 import com.northernneckgarbage.nngc.stripe.StripeService;
+import com.northernneckgarbage.nngc.token.auth.AuthenticationRequest;
 import com.stripe.exception.StripeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,14 +41,14 @@ public class TokenService {
         EXPIRED
 
     }
-    public ApiResponse authenticate(AuthenticationRequest request) throws StripeException, IOException, InterruptedException, ApiException {
+    public ApiResponse<AuthenticationRequest> authenticate(AuthenticationRequest request) throws StripeException, IOException, InterruptedException, ApiException {
         var user = customerRepository.findByEmail(request.getEmail().toLowerCase())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
 
         if(!user.isEnabled()){
-    return ApiResponse.builder()
-            .message("User is not enabled")
+    return ApiResponse.<AuthenticationRequest>builder()
+            .message( request.getEmail()+"{} User is not enabled")
             .status("disabled")
             .build();
 }
@@ -76,11 +76,12 @@ public class TokenService {
         var jwtToken = jwtService.generateToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
-        return ApiResponse.builder()
+        return ApiResponse.<AuthenticationRequest>builder()
                 .token(Collections.singletonList(jwtToken))
-                .message("User authenticated successfully")
+                .message(request.getEmail()+"{} User authenticated successfully")
                 .customerDTO(user.toCustomerDTO())
                 .status("enabled")
+
                 .build();
     }
 

@@ -21,9 +21,9 @@ import org.springframework.web.filter.ForwardedHeaderFilter;
 public class PasswordEncoder {
 
     private final CustomerRepository customerRepository;
+
     @Bean
     public BCryptPasswordEncoder bcryptPasswordEncoder() {
-
         return new BCryptPasswordEncoder();
     }
 
@@ -36,10 +36,9 @@ public class PasswordEncoder {
     public UserDetailsService userDetailsService() {
         return username -> customerRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
 
-        }
-
-        @Bean
+    @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService());
@@ -56,6 +55,4 @@ public class PasswordEncoder {
     public ForwardedHeaderFilter forwardedHeaderFilter() {
         return new ForwardedHeaderFilter();
     }
-
 }
-

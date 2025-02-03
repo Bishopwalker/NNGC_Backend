@@ -2,14 +2,13 @@ package com.northernneckgarbage.nngc.dbConfig;
 
 import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.entity.dto.CustomerDTO;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

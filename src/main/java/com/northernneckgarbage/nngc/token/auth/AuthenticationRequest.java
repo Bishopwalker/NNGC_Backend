@@ -1,4 +1,4 @@
-package com.northernneckgarbage.nngc.registration.auth;
+package com.northernneckgarbage.nngc.token.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

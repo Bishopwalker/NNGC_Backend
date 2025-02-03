@@ -19,7 +19,7 @@ import java.util.Optional;
 
 @Slf4j
 @Controller
-@RequestMapping("api/nngc/")
+@RequestMapping("/customer")
 @RequiredArgsConstructor
 public class CustomerController {
 

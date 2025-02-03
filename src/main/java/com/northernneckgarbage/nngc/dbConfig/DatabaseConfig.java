@@ -1,10 +1,9 @@
 package com.northernneckgarbage.nngc.dbConfig;
 
+import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.jdbc.JdbcConnectionDetails;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -13,25 +12,63 @@ import javax.sql.DataSource;
 
 @Configuration
 public class DatabaseConfig {
-    private static final Logger logger = LoggerFactory.getLogger(DatabaseConfig.class);
+
+    @Value("${spring.datasource.url}")
+    private String dataSourceUrl;
+
+    @Value("${spring.datasource.username}")
+    private String username;
+
+    @Value("${spring.datasource.password}")
+    private String password;
 
     @Bean
     @Primary
-    @ConfigurationProperties("spring.datasource")
-    public DataSourceProperties dataSourceProperties() {
-        return new DataSourceProperties();
+    public DataSource dataSource() {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(dataSourceUrl);
+        config.setUsername(username);
+        config.setPassword(password);
+
+        // Connection pool settings
+        config.setMaximumPoolSize(10);
+        config.setMinimumIdle(5);
+        config.setIdleTimeout(300000); // 5 minutes
+        config.setConnectionTimeout(20000); // 20 seconds
+        config.setMaxLifetime(1200000); // 20 minutes
+
+        // MySQL specific settings
+        config.addDataSourceProperty("cachePrepStmts", "true");
+        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        config.addDataSourceProperty("useServerPrepStmts", "true");
+        config.addDataSourceProperty("useLocalSessionState", "true");
+        config.addDataSourceProperty("rewriteBatchedStatements", "true");
+        config.addDataSourceProperty("cacheResultSetMetadata", "true");
+        config.addDataSourceProperty("cacheServerConfiguration", "true");
+        config.addDataSourceProperty("elideSetAutoCommits", "true");
+        config.addDataSourceProperty("maintainTimeStats", "false");
+
+        return new HikariDataSource(config);
     }
 
     @Bean
-    @Primary
-    @ConfigurationProperties("spring.datasource.hikari")
-    public DataSource dataSource(DataSourceProperties properties) {
-        logger.info("Configuring HikariCP connection pool...");
-        HikariDataSource dataSource = properties.initializeDataSourceBuilder()
-                .type(HikariDataSource.class)
-                .build();
-        dataSource.setPoolName("NNGC-Pool");
-        logger.info("HikariCP connection pool configured successfully");
-        return dataSource;
+    public JdbcConnectionDetails jdbcConnectionDetails() {
+        return new JdbcConnectionDetails() {
+            @Override
+            public String getUsername() {
+                return username;
+            }
+
+            @Override
+            public String getPassword() {
+                return password;
+            }
+
+            @Override
+            public String getJdbcUrl() {
+                return dataSourceUrl;
+            }
+        };
     }
 }
