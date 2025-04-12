@@ -1,4 +1,4 @@
-package com.northernneckgarbage.nngc.token;
+package com.northernneckgarbage.nngc.service;
 
 import com.google.maps.errors.ApiException;
 import com.northernneckgarbage.nngc.dbConfig.ApiResponse;
@@ -9,6 +9,8 @@ import com.northernneckgarbage.nngc.repository.TokenRepository;
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.northernneckgarbage.nngc.security.JwtService;
 import com.northernneckgarbage.nngc.stripe.StripeService;
+import com.northernneckgarbage.nngc.token.Token;
+import com.northernneckgarbage.nngc.token.TokenType;
 import com.northernneckgarbage.nngc.token.auth.AuthenticationRequest;
 import com.stripe.exception.StripeException;
 import lombok.RequiredArgsConstructor;

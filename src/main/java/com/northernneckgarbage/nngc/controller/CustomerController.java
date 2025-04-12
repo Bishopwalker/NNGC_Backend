@@ -74,16 +74,30 @@ return ResponseEntity.ok(customers.size() + "Customers added: " + customers);
         return ResponseEntity.badRequest().body(StripeRegistrationResponse.<Optional<Customer>>builder().message("You are not authorized to view this page").build());
     }
 
+
     @GetMapping("/customers/{id}")
-    public ResponseEntity<ApiResponse<Customer>> getCustomerById(@RequestHeader("Authorization")String headers, @PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Customer>> getCustomerById(@RequestHeader("Authorization") String headers, @PathVariable Long id) {
         log.info(headers);
-        var user = tokenRepository.findByToken(headers).get().getCustomer();
-        if(user==null){
+        var tokenOpt = tokenRepository.findByToken(headers);
+        if (tokenOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(ApiResponse.<Customer>builder().message("Invalid or missing token").build());
+        }
+
+        var user = tokenOpt.get().getCustomer();
+        if (user == null) {
             return ResponseEntity.badRequest().body(ApiResponse.<Customer>builder().message("You are not authorized to view this page").build());
         }
         log.info(user.toString());
-        if(user.getAppUserRoles().toString().equals("ADMIN") || user.getId()==id){
-            return ResponseEntity.ok(customerService.getCustomerById(id));
+        if ("ADMIN".equals(user.getAppUserRoles().toString()) || user.getId().equals(id)) {
+            var customer = customerService.getCustomerById(id);
+            if (customer == null) {
+                return ResponseEntity.badRequest().body(ApiResponse.<Customer>builder().message("Customer not found").build());
+            }
+            return ResponseEntity.ok(ApiResponse.<Customer>builder()
+                    .customerDTO(customer.getCustomerDTO())
+                    .message("Customer found")
+                    .token(customer.getToken())
+                    .build());
         }
         return ResponseEntity.badRequest().body(ApiResponse.<Customer>builder().message("You are not authorized to view this page").build());
     }

@@ -13,47 +13,63 @@ import javax.crypto.SecretKey;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 @Slf4j
 @Service
 public class JwtService {
 
-    private final SecretKey secretKey;  // Programmatically generated key
+    // Map to store token -> secretKey pairs
+    private final ConcurrentHashMap<String, SecretKey> tokenKeys = new ConcurrentHashMap<>();
 
-    public JwtService() {
-        // Generate a secure random key for HS512 algorithm
-        this.secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-        log.info("Generated JWT Secret Key (Base64): {}",
-                Base64.getEncoder().encodeToString(secretKey.getEncoded()));
+    // Generate a new secret key
+    private SecretKey generateNewKey() {
+        SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+        log.info("Generated new JWT Secret Key (Base64): {}",
+                Base64.getEncoder().encodeToString(key.getEncoded()));
+        return key;
     }
-
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
     public String generateToken(UserDetails userDetails) {
-        return Jwts.builder()
+        SecretKey newKey = generateNewKey();
+        String token = Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 3)) // 3 hours
-                .signWith(secretKey, SignatureAlgorithm.HS512)
+                .signWith(newKey, SignatureAlgorithm.HS512)
                 .compact();
+
+        // Store the key associated with this token
+        tokenKeys.put(token, newKey);
+        return token;
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return Jwts.builder()
+        SecretKey newKey = generateNewKey();
+        String token = Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
-                .signWith(secretKey, SignatureAlgorithm.HS512)
+                .signWith(newKey, SignatureAlgorithm.HS512)
                 .compact();
+
+        // Store the key associated with this token
+        tokenKeys.put(token, newKey);
+        return token;
     }
 
     private Claims extractAllClaims(String token) {
+        SecretKey key = tokenKeys.get(token);
+        if (key == null) {
+            throw new JwtException("No key found for token");
+        }
         return Jwts.parserBuilder()
-                .setSigningKey(secretKey)
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -67,18 +83,31 @@ public class JwtService {
     public boolean isTokenValid(String token, UserDetails userDetails) {
         try {
             final String username = extractUsername(token);
-            return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+            boolean isValid = username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+            if (!isValid) {
+                // Clean up the stored key if token is invalid
+                tokenKeys.remove(token);
+            }
+            return isValid;
         } catch (JwtException | IllegalArgumentException e) {
             log.error("Invalid JWT token: {}", e.getMessage());
+            // Clean up the stored key if token is invalid
+            tokenKeys.remove(token);
             return false;
         }
     }
 
     private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+        Date expiration = extractExpiration(token);
+        boolean isExpired = expiration.before(new Date());
+        if (isExpired) {
+            // Clean up the stored key if token is expired
+            tokenKeys.remove(token);
+        }
+        return isExpired;
     }
 
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
-}
+    }

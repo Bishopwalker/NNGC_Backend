@@ -7,7 +7,7 @@ import com.northernneckgarbage.nngc.entity.Customer;
 import com.northernneckgarbage.nngc.repository.CustomerRepository;
 import com.northernneckgarbage.nngc.roles.AppUserRoles;
 import com.northernneckgarbage.nngc.security.JwtService;
-import com.northernneckgarbage.nngc.token.TokenService;
+import com.northernneckgarbage.nngc.service.TokenService;
 import com.sendgrid.Content;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

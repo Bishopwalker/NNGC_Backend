@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,26 +34,19 @@ public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
  private final CustomerRepository customerRepository;
-
-
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         final CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(false); // Set to false as credentials are not required
-        if (isProduction()) {
-            configuration.addAllowedOriginPattern("https://*.northernneckgarbage.com");
-            configuration.addAllowedOriginPattern("http://localhost:[*]");
-            configuration.addAllowedOriginPattern("http://*:5173");
-            configuration.addAllowedOriginPattern("https://*:5173");
-        } else {
-            configuration.addAllowedOriginPattern("http://localhost:[*]");
-            configuration.addAllowedOriginPattern("http://*:5173");
-            configuration.addAllowedOriginPattern("https://*:5173");
-            configuration.addAllowedOriginPattern("https://*.northernneckgarbage.com");
-        }
+        configuration.setAllowCredentials(false);
+        configuration.addAllowedOrigin("http://localhost:5173");
+        configuration.addAllowedOrigin("https://api.northernneckgarbage.com");
+        configuration.addAllowedOrigin("https://www.northernneckgarbage.com");
+        configuration.addAllowedOrigin("https://northernneckgarbage.com");
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        configuration.setMaxAge(3600L);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
@@ -60,22 +54,18 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
+        return http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .authenticationProvider(authenticationProvider);
-
-        return http.build();
+                .authenticationProvider(authenticationProvider)
+                .build();
     }
-
 
         private boolean isProduction() {
             // Implement your logic to determine if the application is running in production
