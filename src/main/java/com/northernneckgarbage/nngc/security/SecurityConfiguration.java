@@ -40,7 +40,7 @@ public class SecurityConfiguration {
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(false);
-        configuration.addAllowedOrigin("http://localhost:5173");
+        configuration.addAllowedOrigin("localhost:5173");
         configuration.addAllowedOrigin("https://api.northernneckgarbage.com");
         configuration.addAllowedOrigin("https://www.northernneckgarbage.com");
         configuration.addAllowedOrigin("https://northernneckgarbage.com");
