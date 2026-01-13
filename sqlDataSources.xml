@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DdlMappings">
+    <mapping uuid="b4ad963e-6a17-49d0-b91a-da228a19fcf6" name="nngc@database-1.cyihwewbovug.us-east-1.rds.amazonaws.com Mapping">
+      <data-sources db="eb60ca54-784c-4045-9946-bc46dd65092a" ddl="fe6d3a38-597f-4c7c-b113-b4da5356ad01" />
+      <scope>
+        <node negative="1">
+          <node kind="database" negative="1">
+            <node kind="schema" qname="@" />
+          </node>
+          <node kind="database" qname="@" />
+        </node>
+      </scope>
+    </mapping>
+  </component>
+</project>
