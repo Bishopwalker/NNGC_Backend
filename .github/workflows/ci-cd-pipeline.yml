@@ -1,0 +1,74 @@
+name: CI/CD Pipeline for Spring Boot
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
+      - name: Check for code changes
+        id: changes
+        run: |
+          git diff --quiet HEAD^ HEAD ./src || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Set up JDK 17
+        if: steps.changes.outputs.changed == 'true'
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+
+      - name: Generate version
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          echo "NEW_VERSION=1.0.$(date +'%Y%m%d%H%M')" >> $GITHUB_ENV
+
+      - name: Update pom.xml version
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          mvn versions:set -DnewVersion=${{ env.NEW_VERSION }}
+
+      - name: Build with Maven
+        if: steps.changes.outputs.changed == 'true'
+        run: mvn clean install
+
+      - name: Archive build artifacts
+        if: steps.changes.outputs.changed == 'true'
+        uses: actions/upload-artifact@v2
+        with:
+          name: my-app
+          path: target/NNGC-${{ env.NEW_VERSION }}.jar
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: needs.build.outputs.changed == 'true'
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: my-app
+          path: target/
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Copy files to EC2
+        run: |
+          scp -o StrictHostKeyChecking=no target/NNGC-*.jar ec2-user@${{ secrets.EC2_HOST }}:~/app.jar
+
+      - name: Restart EC2 service
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} 'sudo systemctl restart my-app'
